@@ -40,7 +40,7 @@ fun_features: # 一些好玩的功能
     visible: hover # 默认悬浮显示，可选：hover（鼠标在元素上悬浮时显示） | always（一直显示） | touch（移动端触摸显示）
     icon: "" # 可选：§ | # | ❡ 等，留空则为默认效果
   mouse_click:  # 鼠标点击动效
-    enable: true
+    enable: false
     style: love # 目前设置两个值：values（价值观词汇） | love（爱心）
 
 color:  # 主题颜色配置，不一定能每一处都生效，可能会被局部样式覆盖，这种情况建议用自定义 css 解决。配色可以在这获得启发： https://www.webdesignrankings.com/resources/lolcolors/

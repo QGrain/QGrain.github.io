@@ -3,7 +3,7 @@ title: AFL使用方法
 toc: true
 date: 2020-8-28 20:13:03
 tags: [AFL, Fuzzing]
-index_img: /img/afl-window.png
+index_img: /img/city-blur.jpg
 ---
 
 ## 1 AFL安装
