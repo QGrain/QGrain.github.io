@@ -14,9 +14,7 @@ AFL即American Fuzzy Lop，是由安全研究员Micha · Zalewski（[@lcamtuf](h
 
 ## 1 AFL工作流
 
-
-
-<img src="https://raw.githubusercontent.com/QGrain/picgo-bed/master/figure/20201012164706.png"/>
+<img src="https://gitee.com/QGrain/picgo-bed/raw/master/img/afl-workflow.jpg"/>
 
 **AFL工作的基本流程如图所示：**
 
@@ -34,7 +32,65 @@ AFL即American Fuzzy Lop，是由安全研究员Micha · Zalewski（[@lcamtuf](h
 
 ## 3 构建语料库
 
+使用AFL进行模糊测试的对象一定是具备接收输入的程序，也正是这样的程序有更大可能出现漏洞。
+
+ AFL需要一些初始输入数据（也叫种子文件）作为Fuzzing的起点，AFL可以通过启发式算法自动确定文件格式结构。lcamtuf就在博客中给出了一个有趣的[例子](https://lcamtuf.blogspot.com/2014/11/pulling-jpegs-out-of-thin-air.html)——对djpeg进行Fuzzing时，仅用一个字符串”hello”作为输入，最后凭空生成大量jpeg图像！
+
+尽管AFL的输入可以是毫无意义的文件，但是一个**高质量的语料库**，能够让Fuzzing更加高效和精准。
+
+### 3.1 对输入种子的要求
+
+- **有效的输入：**无效的输入会产生bug和crash，但是有效的输入能够更快找到更多的执行路径
+- **尽量小的体积：** 较小的文件会不仅可以减少测试和处理的时间，也能节约更多的内存，AFL给出的建议是最好小于1 KB，但其实可以根据自己测试的程序权衡，这在AFL文档的`perf_tips.txt`中有具体说明。 
+
+### 3.2 如何寻找输入种子
+
+- 项目自身提供的测试用例
+- 目标程序bug提交页面
+- 使用格式转换器，将现有格式文件转换为不常见的文件格式
+- AFL源码仓库的testcases目录下提供了测试用例
+- 其他大型语料库：
+  - [afl generated image test sets](http://lcamtuf.coredump.cx/afl/demo/) 
+  - [fuzzer-test-suite](https://github.com/google/fuzzer-test-suite)
+  - [libav samples](https://samples.libav.org/)
+  - [ffmpeg samples](http://samples.ffmpeg.org/)
+  - [fuzzdata](https://github.com/MozillaSecurity/fuzzdata)
+  - [moonshine](https://gitlab.anu.edu.au/lunar/moonshine)
+
+### 3.3 如何精简找到的种子
+
+ AFL提供了两个工具来帮助我们完成**语料库蒸馏**工作——`afl-cmin`和`afl-tmin`。 
+
+- **移除执行相同代码的输入文件——afl-cmin:**
+
+  -  `afl-cmin`的核心思想是：**尝试找到与语料库全集具有相同覆盖范围的最小子集**。举个例子：假设有多个文件，都覆盖了相同的代码，那么就丢掉多余的文件。其使用方法如下： 
+
+    ```bash
+    $ afl-cmin -i input_dir -o output_dir -- /path/to/tested/program [params] @@
+    ```
+
+- **减小单个输入文件的大小——afl-tmin:**
+
+  - 在缩减了语料库规模之后，还需要对单个语料文件进行精简。`afl-tmin`有两种工作模式，`instrumented mode`和`crash mode`。默认的工作方式是`instrumented mode`，如下所示（如果指定了参数`-x`，即`crash mode`，会把导致程序非正常退出的文件直接剔除。 ）： 
+
+    ```bash
+    $ afl-tmin [-x] -i input_file -o output_file -- /path/to/tested/program [params] @@
+    ```
+
+  -   `afl-tmin`接受单个文件输入，所以可以用一条简单的shell脚本批量处理：
+
+    ```shell
+    for i in *
+    do
+        afl-tmin -i $i -o tmin-$i -- ~/path/to/tested/program [params] @@
+    done
+    ```
+
+- **使用完afl-tmin后再次使用afl-cmin，可能可以再过滤掉一些用例**
+
 ## 4 突变策略
+
+
 
 ## 5 Fuzzing后分析
 

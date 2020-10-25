@@ -10,11 +10,13 @@ index_img: /img/logo-linux.jpg
 
 # 编写systemd服务脚本
 
+如何编写systemd服务脚本来实现服务的自启动，启动，停止和重启管理
+
+<!--more-->
+
  ## 1 背景介绍
 
 - RHEL6/CentOS6采用`/etc/init.d/xxx`脚本进行服务管理，但是7+版本之后由init管理升级为了由systemd管理，相应地服务管理方式也变更为由systemctl管理的service
-
-<!--more-->
 
 - RHEL7/CentOS7的`/etc/rc.d/rc.local`建议创建自己的systemd服务或udev规则来进行开机自启脚本管理，建议如下：
 

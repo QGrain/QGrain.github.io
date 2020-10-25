@@ -6,6 +6,10 @@ tags: [AFL, Fuzzing]
 index_img: /img/city-blur.jpg
 ---
 
+了解AFL基本概念后，本文主要介绍如何使用AFL进行模糊测试
+
+<!--more-->
+
 ## 1 AFL安装
 
 **采用源码安装AFL：**
