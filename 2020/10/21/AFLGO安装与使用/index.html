@@ -16,7 +16,7 @@
   <meta name="description" content="Personal Blog of Zhiyu Zhang">
   <meta name="author" content="Zhiyu Zhang">
   <meta name="keywords" content="Security, Machine Learning, Linux">
-  <title>AFLGO安装与使用 - Zhiyu&#39;s Blog</title>
+  <title>Zhiyu&#39;s Blog</title>
 
   <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
 
@@ -172,7 +172,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      158 words
+      508 words
     </span>
   
 
@@ -182,7 +182,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      1
+      7
        minutes
     </span>
   
@@ -222,19 +222,70 @@
             
               <p class="note note-info">
                 
-                  Last updated on：October 25, 2020 pm
+                  Last updated on：October 26, 2020 am
                 
               </p>
             
             <article class="markdown-body">
-              <h2 id="1-安装AFLGO"><a href="#1-安装AFLGO" class="headerlink" title="1 安装AFLGO"></a>1 安装AFLGO</h2><p>to be completed</p>
-<h2 id="2-常见开源库和软件"><a href="#2-常见开源库和软件" class="headerlink" title="2 常见开源库和软件"></a>2 常见开源库和软件</h2><p><strong>Google</strong>已经总结了<a href="https://github.com/google/oss-fuzz/tree/master/projects" target="_blank" rel="noopener">三百多款常见的开源软件</a>用于模糊测试，我选取了其中比较典型且轻量的几款进行Fuzzing：</p>
-<h3 id="2-1-bzip2"><a href="#2-1-bzip2" class="headerlink" title="2.1 bzip2"></a>2.1 bzip2</h3><h3 id="2-2-binutils"><a href="#2-2-binutils" class="headerlink" title="2.2 binutils"></a>2.2 binutils</h3><ul>
+              <p><a href="https://github.com/aflgo/aflgo" target="_blank" rel="noopener">AFLGO</a>是基于<a href="https://github.com/google/AFL" target="_blank" rel="noopener">AFL</a>改进而来的一种定向灰盒模糊测试工具</p>
+<a id="more"></a>
+<h2 id="1-安装AFLGO"><a href="#1-安装AFLGO" class="headerlink" title="1 安装AFLGO"></a>1 安装AFLGO</h2><p>to be completed</p>
+<h2 id="2-常见开源库和软件"><a href="#2-常见开源库和软件" class="headerlink" title="2 常见开源库和软件"></a>2 常见开源库和软件</h2><p><strong>Google</strong>已经总结了<a href="https://github.com/google/oss-fuzz/tree/master/projects" target="_blank" rel="noopener">三百多款常见的开源软件</a>用于模糊测试，每一个工具的目录结构如下：</p>
+<blockquote>
+<p>/PATH/TO/TOOL<br>│─  <strong>build.sh</strong><br>│─  <strong>Dockerfile</strong><br>│─  <strong>project.yaml</strong><br>└─  <strong>my-api-repo</strong><br>    │─  do_stuff_fuzzer.cpp<br>    │─  do_stuff_fuzzer.dict<br>    │─  do_stuff_unittest.cpp<br>    │─  Makefile<br>    │─  my_api.cpp<br>    │─  my_api.h<br>    │─  README.md<br>    │─  standalone_fuzz_target_runner.cpp<br>    └─  <strong>do_stuff_test_data</strong><br>        │─  410c23d234e7f97a2dd6265eb2909324deb8c13a<br>        │─  7a74862169c3375f4149daff75187cbca7372a38</p>
+</blockquote>
+<p>并不是所有的工具都提供了相关的代码和语料，但是每一款工具都给出了</p>
+<ul>
+<li><strong>project.yaml：</strong>记录了项目基本信息，例如：</li>
+</ul>
+<div class="hljs"><pre><code class="hljs yaml"><span class="hljs-attr">homepage:</span> <span class="hljs-string">"https://www.gnu.org/software/binutils/"</span>
+<span class="hljs-attr">language:</span> <span class="hljs-string">c++</span>
+<span class="hljs-attr">primary_contact:</span> <span class="hljs-string">"bug-binutils@gnu.org"</span>
+<span class="hljs-string">auto_ccs</span> <span class="hljs-string">:</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">"p.antoine@catenacyber.fr"</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">"nickc@redhat.com"</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">"amodra@gmail.com"</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">"david@adalogics.com"</span>
+<span class="hljs-attr">fuzzing_engines:</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">libfuzzer</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">afl</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">honggfuzz</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">dataflow</span>
+<span class="hljs-attr">sanitizers:</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">address</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">undefined</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">memory</span>
+<span class="hljs-bullet">  -</span> <span class="hljs-string">dataflow</span></code></pre></div>
+<ul>
+<li><strong>Dockerfile：</strong>定义实验环境容器</li>
+<li><strong>build.sh：</strong>用于构建实验环境容器</li>
+</ul>
+<p>撰写了一个脚本解析出了所有支持<code>afl</code>引擎的工具列表：</p>
+<blockquote>
+<p>binutils brotli brunsli bzip2<br>c-ares capstone cjson cmark<br>graphicsmagick grok harfbuzz<br>hermes hostap<br>jbig2dec json-c<br>lcms libcbor libexif libfdk-aac libidn2 libldac libpcap libplist libspectre libtasn1 libteken libwebp libxml2 libyaml libyuv lz4<br>miniz monero mupdf<br>nanopb ndpi nestegg nghttp2 ntp<br>openjpeg openthread opus ots<br>pcre2 pffft proxygen<br>qubes-os<br>rnp<br>speex stb<br>tidy-html5 tor tremor<br>unicorn usrsctp<br>vorbis<br>wireshark woff2 wolfssl wuffs<br>xz<br>yajl-ruby<br>zlib zlib-ng zstd</p>
+</blockquote>
+<p>然后选取了其中较为常用，轻量级的几款工具来做AFLGO Fuzzing测试</p>
+<h3 id="2-1-bzip2"><a href="#2-1-bzip2" class="headerlink" title="2.1 bzip2"></a>2.1 bzip2</h3><ul>
+<li>介绍： bzip2是一款比传统的<a href="https://zh.wikipedia.org/wiki/Gzip" target="_blank" rel="noopener">gzip</a>或者<a href="https://zh.wikipedia.org/wiki/ZIP" target="_blank" rel="noopener">ZIP</a>的压缩效率更高但是压缩速度较慢的压缩工具，其算法可以排名到前百分之十到十五。 </li>
+<li>源码地址： <a href="https://sourceware.org/git/bzip2.git" target="_blank" rel="noopener">https://sourceware.org/git/bzip2.git</a></li>
+<li>oss-fuzz项目地址：<a href="https://github.com/google/oss-fuzz/tree/master/projects/bzip2" target="_blank" rel="noopener">https://github.com/google/oss-fuzz/tree/master/projects/bzip2</a></li>
+</ul>
+<h3 id="2-2-binutils"><a href="#2-2-binutils" class="headerlink" title="2.2 binutils"></a>2.2 binutils</h3><ul>
 <li>介绍： binutils 是一组开发工具，包括连接器，汇编器和其他用于目标文件和档案的工具。 </li>
 <li>源码地址：<a href="https://github.com/bminor/binutils-gdb" target="_blank" rel="noopener">https://github.com/bminor/binutils-gdb</a></li>
 <li>oss-fuzz项目地址：<a href="https://github.com/google/oss-fuzz/tree/master/projects/binutils" target="_blank" rel="noopener">https://github.com/google/oss-fuzz/tree/master/projects/binutils</a></li>
 </ul>
-<h3 id="2-3-cJSON"><a href="#2-3-cJSON" class="headerlink" title="2.3 cJSON"></a>2.3 cJSON</h3><h2 id="3-参考文档"><a href="#3-参考文档" class="headerlink" title="3 参考文档"></a>3 参考文档</h2><p><a href="https://blog.csdn.net/iw1210/article/details/52093742" target="_blank" rel="noopener">值得推荐的C/C++开源框架和库</a></p>
+<h3 id="2-3-cJSON"><a href="#2-3-cJSON" class="headerlink" title="2.3 cJSON"></a>2.3 cJSON</h3><ul>
+<li>介绍：</li>
+<li>源码地址：</li>
+<li>oss-fuzz项目地址：</li>
+</ul>
+<h3 id="2-4-libpcap"><a href="#2-4-libpcap" class="headerlink" title="2.4 libpcap"></a>2.4 libpcap</h3><ul>
+<li>介绍：</li>
+<li>源码地址：</li>
+<li>oss-fuzz项目地址：</li>
+</ul>
+<h2 id="3-参考文档"><a href="#3-参考文档" class="headerlink" title="3 参考文档"></a>3 参考文档</h2><p><a href="https://blog.csdn.net/iw1210/article/details/52093742" target="_blank" rel="noopener">值得推荐的C/C++开源框架和库</a></p>
 <p><a href="https://blog.csdn.net/h_mich/article/details/7402059" target="_blank" rel="noopener">开源软件分类列表</a></p>
 <p><a href="https://www.oschina.net/project/tags" target="_blank" rel="noopener">软件分类-开源中国OSCHINA</a></p>
 
@@ -521,7 +572,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "AFLGO安装与使用&nbsp;",
+        "&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 80,
