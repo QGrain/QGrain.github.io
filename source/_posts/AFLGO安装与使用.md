@@ -1,5 +1,5 @@
 ---
-itle: AFLGO安装与使用
+title: AFLGO安装与使用
 toc: true
 date: 2020-10-21 14:25:11
 tags: [AFL, Fuzzing]
@@ -12,7 +12,8 @@ index_img: /img/blur-sight.jpg
 
 ## 1 安装AFLGO
 
-to be completed
+- 安装llvm和clang，官方文档要求是3.8或者4.0，经过自己测试6.0也可以使用，**确保环境$PATH或$LLVM_CONFIG变量已经添加**
+- 执行[一键安装脚本](https://raw.githubusercontent.com/aflgo/aflgo/master/scripts/build/aflgo-build.sh)，此脚本疑似有问题，其中llvm-4.0和clang-4.0会安装失败
 
 ## 2 常见开源库和软件
 
@@ -23,14 +24,14 @@ to be completed
 > │─  **Dockerfile**
 > │─  **project.yaml**
 > └─  **my-api-repo**
->     │─  do_stuff_fuzzer.cpp
->     │─  do_stuff_fuzzer.dict
->     │─  do_stuff_unittest.cpp
->     │─  Makefile
->     │─  my_api.cpp
->     │─  my_api.h
->     │─  README.md
->     │─  standalone_fuzz_target_runner.cpp
+>         │─  do_stuff_fuzzer.cpp
+>         │─  do_stuff_fuzzer.dict
+>         │─  do_stuff_unittest.cpp
+>         │─  Makefile
+>         │─  my_api.cpp
+>         │─  my_api.h
+>         │─  README.md
+>         │─  standalone_fuzz_target_runner.cpp
 >     └─  **do_stuff_test_data**
 >         │─  410c23d234e7f97a2dd6265eb2909324deb8c13a
 >         │─  7a74862169c3375f4149daff75187cbca7372a38
@@ -63,7 +64,7 @@ sanitizers:
 - **Dockerfile：**定义实验环境容器
 - **build.sh：**用于构建实验环境容器
 
-撰写了一个脚本解析出了所有支持`afl`引擎的工具列表：
+撰写了一个脚本解析出了所有支持`afl`引擎的开源工具列表：
 
 > binutils brotli brunsli bzip2
 > c-ares capstone cjson cmark
@@ -94,8 +95,6 @@ sanitizers:
 - 源码地址： https://sourceware.org/git/bzip2.git
 - oss-fuzz项目地址：https://github.com/google/oss-fuzz/tree/master/projects/bzip2
 
-
-
 ### 2.2 binutils
 
 - 介绍： binutils 是一组开发工具，包括连接器，汇编器和其他用于目标文件和档案的工具。 
@@ -104,15 +103,15 @@ sanitizers:
 
 ### 2.3 cJSON
 
-- 介绍：
-- 源码地址：
-- oss-fuzz项目地址：
+- 介绍： JSON是使用C语言编写，用来创建、解析JSON文件的库。 
+- 源码地址：https://github.com/DaveGamble/cJSON
+- oss-fuzz项目地址：https://github.com/google/oss-fuzz/tree/master/projects/cjson
 
 ### 2.4 libpcap
 
-- 介绍：
-- 源码地址：
-- oss-fuzz项目地址：
+- 介绍： libpcap（Packet Capture Library），即数据包捕获函数库，是Unix/Linux平台下的网络数据包捕获函数库。它是一个独立于系统的用户层包捕获的API接口，为底层网络监测提供了一个可移植的框架。 
+- 源码地址：https://github.com/the-tcpdump-group/libpcap
+- oss-fuzz项目地址：https://github.com/google/oss-fuzz/tree/master/projects/libpcap
 
 ## 3 参考文档
 
