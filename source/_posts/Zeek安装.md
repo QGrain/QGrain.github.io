@@ -8,7 +8,7 @@ index_img: /img/zeek-logo.png
 
 Zeek的安装是一个大坑  (* ￣︿￣)，本文将介绍Zeek的安装教程，然后附上了我的**踩坑记录。**
 
-<!--more-->·
+<!--more-->
 
 ## 1 先决条件
 
