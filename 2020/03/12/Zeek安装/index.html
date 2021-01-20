@@ -222,14 +222,40 @@
             
               <p class="note note-info">
                 
-                  Last updated on：October 12, 2020 pm
+                  Last updated on：January 20, 2021 pm
                 
               </p>
             
             <article class="markdown-body">
               <p>Zeek的安装是一个大坑  (* ￣︿￣)，本文将介绍Zeek的安装教程，然后附上了我的<strong>踩坑记录。</strong></p>
-<a id="more"></a>·<br><br>## 1 先决条件<br><br>### 1.1 必须的依赖<br><br><strong>运行Zeek所必须的包：</strong><br><br>- Libpcap (<a href="http://www.tcpdump.org" target="_blank" rel="noopener">http://www.tcpdump.org</a>)<br>- OpenSSL libraries (<a href="http://www.openssl.org" target="_blank" rel="noopener">http://www.openssl.org</a>)<br>- BIND8 library<br>- Libz<br>- Bash (for BroControl)<br>- Python &gt;= 2.6 (for BroControl)<br><br><strong>从源码安装所必须的包：</strong><br><br>- CMake &gt;= 2.8 (<a href="http://www.cmake.org" target="_blank" rel="noopener">http://www.cmake.org</a>)<br>- Make<br>- C/C++ Compiler with C++11 support (GCC 4.8+ or Clang 3.3+)<br>- SWIG (<a href="http://www.swig.org" target="_blank" rel="noopener">http://www.swig.org</a>)<br>- Bison (GNU Parser Generator)<br>- Flex (Fast Lexical Analyzer)<br>- Libpcap headers<br>- OpenSSL headers<br>- zlib headers<br>- Python<br><br><strong>通过包管理安装上述依赖：</strong><br><br>- RPM/RedHat-based Linux：<br><br>  <div class="hljs"><pre><code class="hljs bash">sudo yum install cmake make gcc gcc-c++ flex bison libpcap-devel openssl-devel python-devel swig zlib-devel</code></pre></div>
+<a id="more"></a>
+<h2 id="1-先决条件"><a href="#1-先决条件" class="headerlink" title="1 先决条件"></a>1 先决条件</h2><h3 id="1-1-必须的依赖"><a href="#1-1-必须的依赖" class="headerlink" title="1.1 必须的依赖"></a>1.1 必须的依赖</h3><p><strong>运行Zeek所必须的包：</strong></p>
 <ul>
+<li>Libpcap (<a href="http://www.tcpdump.org" target="_blank" rel="noopener">http://www.tcpdump.org</a>)</li>
+<li>OpenSSL libraries (<a href="http://www.openssl.org" target="_blank" rel="noopener">http://www.openssl.org</a>)</li>
+<li>BIND8 library</li>
+<li>Libz</li>
+<li>Bash (for BroControl)</li>
+<li>Python &gt;= 2.6 (for BroControl)</li>
+</ul>
+<p><strong>从源码安装所必须的包：</strong></p>
+<ul>
+<li>CMake &gt;= 2.8 (<a href="http://www.cmake.org" target="_blank" rel="noopener">http://www.cmake.org</a>)</li>
+<li>Make</li>
+<li>C/C++ Compiler with C++11 support (GCC 4.8+ or Clang 3.3+)</li>
+<li>SWIG (<a href="http://www.swig.org" target="_blank" rel="noopener">http://www.swig.org</a>)</li>
+<li>Bison (GNU Parser Generator)</li>
+<li>Flex (Fast Lexical Analyzer)</li>
+<li>Libpcap headers</li>
+<li>OpenSSL headers</li>
+<li>zlib headers</li>
+<li>Python</li>
+</ul>
+<p><strong>通过包管理安装上述依赖：</strong></p>
+<ul>
+<li><p>RPM/RedHat-based Linux：</p>
+<div class="hljs"><pre><code class="hljs bash">sudo yum install cmake make gcc gcc-c++ flex bison libpcap-devel openssl-devel python-devel swig zlib-devel</code></pre></div>
+</li>
 <li><p>DEB/Debian-based Linux：</p>
 <div class="hljs"><pre><code class="hljs Bash">sudo apt-get install cmake make gcc g++ flex bison libpcap-dev libssl-dev python-dev swig zlib1g-dev</code></pre></div>
 </li>

@@ -172,7 +172,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      510 words
+      698 words
     </span>
   
 
@@ -182,7 +182,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      7
+      9
        minutes
     </span>
   
@@ -222,17 +222,20 @@
             
               <p class="note note-info">
                 
-                  Last updated on：October 26, 2020 am
+                  Last updated on：October 28, 2020 pm
                 
               </p>
             
             <article class="markdown-body">
               <p><a href="https://github.com/aflgo/aflgo" target="_blank" rel="noopener">AFLGO</a>是基于<a href="https://github.com/google/AFL" target="_blank" rel="noopener">AFL</a>改进而来的一种定向灰盒模糊测试工具</p>
 <a id="more"></a>
-<h2 id="1-安装AFLGO"><a href="#1-安装AFLGO" class="headerlink" title="1 安装AFLGO"></a>1 安装AFLGO</h2><p>to be completed</p>
+<h2 id="1-安装AFLGO"><a href="#1-安装AFLGO" class="headerlink" title="1 安装AFLGO"></a>1 安装AFLGO</h2><ul>
+<li>安装llvm和clang，官方文档要求是3.8或者4.0，经过自己测试6.0也可以使用，<strong>确保环境$PATH或$LLVM_CONFIG变量已经添加</strong></li>
+<li>执行<a href="https://raw.githubusercontent.com/aflgo/aflgo/master/scripts/build/aflgo-build.sh" target="_blank" rel="noopener">一键安装脚本</a>，此脚本疑似有问题，其中llvm-4.0和clang-4.0会安装失败</li>
+</ul>
 <h2 id="2-常见开源库和软件"><a href="#2-常见开源库和软件" class="headerlink" title="2 常见开源库和软件"></a>2 常见开源库和软件</h2><p><strong>Google</strong>已经总结了<a href="https://github.com/google/oss-fuzz/tree/master/projects" target="_blank" rel="noopener">三百多款常见的开源软件</a>用于模糊测试，每一个工具的目录结构如下：</p>
 <blockquote>
-<p>/PATH/TO/TOOL<br>│─  <strong>build.sh</strong><br>│─  <strong>Dockerfile</strong><br>│─  <strong>project.yaml</strong><br>└─  <strong>my-api-repo</strong><br>    │─  do_stuff_fuzzer.cpp<br>    │─  do_stuff_fuzzer.dict<br>    │─  do_stuff_unittest.cpp<br>    │─  Makefile<br>    │─  my_api.cpp<br>    │─  my_api.h<br>    │─  README.md<br>    │─  standalone_fuzz_target_runner.cpp<br>    └─  <strong>do_stuff_test_data</strong><br>        │─  410c23d234e7f97a2dd6265eb2909324deb8c13a<br>        │─  7a74862169c3375f4149daff75187cbca7372a38</p>
+<p>/PATH/TO/TOOL<br>│─  <strong>build.sh</strong><br>│─  <strong>Dockerfile</strong><br>│─  <strong>project.yaml</strong><br>└─  <strong>my-api-repo</strong><br>        │─  do_stuff_fuzzer.cpp<br>        │─  do_stuff_fuzzer.dict<br>        │─  do_stuff_unittest.cpp<br>        │─  Makefile<br>        │─  my_api.cpp<br>        │─  my_api.h<br>        │─  README.md<br>        │─  standalone_fuzz_target_runner.cpp<br>    └─  <strong>do_stuff_test_data</strong><br>        │─  410c23d234e7f97a2dd6265eb2909324deb8c13a<br>        │─  7a74862169c3375f4149daff75187cbca7372a38</p>
 </blockquote>
 <p>并不是所有的工具都提供了相关的代码和语料，但是每一款工具都给出了</p>
 <ul>
@@ -276,14 +279,14 @@
 <li>oss-fuzz项目地址：<a href="https://github.com/google/oss-fuzz/tree/master/projects/binutils" target="_blank" rel="noopener">https://github.com/google/oss-fuzz/tree/master/projects/binutils</a></li>
 </ul>
 <h3 id="2-3-cJSON"><a href="#2-3-cJSON" class="headerlink" title="2.3 cJSON"></a>2.3 cJSON</h3><ul>
-<li>介绍：</li>
-<li>源码地址：</li>
-<li>oss-fuzz项目地址：</li>
+<li>介绍： JSON是使用C语言编写，用来创建、解析JSON文件的库。 </li>
+<li>源码地址：<a href="https://github.com/DaveGamble/cJSON" target="_blank" rel="noopener">https://github.com/DaveGamble/cJSON</a></li>
+<li>oss-fuzz项目地址：<a href="https://github.com/google/oss-fuzz/tree/master/projects/cjson" target="_blank" rel="noopener">https://github.com/google/oss-fuzz/tree/master/projects/cjson</a></li>
 </ul>
 <h3 id="2-4-libpcap"><a href="#2-4-libpcap" class="headerlink" title="2.4 libpcap"></a>2.4 libpcap</h3><ul>
-<li>介绍：</li>
-<li>源码地址：</li>
-<li>oss-fuzz项目地址：</li>
+<li>介绍： libpcap（Packet Capture Library），即数据包捕获函数库，是Unix/Linux平台下的网络数据包捕获函数库。它是一个独立于系统的用户层包捕获的API接口，为底层网络监测提供了一个可移植的框架。 </li>
+<li>源码地址：<a href="https://github.com/the-tcpdump-group/libpcap" target="_blank" rel="noopener">https://github.com/the-tcpdump-group/libpcap</a></li>
+<li>oss-fuzz项目地址：<a href="https://github.com/google/oss-fuzz/tree/master/projects/libpcap" target="_blank" rel="noopener">https://github.com/google/oss-fuzz/tree/master/projects/libpcap</a></li>
 </ul>
 <h2 id="3-参考文档"><a href="#3-参考文档" class="headerlink" title="3 参考文档"></a>3 参考文档</h2><p><a href="https://blog.csdn.net/iw1210/article/details/52093742" target="_blank" rel="noopener">值得推荐的C/C++开源框架和库</a></p>
 <p><a href="https://blog.csdn.net/h_mich/article/details/7402059" target="_blank" rel="noopener">开源软件分类列表</a></p>
@@ -312,6 +315,12 @@
                 <div class="post-prevnext row">
                   <div class="post-prev col-6">
                     
+                    
+                      <a href="/2020/10/28/常见开源软件和开源库的关系图谱/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">常见开源软件和开源库的关系图谱</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
                     
                   </div>
                   <div class="post-next col-6">
