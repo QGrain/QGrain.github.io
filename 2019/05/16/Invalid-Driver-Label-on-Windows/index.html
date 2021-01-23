@@ -172,7 +172,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      149 words
+      148 words
     </span>
   
 
@@ -222,14 +222,14 @@
             
               <p class="note note-info">
                 
-                  Last updated on：October 12, 2020 pm
+                  Last updated on：January 21, 2021 pm
                 
               </p>
             
             <article class="markdown-body">
-              <h2 id="1-Cause"><a href="#1-Cause" class="headerlink" title="1 Cause"></a>1 Cause</h2><p>After we change the label of a disk, the Install control programs in the original driver may be inexecutable, with an error of <strong>“Invalid Driver X:\ “</strong></p>
-<h2 id="2-Solutions"><a href="#2-Solutions" class="headerlink" title="2 Solutions"></a>2 Solutions</h2><h3 id="2-1-Recommended"><a href="#2-1-Recommended" class="headerlink" title="2.1 Recommended"></a>2.1 Recommended</h3><p>Using a DOS-command: <strong>subst</strong> may solve this problem properly.</p>
+              <p>After we change the label of a disk, the Install control programs in the original driver may be inexecutable, with an error of <strong>“Invalid Driver X:\ “</strong></p>
 <a id="more"></a>
+<h2 id="1-Solutions"><a href="#1-Solutions" class="headerlink" title="1 Solutions"></a>1 Solutions</h2><h3 id="1-1-Recommended"><a href="#1-1-Recommended" class="headerlink" title="1.1 Recommended"></a>1.1 Recommended</h3><p>Using a DOS-command: <strong>subst</strong> may solve this problem properly.</p>
 <p><strong>subst</strong>: Assign a driver label to a path(a directory) temporarily. Then the directory can be accessed as the Driver.</p>
 <ul>
 <li><code>subst [Driver Label] [path to dir]</code>, Create a virtual driver on the /path/to/dir.</li>
@@ -239,7 +239,7 @@
 <li><p>with the help of <strong>subst</strong>, we could also hide the Real Driver like “D: “ by Creating a homonymous Virtual Driver”D: “</p>
 </li>
 </ul>
-<h3 id="2-2-Not-Recommended"><a href="#2-2-Not-Recommended" class="headerlink" title="2.2 Not Recommended"></a>2.2 Not Recommended</h3><p>Modify the Driver Label to the required Label according to the error.</p>
+<h3 id="1-2-Not-Recommended"><a href="#1-2-Not-Recommended" class="headerlink" title="1.2 Not Recommended"></a>1.2 Not Recommended</h3><p>Modify the Driver Label to the required Label according to the error.</p>
 <p>Be Cautious<strong>!</strong> Remember to <strong>change back</strong> to the original Driver Label, or you will find the other programs in this Disk are inaccessible.</p>
 
             </article>

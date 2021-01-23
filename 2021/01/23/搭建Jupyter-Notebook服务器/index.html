@@ -16,7 +16,7 @@
   <meta name="description" content="Personal Blog of Zhiyu Zhang">
   <meta name="author" content="Zhiyu Zhang">
   <meta name="keywords" content="Security, Machine Learning, Linux">
-  <title>Kali Linux安装Docker - Zhiyu&#39;s Blog</title>
+  <title>搭建Jupyter-Notebook服务器 - Zhiyu&#39;s Blog</title>
 
   <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
 
@@ -161,8 +161,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2019-01-12 23:10">
-      January 12, 2019 pm
+    <time datetime="2021-01-23 16:39">
+      January 23, 2021 pm
     </time>
   </div>
 
@@ -172,7 +172,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      478 words
+      729 words
     </span>
   
 
@@ -182,7 +182,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      6
+      9
        minutes
     </span>
   
@@ -222,50 +222,69 @@
             
               <p class="note note-info">
                 
-                  Last updated on：January 21, 2021 pm
+                  Last updated on：January 24, 2021 am
                 
               </p>
             
             <article class="markdown-body">
-              <p>由于计算机网络课设需求，需要部署多个NS-3的Docker，于是我便尝试在我的Kali上安装Docker。本文将主要介绍其安装过程。</p>
+              <p>在自己的云服务器上搭建Jupyter-Notebook服务器有以下几个好处：</p>
 <a id="more"></a>
-<h2 id="1-卸载旧版本"><a href="#1-卸载旧版本" class="headerlink" title="1 卸载旧版本"></a>1 卸载旧版本</h2><div class="hljs"><pre><code class="hljs bash">sudo apt remove docker docker.io docker-engine</code></pre></div>
-<h2 id="2-使用APT安装"><a href="#2-使用APT安装" class="headerlink" title="2 使用APT安装"></a>2 使用APT安装</h2><h3 id="2-1-安装依赖"><a href="#2-1-安装依赖" class="headerlink" title="2.1 安装依赖"></a>2.1 安装依赖</h3><p>由于APT源使用HTTPS以确保软件下载过程中不被篡改。因此，我们首先需要添加使用HTTPS传输的软件包以及CA证书。</p>
-<div class="hljs"><pre><code class="hljs bash">sudo apt-get update
-
-sudo apt-get install apt-transport ca-certificates curl gnupg2 lsb-release software-properties-common</code></pre></div>
-<h3 id="2-2-添加软件源"><a href="#2-2-添加软件源" class="headerlink" title="2.2 添加软件源"></a>2.2 添加软件源</h3><ul>
-<li>为了确认所下载软件包的合法性，需要添加软件源的GPG密钥</li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">curl -fsSL https://mirrors.ustc.edu.cn/docker-ce/linux/debian/gpg | sudo apt-key add -
-
-<span class="hljs-comment"># 官方源</span>
-<span class="hljs-comment"># $ curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -</span></code></pre></div>
 <ul>
-<li>向<code>sources.list</code>添加Docker CE的软件源</li>
+<li>充分利用云服务器的计算和存储资源</li>
+<li>统一代码环境和数据集（在不同终端机器上构建的环境是可能不一致的）</li>
+<li>能够随时随地访问（只要ECS还没过期&amp;你的机器能上网）</li>
 </ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 官方源</span>
-sudo <span class="hljs-built_in">echo</span> <span class="hljs-string">"deb [arch=amd64] https://download.docker.com/linux/debian stretch stable"</span> | sudo tee -a /etc/apt/sources.list</code></pre></div>
-<h3 id="2-3-安装Docker-CE"><a href="#2-3-安装Docker-CE" class="headerlink" title="2.3 安装Docker CE"></a>2.3 安装Docker CE</h3><p>更新apt软件包缓存，并安装<code>docker-ce</code></p>
-<div class="hljs"><pre><code class="hljs bash">sudo apt-get update
-
-sudo apt-get install docker-ce</code></pre></div>
-<h2 id="3-使用脚本自动安装"><a href="#3-使用脚本自动安装" class="headerlink" title="3 使用脚本自动安装"></a>3 使用脚本自动安装</h2><p> 在测试或开发环境中 Docker 官方为了简化安装流程，提供了一套便捷的安装脚本，Debian 系统上可以使用这套脚本安装，另外可以通过 <code>--mirror</code> 选项使用国内源进行安装： </p>
-<div class="hljs"><pre><code class="hljs bash">curl -fsSL get.docker.com -o get-docker.sh
-
-sudo sh get-docker.sh --mirror Aliyun
-<span class="hljs-comment"># sudo sh get-docker.sh --mirror AzureChinaCloud</span></code></pre></div>
-<h2 id="4-建立docker用户组"><a href="#4-建立docker用户组" class="headerlink" title="4 建立docker用户组"></a>4 建立docker用户组</h2><p> 默认情况下，<code>docker</code> 命令会使用 <a href="https://en.wikipedia.org/wiki/Unix_domain_socket" target="_blank" rel="noopener">Unix socket</a> 与 Docker 引擎通讯。而只有 <code>root</code> 用户和 <code>docker</code> 组的用户才可以访问 Docker 引擎的 Unix socket。出于安全考虑，一般 Linux 系统上不会直接使用 <code>root</code> 用户。因此，更好地做法是将需要使用 <code>docker</code> 的用户加入 <code>docker</code> 用户组。 </p>
+<h2 id="1-环境搭建"><a href="#1-环境搭建" class="headerlink" title="1 环境搭建"></a>1 环境搭建</h2><h3 id="1-1-安装Python"><a href="#1-1-安装Python" class="headerlink" title="1.1 安装Python"></a>1.1 安装Python</h3><p>虽然阿里云的Ubuntu 18.04 云服务器是自带python2.7和python3.6的，但我还是选择<strong>安装miniconda3<a href="https://docs.conda.io/en/latest/miniconda.html" target="_blank" rel="noopener">(官网)</a></strong>，理由如下：</p>
 <ul>
-<li>建立<code>docker</code>组：</li>
+<li>anaconda便于管理<strong>多版本且隔离</strong>的python环境（除此以外virtualenv和pyvenv也可，但管理方式不如conda）</li>
+<li>miniconda比anaconda<strong>轻量</strong>，它仅包含<strong>conda和python</strong>和少量依赖包与软件包</li>
 </ul>
-<div class="hljs"><pre><code class="hljs bash">sudo groupadd docker</code></pre></div>
-<ul>
-<li>将当前用户加入<code>docker</code>组：</li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">sudo usermod -aG docker <span class="hljs-variable">$USER</span></code></pre></div>
-<p>退出当前终端并重新登录</p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 从官方站点下载速度较慢，可从国内镜像站下载miniconda3-py38 64-bit</span>
+wget -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py38_4.9.2-Linux-x86_64.sh
 
+<span class="hljs-comment"># 添加当前用户可执行权限</span>
+chmod u+x ./Miniconda3-py38_4.9.2-Linux-x86_64.sh
+
+<span class="hljs-comment"># 执行安装脚本，依照提示完成安装</span>
+./Miniconda3-py38_4.9.2-Linux-x86_64.sh
+
+<span class="hljs-comment"># 添加环境变量(非zsh用户)，若你正在使用zsh请将/etc/profile替换为~/.zshrc</span>
+sudo <span class="hljs-built_in">echo</span> <span class="hljs-string">"export PATH=<span class="hljs-variable">$PATH</span>:/home/<span class="hljs-variable">$USER</span>/miniconda3/bin"</span> &gt;&gt; /etc/profile &amp; <span class="hljs-built_in">source</span> /etc/profile</code></pre></div>
+<p>完成miniconda3的安装之后，需要使用<code>update-alternatives</code>配置多版本Python的优先级，将conda的python3.8设为默认python：</p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 查看是否已经建立了python的alternative管理，若无则创建</span>
+sudo update-alternatives --config python
+
+<span class="hljs-comment"># 依次创建自带python2，python3以及miniconda3的python3的alternatives管理，最后的数字为优先级，越大越高</span>
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 2
+sudo update-alternatives --install /usr/bin/python python /home/<span class="hljs-variable">$USER</span>/miniconda3/bin/python3 3</code></pre></div>
+<h3 id="1-2-安装Jupyter"><a href="#1-2-安装Jupyter" class="headerlink" title="1.2 安装Jupyter"></a>1.2 安装Jupyter</h3><p>在命令行中输入<code>python -V</code>和<code>pip -V</code> 确认能够看到正在使用miniconda3的python和pip</p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># pip换国内源以提速，在~/.pip/pip.conf中添加以下内容，文件不存在则创建</span>
+[global]
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+
+<span class="hljs-comment"># 安装jupyter</span>
+pip install jupyter</code></pre></div>
+<h2 id="2-配置Jupyter-Notebook"><a href="#2-配置Jupyter-Notebook" class="headerlink" title="2 配置Jupyter-Notebook"></a>2 配置Jupyter-Notebook</h2><h3 id="2-1-配置登陆密码"><a href="#2-1-配置登陆密码" class="headerlink" title="2.1 配置登陆密码"></a>2.1 配置登陆密码</h3><p>为了保障远程访问云服务器Jupyter服务的安全性，我们需要为notebook设定密码。（）</p>
+<p>登录时，notebook 应用获取用户提交的密码，进行 hash 计算，再与预先存储的值比对。如果两者相同，则认为用户提交的密码正确，予以放行。 </p>
+<div class="hljs"><pre><code class="hljs ipython">Python <span class="hljs-number">3.8</span><span class="hljs-number">.5</span> (default, Sep  <span class="hljs-number">4</span> <span class="hljs-number">2020</span>, <span class="hljs-number">07</span>:<span class="hljs-number">30</span>:<span class="hljs-number">14</span>)
+[GCC <span class="hljs-number">7.3</span><span class="hljs-number">.0</span>] :: Anaconda, Inc. on linux
+Type <span class="hljs-string">"help"</span>, <span class="hljs-string">"copyright"</span>, <span class="hljs-string">"credits"</span> <span class="hljs-keyword">or</span> <span class="hljs-string">"license"</span> <span class="hljs-keyword">for</span> more information.
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">from</span> IPython.lib <span class="hljs-keyword">import</span> passwd
+<span class="hljs-meta">&gt;&gt;&gt; </span>passwd()
+Enter password:
+Verify password:
+<span class="hljs-string">'sha1:..........................................'</span>
+&gt;&gt;&gt;</code></pre></div>
+<h3 id="2-2-生成配置文件"><a href="#2-2-生成配置文件" class="headerlink" title="2.2 生成配置文件"></a>2.2 生成配置文件</h3><div class="hljs"><pre><code class="hljs python"><span class="hljs-comment">#------------------------------------------------------------------------------</span>
+<span class="hljs-comment">#User configuration</span>
+<span class="hljs-comment">#------------------------------------------------------------------------------</span>
+c.NotebookApp.ip = <span class="hljs-string">'*'</span>                               <span class="hljs-comment"># notebook监听的IP</span>
+c.NotebookApp.port = <span class="hljs-number">8888</span>  							 <span class="hljs-comment"># notebook监听的端口</span>
+c.NotebookApp.notebook_dir = <span class="hljs-string">'/path/to/project-dirs'</span> <span class="hljs-comment"># notebook的工作目录</span>
+c.NotebookApp.open_browser = <span class="hljs-literal">False</span>                   <span class="hljs-comment"># 运行notebook服务时不打开浏览器</span>
+c.NotebookApp.password = <span class="hljs-string">u'sha1:c63cf.....45b09bed'</span>  <span class="hljs-comment"># 密码的hash 值</span></code></pre></div>
+<h3 id="2-3-撰写systemd服务脚本"><a href="#2-3-撰写systemd服务脚本" class="headerlink" title="2.3 撰写systemd服务脚本"></a>2.3 撰写systemd服务脚本</h3><h2 id="3-主题美化"><a href="#3-主题美化" class="headerlink" title="3 主题美化"></a>3 主题美化</h2><h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h2>
             </article>
             <hr>
             <div>
@@ -275,9 +294,9 @@ sudo sh get-docker.sh --mirror Aliyun
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/Kali/">Kali</a>
+                      <a class="hover-with-bg" href="/tags/Selfhosted/">Selfhosted</a>
                     
-                      <a class="hover-with-bg" href="/tags/Docker/">Docker</a>
+                      <a class="hover-with-bg" href="/tags/Server/">Server</a>
                     
                   </div>
                 
@@ -290,15 +309,15 @@ sudo sh get-docker.sh --mirror Aliyun
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2019/05/16/Invalid-Driver-Label-on-Windows/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Invalid Driver Label in Windows</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
+                    
+                      <a href="/2020/12/24/KVM虚拟机的四种网络模式/">
+                        <span class="hidden-mobile">KVM虚拟机的四种网络模式</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
                     
                   </div>
                 </div>
@@ -549,7 +568,7 @@ sudo sh get-docker.sh --mirror Aliyun
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "Kali Linux安装Docker&nbsp;",
+        "搭建Jupyter-Notebook服务器&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 80,

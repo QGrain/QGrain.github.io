@@ -172,7 +172,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      122 words
+      240 words
     </span>
   
 
@@ -182,7 +182,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      1
+      2
        minutes
     </span>
   
@@ -222,15 +222,19 @@
             
               <p class="note note-info">
                 
-                  Last updated on：January 21, 2021 am
+                  Last updated on：January 21, 2021 pm
                 
               </p>
             
             <article class="markdown-body">
-              <p>前段时间项目需要进行靶场演示，而演示环境正是KVM构建的网络靶场，因此我调研了有关KVM虚拟机的网络模式。</p>
-<p>因为前段时间项目需要在KVM架构的网络靶场中进行演示，于是便学习了KVM虚拟机有关网络架构的知识。</p>
+              <p>因为前段时间项目需要在KVM架构的网络靶场中进行演示，于是便学习了KVM虚拟机有关网络架构的知识。</p>
 <a id="more"></a>
-<h2 id="1-KVM简介"><a href="#1-KVM简介" class="headerlink" title="1 KVM简介"></a>1 KVM简介</h2><h2 id="2-网络模式"><a href="#2-网络模式" class="headerlink" title="2 网络模式"></a>2 网络模式</h2><h3 id="2-1-桥接模式"><a href="#2-1-桥接模式" class="headerlink" title="2.1 桥接模式"></a>2.1 桥接模式</h3><h3 id="2-2-NAT模式"><a href="#2-2-NAT模式" class="headerlink" title="2.2 NAT模式"></a>2.2 NAT模式</h3><h3 id="2-3-路由模式"><a href="#2-3-路由模式" class="headerlink" title="2.3 路由模式"></a>2.3 路由模式</h3><h3 id="2-4-隔离模式"><a href="#2-4-隔离模式" class="headerlink" title="2.4 隔离模式"></a>2.4 隔离模式</h3><h2 id="3-参考"><a href="#3-参考" class="headerlink" title="3 参考"></a>3 参考</h2>
+<h2 id="1-KVM简介"><a href="#1-KVM简介" class="headerlink" title="1 KVM简介"></a>1 KVM简介</h2><p> Libvirt虚拟网络使用虚拟网络交换机的概念。虚拟网络交换机是在主机物理机器服务器上运行的软件结构，虚拟机（客户机）通过它连接到该物理主机服务器。客户机的网络流量通过这个交换机被引导： </p>
+<p><img src="https://gitee.com/QGrain/picgo-bed/raw/master/img/20210121220618.png" srcset="/img/loading.gif"></p>
+<p> Linux主机物理机服务器将虚拟网络交换机表示为网络接口。当libvirtd守护进程（libvirtd）首次安装并启动时，表示虚拟网络交换机的默认网络接口是virbr0。 </p>
+<p><img src="https://gitee.com/QGrain/picgo-bed/raw/master/img/20210121220706.png" srcset="/img/loading.gif"></p>
+<p> 这个virbr0接口可以通过ip命令，像其他任何接口一样用命令查看 </p>
+<h2 id="2-网络模式"><a href="#2-网络模式" class="headerlink" title="2 网络模式"></a>2 网络模式</h2><h3 id="2-1-桥接模式"><a href="#2-1-桥接模式" class="headerlink" title="2.1 桥接模式"></a>2.1 桥接模式</h3><h3 id="2-2-NAT模式"><a href="#2-2-NAT模式" class="headerlink" title="2.2 NAT模式"></a>2.2 NAT模式</h3><h3 id="2-3-路由模式"><a href="#2-3-路由模式" class="headerlink" title="2.3 路由模式"></a>2.3 路由模式</h3><h3 id="2-4-隔离模式"><a href="#2-4-隔离模式" class="headerlink" title="2.4 隔离模式"></a>2.4 隔离模式</h3><h2 id="3-参考"><a href="#3-参考" class="headerlink" title="3 参考"></a>3 参考</h2>
             </article>
             <hr>
             <div>
@@ -252,6 +256,12 @@
                 <div class="post-prevnext row">
                   <div class="post-prev col-6">
                     
+                    
+                      <a href="/2021/01/23/搭建Jupyter-Notebook服务器/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">搭建Jupyter-Notebook服务器</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
                     
                   </div>
                   <div class="post-next col-6">
