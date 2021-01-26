@@ -172,7 +172,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      539 words
+      506 words
     </span>
   
 
@@ -182,7 +182,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      7
+      6
        minutes
     </span>
   
@@ -222,7 +222,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：October 12, 2020 pm
+                  Last updated on：January 26, 2021 pm
                 
               </p>
             
@@ -250,33 +250,28 @@
 &#123;% endnote %&#125;</code></pre></div>
 <p>或者使用 HTML 形式：</p>
 <div class="hljs"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">p</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"note note-primary"</span>&gt;</span>标签<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span></code></pre></div>
-<p></p><p class="note note-primary">可选便签：success, danger, warning, primary, secondary, info, list</p><br>{% note success %}
-success
-{% endnote %}<p></p>
-{% note danger %}
-danger
-{% endnote %}
-{% note warning %}
-warning
-{% endnote %}
-{% note primary %}
-primary
-{% endnote %}
-{% note secondary %}
-secondary
-{% endnote %}
-{% note info %}
-info
-{% endnote %}
-{% note light %}
-light
-{% endnote %}
+<p class="note note-primary">可选便签：success, danger, warning, primary, secondary, info, light</p>
+
+<p class="note note-success">success</p>
+
+<p class="note note-danger">danger</p>
+
+<p class="note note-warning">warning</p>
+
+<p class="note note-primary">primary</p>
+
+<p class="note note-secondary">secondary</p>
+
+<p class="note note-info">info</p>
+
+<p class="note note-light">light</p>
+
 <h3 id="2-2-行内标签"><a href="#2-2-行内标签" class="headerlink" title="2.2 行内标签"></a>2.2 行内标签</h3><p>在 markdown 中加入如下的代码来使用 Label：</p>
 <div class="hljs"><pre><code class="hljs markdown">&#123;% label primary @text %&#125;</code></pre></div>
 <p>或者使用 HTML 形式：</p>
 <div class="hljs"><pre><code class="hljs html"><span class="hljs-tag">&lt;<span class="hljs-name">span</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"label label-primary"</span>&gt;</span>Label<span class="hljs-tag">&lt;/<span class="hljs-name">span</span>&gt;</span></code></pre></div>
 <p>可选 Label：</p>
-{% label primary @primary %} {% label default @default %} {% label info @info %} {% label success  @success %} {% label warning @warning %} {% label danger @danger %}
+<p><span class="label label-primary">primary</span> <span class="label label-default">default</span> <span class="label label-info">info</span> <span class="label label-success">success</span> <span class="label label-warning">warning</span> <span class="label label-danger">danger</span> </p>
 <h3 id="2-3-勾选框"><a href="#2-3-勾选框" class="headerlink" title="2.3 勾选框"></a>2.3 勾选框</h3><p>在 markdown 中加入如下的代码来使用 Checkbox：</p>
 <div class="hljs"><pre><code class="hljs markdown">&#123;% cb text, checked?, incline? %&#125;</code></pre></div>
 <p>text：显示的文字<br>checked：默认是否已勾选，默认 false<br>incline: 是否内联（可以理解为后面的文字是否换行），默认 false</p>
@@ -330,8 +325,8 @@ light
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2020/06/02/搭建Jupyter-Notebook服务器/">
-                        <span class="hidden-mobile">搭建Jupyter-Notebook服务器</span>
+                      <a href="/2020/06/24/KVM虚拟机的四种网络模式/">
+                        <span class="hidden-mobile">KVM虚拟机的四种网络模式</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -346,27 +341,22 @@ light
               <div class="comments" id="comments">
                 
                 
-  <div id="gitalk-container"></div>
   <script type="text/javascript">
-    function loadGitalk(){
-      addScript('https://cdn.staticfile.org/gitalk/1.6.2/gitalk.min.js', function () {
-        var gitalk = new Gitalk({
-          clientID: '089701a626d262a74608',
-          clientSecret: 'd43ad80df8e48c95eeb4ba0f86cbb57760350361',
-          repo: 'QGrain.github.io',
-          owner: 'QGrain',
-          admin: '['QGrain']',
-          id: 'abe2f11339bee105f3f102052ebaa0c7',
-          language: 'en',
-          perPage: 12,
-          pagerDirection: 'last',
-          createIssueManually: 'true',
-          distractionFreeMode: 'false'
-        });
-        gitalk.render('gitalk-container');
-      });
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'QGrain/QGrain.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
     }
-    createObserver(loadGitalk, 'gitalk-container');
+    createObserver(loadUtterances, 'comments')
   </script>
 
 
@@ -677,6 +667,37 @@ light
 
 
 
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'G-R25ZP704R2', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
 
 
 

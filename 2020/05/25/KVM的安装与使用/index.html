@@ -16,7 +16,7 @@
   <meta name="description" content="Personal Blog of Zhiyu Zhang">
   <meta name="author" content="Zhiyu Zhang">
   <meta name="keywords" content="Security, Machine Learning, Linux">
-  <title>KVM虚拟机的四种网络模式 - Zhiyu&#39;s Blog</title>
+  <title>KVM的安装与使用 - Zhiyu&#39;s Blog</title>
 
   <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
 
@@ -161,8 +161,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2020-12-24 22:56">
-      December 24, 2020 pm
+    <time datetime="2020-05-25 21:58">
+      May 25, 2020 pm
     </time>
   </div>
 
@@ -172,7 +172,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      240 words
+      635 words
     </span>
   
 
@@ -182,7 +182,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      2
+      7
        minutes
     </span>
   
@@ -222,19 +222,54 @@
             
               <p class="note note-info">
                 
-                  Last updated on：January 21, 2021 pm
+                  Last updated on：January 26, 2021 pm
                 
               </p>
             
             <article class="markdown-body">
-              <p>因为前段时间项目需要在KVM架构的网络靶场中进行演示，于是便学习了KVM虚拟机有关网络架构的知识。</p>
+              <p> 基于内核的虚拟机（Kernel-based Virtual Machine，简称KVM），是一种用于Linux内核中的虚拟化基础设施。KVM目前支持Intel VT及AMD-V的原生虚拟技术 </p>
 <a id="more"></a>
-<h2 id="1-KVM简介"><a href="#1-KVM简介" class="headerlink" title="1 KVM简介"></a>1 KVM简介</h2><p> Libvirt虚拟网络使用虚拟网络交换机的概念。虚拟网络交换机是在主机物理机器服务器上运行的软件结构，虚拟机（客户机）通过它连接到该物理主机服务器。客户机的网络流量通过这个交换机被引导： </p>
-<p><img src="https://gitee.com/QGrain/picgo-bed/raw/master/img/20210121220618.png" srcset="/img/loading.gif"></p>
-<p> Linux主机物理机服务器将虚拟网络交换机表示为网络接口。当libvirtd守护进程（libvirtd）首次安装并启动时，表示虚拟网络交换机的默认网络接口是virbr0。 </p>
-<p><img src="https://gitee.com/QGrain/picgo-bed/raw/master/img/20210121220706.png" srcset="/img/loading.gif"></p>
-<p> 这个virbr0接口可以通过ip命令，像其他任何接口一样用命令查看 </p>
-<h2 id="2-网络模式"><a href="#2-网络模式" class="headerlink" title="2 网络模式"></a>2 网络模式</h2><h3 id="2-1-桥接模式"><a href="#2-1-桥接模式" class="headerlink" title="2.1 桥接模式"></a>2.1 桥接模式</h3><h3 id="2-2-NAT模式"><a href="#2-2-NAT模式" class="headerlink" title="2.2 NAT模式"></a>2.2 NAT模式</h3><h3 id="2-3-路由模式"><a href="#2-3-路由模式" class="headerlink" title="2.3 路由模式"></a>2.3 路由模式</h3><h3 id="2-4-隔离模式"><a href="#2-4-隔离模式" class="headerlink" title="2.4 隔离模式"></a>2.4 隔离模式</h3><h2 id="3-参考"><a href="#3-参考" class="headerlink" title="3 参考"></a>3 参考</h2>
+<h2 id="1-KVM简介"><a href="#1-KVM简介" class="headerlink" title="1 KVM简介"></a>1 KVM简介</h2><ul>
+<li><p><strong>一些概念</strong>：</p>
+<ul>
+<li>是x86架构且硬件支持虚拟化技术（如 intel VT 或 AMD-V）的Linux全虚拟化解决方案</li>
+<li>它包含一个为处理器提供底层虚拟化 可加载的核心模块kvm.ko（kvm-intel.ko或kvm-AMD.ko） </li>
+<li>KVM还需要一个经过修改的QEMU软件（qemu-kvm），作为虚拟机上层控制和界面 </li>
+<li>在主流的Linux内核，如2.6.20以上的内核均已包含了KVM核心</li>
+</ul>
+</li>
+<li><p><strong>QEMU-KVM</strong>：</p>
+<ul>
+<li>在Linux系统中，仅加载了KVM内核模块是不够的，用户无法直接控制内核模块去做事情，还必须有一个用户空间的工具。因此KVM的开发者选择了已成型的开源虚拟化软件QEMU，形成可控制KVM内核模块的用户空间工具QEMU-KVM</li>
+</ul>
+</li>
+<li><strong>libvirt</strong>：<ul>
+<li>Libvirt 是一套提供了多种语言接口的API，为各种虚拟化工具提供一套方便可靠的编程接口，不仅支持 KVM，而且支持 Xen 等其他虚拟机。Libvirt 不仅提供了 API，还自带一套基于文本的管理虚拟机的命令 virsh，可通过使用 virsh 命令来使用 libvirt 的全部功能</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-KVM安装"><a href="#2-KVM安装" class="headerlink" title="2 KVM安装"></a>2 KVM安装</h2><h3 id="2-1-检查虚拟化支持"><a href="#2-1-检查虚拟化支持" class="headerlink" title="2.1 检查虚拟化支持"></a>2.1 检查虚拟化支持</h3><p>KVM是面向具备<code>Intel VT</code>和<code>AMD-V</code>虚拟化硬件的技术，因此首先需要check你的系统是否支持虚拟化：</p>
+<div class="hljs"><pre><code class="hljs bash">egrep <span class="hljs-string">'(vmx|svm)'</span> /proc/cpuinfo</code></pre></div>
+<p>能看到<code>flag *******</code>的输出即表明支持虚拟化，其中vmx对应Inter VT，svm对应ADM-V</p>
+<h3 id="2-2-安装相关软件包"><a href="#2-2-安装相关软件包" class="headerlink" title="2.2 安装相关软件包"></a>2.2 安装相关软件包</h3><p>理论上KVM的最小安装就是<code>qemu-kvm</code>和<code>virtinst</code>，但考虑到管理上的便捷性，我们需要libvirt-daemon作为守护进程和virt-manager的GUI管理界面，以及<code>brctl</code>：</p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 更新镜像源（如果有必要）</span>
+sudo apt-get update
+
+<span class="hljs-comment"># 安装相关软件包</span>
+sudo apt install qemu qemu-kvm virtinst virt-manager bridge-utils</code></pre></div>
+<p>管理<code>libvirtd.service</code></p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># systemd管理</span>
+sudo systemctl [start|stop|restart|enbale|<span class="hljs-built_in">disable</span>|status] libvirtd</code></pre></div>
+<h2 id="3-KVM使用"><a href="#3-KVM使用" class="headerlink" title="3 KVM使用"></a>3 KVM使用</h2> <div class="note note-primary">
+            <p>所有的KVM的管理都可以从<code>virt-manager</code>图形化界面来操作，因此下面主要介绍命令行接口</p>
+          </div> 
+<h3 id="3-1-创建KVM虚拟机"><a href="#3-1-创建KVM虚拟机" class="headerlink" title="3.1 创建KVM虚拟机"></a>3.1 创建KVM虚拟机</h3><h3 id="3-2-管理KVM虚拟机"><a href="#3-2-管理KVM虚拟机" class="headerlink" title="3.2 管理KVM虚拟机"></a>3.2 管理KVM虚拟机</h3><h3 id="3-3-配置虚拟机网络"><a href="#3-3-配置虚拟机网络" class="headerlink" title="3.3 配置虚拟机网络"></a>3.3 配置虚拟机网络</h3> <div class="note note-danger">
+            <p>To be completed… : )</p>
+          </div> 
+<h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h2><p><a href="https://zh.wikipedia.org/zh-hans/%E5%9F%BA%E4%BA%8E%E5%86%85%E6%A0%B8%E7%9A%84%E8%99%9A%E6%8B%9F%E6%9C%BA" target="_blank" rel="noopener">[1] 基于内核的虚拟机(KVM) 维基百科</a></p>
+<p><a href="https://my.oschina.net/u/2343310/blog/1498463" target="_blank" rel="noopener">[2] kvm 虚拟化概述及 virt-manager 安装虚拟机</a></p>
+<p><a href="https://it.ismy.fun/2018/09/18/debian-9-kvm/" target="_blank" rel="noopener">[3] Debian 9 安装 KVM 虚拟机</a></p>
+
             </article>
             <hr>
             <div>
@@ -245,6 +280,8 @@
                     <i class="iconfont icon-tags"></i>
                     
                       <a class="hover-with-bg" href="/tags/Virtualization/">Virtualization</a>
+                    
+                      <a class="hover-with-bg" href="/tags/KVM/">KVM</a>
                     
                   </div>
                 
@@ -257,12 +294,18 @@
                   <div class="post-prev col-6">
                     
                     
+                      <a href="/2020/06/02/搭建Jupyter-Notebook服务器/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">搭建Jupyter-Notebook服务器</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2020/10/28/常见开源软件和开源库的关系图谱/">
-                        <span class="hidden-mobile">常见开源软件和开源库的关系图谱</span>
+                      <a href="/2020/05/12/编写systemd服务脚本/">
+                        <span class="hidden-mobile">编写systemd服务脚本</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -277,27 +320,22 @@
               <div class="comments" id="comments">
                 
                 
-  <div id="gitalk-container"></div>
   <script type="text/javascript">
-    function loadGitalk(){
-      addScript('https://cdn.staticfile.org/gitalk/1.6.2/gitalk.min.js', function () {
-        var gitalk = new Gitalk({
-          clientID: '089701a626d262a74608',
-          clientSecret: 'd43ad80df8e48c95eeb4ba0f86cbb57760350361',
-          repo: 'QGrain.github.io',
-          owner: 'QGrain',
-          admin: '['QGrain']',
-          id: 'abe2f11339bee105f3f102052ebaa0c7',
-          language: 'en',
-          perPage: 12,
-          pagerDirection: 'last',
-          createIssueManually: 'true',
-          distractionFreeMode: 'false'
-        });
-        gitalk.render('gitalk-container');
-      });
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'QGrain/QGrain.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
     }
-    createObserver(loadGitalk, 'gitalk-container');
+    createObserver(loadUtterances, 'comments')
   </script>
 
 
@@ -516,7 +554,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "KVM虚拟机的四种网络模式&nbsp;",
+        "KVM的安装与使用&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 80,
@@ -608,6 +646,37 @@
 
 
 
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'G-R25ZP704R2', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
 
 
 
