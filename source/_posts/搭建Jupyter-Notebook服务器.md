@@ -103,7 +103,11 @@ c.NotebookApp.password = u'sha1:c63cf.....45b09bed'  # 密码的hash 值
 
 ```
 
-**注意**：notebook_dir即为notebook的/，因此为了保证安全性，请将notebook的工作目录设为非重要目录，如你可以创建一个`~/jupyter-projects`
+ {% note warning %} 
+
+**注意**：notebook_dir即为notebook的`/`，因此为了保证安全性，请将notebook的工作目录设为非重要目录，如你可以创建一个`~/jupyter-projects`
+
+ {% endnote %} 
 
 完成配置之后可以启动notebook并访问啦：
 
@@ -115,7 +119,11 @@ jupyter notebook
 nohup jupyter notebook >> ~/.notebook.log 2>&1 &
 ```
 
+ {% note warning %} 
+
 **注意**：要记得在云服务器控制台的安全组中配置规则放行notebook监听的`8888`端口哦
+
+ {% endnote %} 
 
 ### 2.3 撰写systemd服务脚本
 
@@ -174,7 +182,11 @@ jt -t monokai
 jt -t monokai -f roboto -fs 12 -nfs 14 -tfs 13 -ofs 11 -dfs 10 -cellw 66% -T -N -kl
 ```
 
-其中参数含义依次为设置主题为`monokai`，设置代码字体为`roboto`，设置代码字号为`12`，设置notebook字号为`14`，设置文本/Markdown字号为`13`，设置输出字号为`11`，设置Pandas Dataframe字号为`10`，设置cell宽度为屏幕的`66%`，设置`Toolbar可见`，设置`Name&Logo可见`以及设置`Kernel Logo可见`
+ {% note info %} 
+
+其中**参数含义**依次为设置主题为`monokai`，设置代码字体为`roboto`，设置代码字号为`12`，设置notebook字号为`14`，设置文本/Markdown字号为`13`，设置输出字号为`11`，设置Pandas Dataframe字号为`10`，设置cell宽度为屏幕的`66%`，设置`Toolbar可见`，设置`Name&Logo可见`以及设置`Kernel Logo可见`
+
+ {% endnote %} 
 
 具体界面效果如下（当然，passwd我为了测试，输入的是123）：
 
