@@ -86,3 +86,7 @@ admin:
   username: admin   
   password_hash: $2a$10$aPfwIDb/xAbb.Mc2ynQ3A.Xce2enfk0TUTerZmOfkfga/vqpxUL.6   
   secret: my super secret phrase
+
+# add sitemap by zzy
+sitemap:
+  path: sitemap.xml

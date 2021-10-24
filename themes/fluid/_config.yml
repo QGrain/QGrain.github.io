@@ -434,3 +434,21 @@ links:
       link: 'http://aiblog.top/',
       image: '/img/friends/rhys.jpg'
     }
+    - {
+      title: 'Nicer',
+      intro: '斜月的博客',
+      link: 'https://ninecr.tk/',
+      image: 'https://ninecr.tk/images/avatar.gif'
+    }
+    - {
+      title: 'Saying-Yan',
+      intro: '烟雨的博客',
+      link: 'https://saying-yan.github.io/',
+      image: 'https://saying-yan.github.io/images/myAvatar.jpg'
+    }
+    - {
+      title: '114026',
+      intro: 'drh的博客',
+      link: 'https://blog.leoharry.com/',
+      image: 'https://saying-yan.github.io/images/myAvatar.jpg'
+    }
