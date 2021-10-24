@@ -6,17 +6,15 @@ thumbnail: /image/thumbnails/hello-world.jpg
 tag: [Windows, Virtualization]
 index_img: /image/thumbnails/hello-world.jpg
 ---
-## 1 Cause
-
 After we change the label of a disk, the Install control programs in the original driver may be inexecutable, with an error of **"Invalid Driver X:\ "**
 
-## 2 Solutions
+<!-- more -->
 
-### 2.1 Recommended
+## 1 Solutions
+
+### 1.1 Recommended
 
 Using a DOS-command: **subst** may solve this problem properly.
-
-<!-- more -->
 
 **subst**: Assign a driver label to a path(a directory) temporarily. Then the directory can be accessed as the Driver.
 
@@ -26,8 +24,9 @@ Using a DOS-command: **subst** may solve this problem properly.
 
 - with the help of **subst**, we could also hide the Real Driver like "D: " by Creating a homonymous Virtual Driver"D: "
 
-### 2.2 Not Recommended
+### 1.2 Not Recommended
 
 Modify the Driver Label to the required Label according to the error.
 
 Be Cautious**!** Remember to **change back** to the original Driver Label, or you will find the other programs in this Disk are inaccessible.
+

@@ -3,6 +3,7 @@ title: Kali Linux安装Docker
 toc: true
 date: 2019-01-12 23:10:44
 tags: [Kali, Docker]
+index_img: /img/Kali-logo.png
 ---
 
 由于计算机网络课设需求，需要部署多个NS-3的Docker，于是我便尝试在我的Kali上安装Docker。本文将主要介绍其安装过程。

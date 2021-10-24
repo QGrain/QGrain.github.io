@@ -52,19 +52,19 @@ After=network.target    # 描述服务类别，表示本服务需要在network�
 Before=xxx.service      # 表示需要在某些服务启动之前启动，After和Before字段只涉及启动顺序，不涉及依赖关系。
 
 [Service] 
-Type=forking     		# 表示后台运行模式。
-User=user        		# 设置服务运行的用户
-Group=user       		# 设置服务运行的用户组
-WorkingDirectory=PATH	# 设置服务运行的路径(cwd)
+Type=forking     		# 设置服务的启动方式
+User=USER        		# 设置服务运行的用户
+Group=USER       		# 设置服务运行的用户组
+WorkingDirectory=/PATH	# 设置服务运行的路径(cwd)
 KillMode=control-group  # 定义systemd如何停止服务
 Restart=no        		# 定义服务进程退出后，systemd的重启方式，默认是不重启
-ExecStart=/start.sh    	# 服务启动命令，命令需要绝对路径
+ExecStart=/start.sh    	# 服务启动命令，命令需要绝对路径（采用sh脚本启动其他进程时Type须为forking）
    
 [Install]   
 WantedBy=multi-user.target  # 多用户
 ```
 
-- 完成service脚本编写后，需要执行以下命令以重启生效：
+- 完成service脚本编写后，需要执行以下命令以重载生效：
 
 ```bash
 # 重新加载所有的systemd服务
@@ -113,8 +113,8 @@ sudo systemctl [enable|start|stop|restart|status] xxx.service
 **启动类型：**
 
 - Type：字段定义启动类型，可以设置的值如下
-	- simple（默认值）：`ExecStart`字段启动的进程为主进程
-	- forking：`ExecStart`字段将以`fork()`方式启动，此时父进程将会退出，子进程将成为主进程
+	- simple（默认值）：`ExecStart`字段启动的进程为主进程，即直接启动服务进程
+	- forking：`ExecStart`字段将以`fork()`方式启动，此时父进程将会退出，子进程将成为主进程（例如用shell脚本启动服务进程）
 	- oneshot：类似于`simple`，但只**执行一次**，Systemd 会等它执行完，才启动其他服务
 	- dbus：类似于`simple`，但会等待 D-Bus 信号后启动
 	- notify：类似于`simple`，启动结束后会发出通知信号，然后 Systemd 再启动其他服务
@@ -153,3 +153,6 @@ Target的含义是服务组，如`WantedBy=multi-user.target`指的是该服务�
 [[2]  Centos7 自定义systemctl服务脚本](https://www.cnblogs.com/wang-yc/p/8876155.html)
 
 [[3]  编写systemd下服务脚本](https://blog.csdn.net/u010127879/article/details/38018825)
+
+[[4]  systemd Wiki简体中文](https://wiki.archlinux.org/index.php/Systemd_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87))
+

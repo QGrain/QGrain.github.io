@@ -57,34 +57,21 @@ post:
 <p class="note note-primary">标签</p>
 ```
 
-<p class="note note-primary">可选便签：success, danger, warning, primary, secondary, info, list</p>
-{% note success %}
-success
-{% endnote %}
+<p class="note note-primary">可选便签：success, danger, warning, primary, secondary, info, light</p>
 
-{% note danger %}
-danger
-{% endnote %}
+<p class="note note-success">success</p>
 
-{% note warning %}
-warning
-{% endnote %}
+<p class="note note-danger">danger</p>
 
-{% note primary %}
-primary
-{% endnote %}
+<p class="note note-warning">warning</p>
 
-{% note secondary %}
-secondary
-{% endnote %}
+<p class="note note-primary">primary</p>
 
-{% note info %}
-info
-{% endnote %}
+<p class="note note-secondary">secondary</p>
 
-{% note light %}
-light
-{% endnote %}
+<p class="note note-info">info</p>
+
+<p class="note note-light">light</p>
 
 ### 2.2 行内标签
 
@@ -102,7 +89,7 @@ light
 
 可选 Label：
 
-{% label primary @primary %} {% label default @default %} {% label info @info %} {% label success  @success %} {% label warning @warning %} {% label danger @danger %}
+<span class="label label-primary">primary</span> <span class="label label-default">default</span> <span class="label label-info">info</span> <span class="label label-success">success</span> <span class="label label-warning">warning</span> <span class="label label-danger">danger</span> 
 
 ### 2.3 勾选框
 

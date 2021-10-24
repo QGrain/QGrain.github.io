@@ -88,11 +88,57 @@ AFL即American Fuzzy Lop，是由安全研究员Micha · Zalewski（[@lcamtuf](h
 
 - **使用完afl-tmin后再次使用afl-cmin，可能可以再过滤掉一些用例**
 
-## 4 突变策略
+## 4 Mutation突变策略
+
+AFL的突变策略十分丰富，它能够尽可能地保证输入种子充分地变异，以追求更大的执行路径覆盖率，从而测试出更多的crash。AFL的突变策略依次包括：bitflip，arithmetic，interest，dictionary，havoc和splice。
+
+### 4.1 bitflip
+
+#### 4.1.1 基础bitflip
+
+- **基本原理**： 按位翻转，1变为0，0变为1。AFL会采用不同的翻转长度和步长来进行位翻转，顺序如下：
+  - bitflip 1/1，2/1，4/1，8/8，16/8，32/8
+  - bitflip m/n即每次翻转m个bit，按照n个bit的步长从文件头部开始翻转
+  - AFL还有一些对文件格式启发式的判断，如自动检测token和生成effector map
+- **举例**：对某jpeg格式的文件从其头部`FF D8...`开始进行bitflip
+  - 第一次bitflip 1/1：`7F D8`，第二次bitflip 1/1：`BF D8`，第三次bitflip 1/1：`DF D8`，第四次bitflip 1/1：`EF D8`
+
+#### 4.1.2 自动检测token
+
+- **基本原理**： 如果连续多个bytes的最低位被翻转后，程序的执行路径都未变化，而且与原始执行路径不一致  ，那么就把这一段连续的bytes判断是一条token。
+- **举例**：PNG文件中用`...IHDR... `作为起始块的标识，当翻转到最高位字节的时候，由于IHDR被破坏，程序执行路径发生改变，随后在翻转接下来的三个字节的时候IHDR同样被破坏，程序会采取相同的执行路径。由此AFL就判断得到了一个可能的**token：IHDR**，并将其记录为后续的变异提供备选。
+
+#### 4.1.3 生成effector map
+
+- **基本原理**：在执行bitflip 8/8，即对每个字节进行翻转时，如果执行路径发生了改变，则将该byte在effector map中标记为1，反之标记为0。其逻辑为如果翻转一个byte都无法带来程序执行路径的改变，则该byte很有可能是属于`data`而非`metadata(如size，flag等)`，对fuzzing的意义不大，在之后的变异里会参考effector map跳过那些"无效"的bytes。
+- **说明**：在以下三种情况下，AFL不会判定有效字符：
+  - AFL工作模式为`dumb mode`或者`Slave mode`即（静默模式和从模式）
+  - 如果文件大小小于128bytes，则默认所有字节均为"有效"字节
+  - 如果文件被标记为"有效"的字节超过了90%，则默认所有字节均为"有效"字节
+
+### 4.2 arithmetic
+
+bitflip策略全部突变完毕后，进入到arithmetic突变阶段。arithmetic阶段会根据目标大小的不同，分为了一下几个子阶段：
+
+- **基本原理**：arith 8/8，arith 16/8，arith 32/8。其含义为每次对8，16，32bits进行加减运算，按照每8个bits的步长从文件头开始，即对文件的每个byte，word，dword进行整数加减变异。
+- **说明**：
+  - 加减变异运算的上限在config.h中的宏ARITH_MAX定义，默认为35，即进行 ±1，±2，...，±35的运算变异
+  - AFL会考虑整数的大端序和小端序形式，并以这两种方式分别进行变异
+  - AFL会跳过effector map中标记为"无效"的bytes，以及之前bitflip阶段已经生成过的变异(比如加减某个数之后产生的效果和之前bitflip的某次变异一样)
+
+### 4.3 interest
 
 
+
+### 4.4 dictionary
+
+
+
+### 4.5 havoc
+
+
+
+### 4.6 splice
 
 ## 5 Fuzzing后分析
-
-
 
