@@ -79,7 +79,7 @@ theme: fluid
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
   type: git
-  repo: https://github.com/QGrain/QGrain.github.io
+  repo: git@github.com:QGrain/QGrain.github.io.git
 
 # hexo-admin authentification 
 admin:   
