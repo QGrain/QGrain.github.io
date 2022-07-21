@@ -6,14 +6,21 @@ tags: [AFL, Fuzzing]
 index_img: /img/blur-sight.jpg
 ---
 
-[AFLGO](https://github.com/aflgo/aflgo)是基于[AFL](https://github.com/google/AFL)改进而来的一种定向灰盒模糊测试工具
+[AFLGO](https://github.com/aflgo/aflgo)是基于[AFL](https://github.com/google/AFL)改进而来的一种定向灰盒模糊测试工具。
 
 <!--more-->
 
+AFLGo基于llvm实现了函数调用图CG和控制流图CFG的获取，结合对程序CG/CFG定义了一种基于目标distance衡量的种子调度策略，使得Fuzzer能够更快生成可抵达目的位置的测试用例。定向灰盒模糊测试(Directed Greybox Fuzzing)常常用于补丁测试，漏洞复现等等具备特定待测目标的软件测试任务场景。
+
 ## 1 安装AFLGO
 
-- 安装llvm和clang，官方文档要求是3.8或者4.0，经过自己测试6.0也可以使用，**确保环境$PATH或$LLVM_CONFIG变量已经添加**
+- 安装llvm和clang，官方文档要求是3.8或者4.0，经过自己测试6.0和11.0和也可以使用，**确保环境$PATH或$LLVM_CONFIG变量已经添加**
 - 执行[一键安装脚本](https://raw.githubusercontent.com/aflgo/aflgo/master/scripts/build/aflgo-build.sh)，此脚本疑似有问题，其中llvm-4.0和clang-4.0会安装失败
+- 因此依照[官方README](https://github.com/aflgo/aflgo)的指示，我编写了一键安装**llvm 11.0**以及AFLGo的[脚本](https://gitee.com/QGrain/aflgo-build/tree/master)：
+
+```bash
+curl https://gitee.com/QGrain/aflgo-build/raw/master/aflgo-build.sh | bash
+```
 
 ## 2 常见开源库和软件
 
