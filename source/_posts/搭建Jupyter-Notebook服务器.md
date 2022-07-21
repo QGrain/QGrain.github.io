@@ -121,7 +121,7 @@ nohup jupyter notebook >> ~/.notebook.log 2>&1 &
 
  {% note warning %} 
 
-**注意**：要记得在云服务器控制台的安全组中配置规则放行notebook监听的`8888`端口哦
+**注意**：记得在云服务器控制台的安全组中配置规则放行notebook监听的`8888`端口
 
  {% endnote %} 
 
@@ -178,7 +178,7 @@ jt -l
 # 将主题配置为monokai
 jt -t monokai
 
-# 我的配置命令如下，这样的notebook界面极其舒适ヾ(≧▽≦ )o
+# 我的配置命令如下，这样的notebook界面极其舒适 ヾ(´▽｀)
 jt -t monokai -f roboto -fs 12 -nfs 14 -tfs 13 -ofs 11 -dfs 10 -cellw 66% -T -N -kl
 ```
 
