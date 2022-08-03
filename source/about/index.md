@@ -1,28 +1,29 @@
 ---
 title: ABOUT
-date: 2020-03-12 13:13:25
+date: 2022-08-04 00:00:25
 layout: about
 ---
 
 ## About me
 
-- **A EE student in Huazhong University of Science and Technology**
-- **Dian Group member with official ID: 637**
+- **I am currently a PhD student in Institute of Information Engineering, Chinese Academy of Sciences (Super Naive CTFer of NeSE)**
+- **I graduated from school of EIC, Huazhong University of Science and Technology. (Dian Group member with official ID: 637)**
 - **Research Interests:**
-  - Security, especially in Network Traffic Detection, Reverse Engineering and Penetration
-  - Machine Learning, especially in Deep Learning in network traffic
-  - Linux & Windows Development
+  - Software and System Security, Fuzzing
+  - Data-driven Security, such as ML as method
 
 - **Hobbies:**
-  - Reading Novels, Watching Animation & Movies
+  - Basketball🏀
+  - Reading Novels, Watching Anime & Movie, Surfing on Bilibili
   - LOL, Minecraft (Any Sandbox Games)
   - Guitar, Piano, Singing
-- **More about me:** [【https://zhiyu.netlify.com】](https://zhiyu.netlify.com)
+- **More about me:** [【https://zhiyu.netlify.app】](https://zhiyu.netlify.app)
 
 ## About this blog
 
-- **Capture my way of learning**
-- **Record every bit in my life**
+- **Record my learning**
+- **Capture my life**
+- **And ... I am a little lazy :p**
 
 <img src="https://raw.githubusercontent.com/QGrain/picgo-bed/master/figure/flyship.jpg" width=900>
 
