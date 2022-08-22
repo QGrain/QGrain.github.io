@@ -442,13 +442,13 @@ links:
       title: 'Nicer',
       intro: '斜月的博客',
       link: 'https://ninecr.tk/',
-      image: 'https://ninecr.tk/images/avatar.gif'
+      image: 'https://ninecr.tk/avatar.jpg'
     }
     - {
       title: 'Saying-Yan',
-      intro: '烟雨的博客',
+      intro: 'Sayingの魔法书',
       link: 'https://saying-yan.github.io/',
-      image: 'https://saying-yan.github.io/images/myAvatar.jpg'
+      image: 'https://avatars.githubusercontent.com/u/66560095?v=4'
     }
     - {
       title: '114026',
