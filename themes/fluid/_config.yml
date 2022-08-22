@@ -394,7 +394,7 @@ links:
   banner_img: /img/street.jpeg
   banner_img_height: 60  # available: 0 - 100
   banner_mask_alpha: 0.3  # available: 0 - 1.0
-  subtitle: My Friends, Hi~ o(￣▽￣*)ブ # 打字机内容
+  subtitle: My Friends, Hi (〃･ิ‿･ิ)ゞ # 打字机内容
   items:  # intro 与 image 可省略
     - {
       title: 'Fluid Docs',
@@ -422,7 +422,7 @@ links:
     }
     - {
       title: 'Zam',
-      intro: '陈逸飞的博客',
+      intro: '大飞的博客',
       link: 'https://zam-0703.github.io/',
       image: 'https://cdn.jsdelivr.net/gh/Zam-0703/Pictures/img/avatar.png'
     }
@@ -452,7 +452,13 @@ links:
     }
     - {
       title: '114026',
-      intro: 'drh的博客',
+      intro: '阿华的博客',
       link: 'https://blog.leoharry.com/',
       image: 'https://saying-yan.github.io/images/myAvatar.jpg'
+    }
+    - {
+      title: 'DeathSprout',
+      intro: 'DeathSprout@子辰',
+      link: 'https://sydddl.github.io/',
+      image: 'https://sydddl.github.io/img/avatar_hufbc9dc5a6fdabfcb7bc64a3668907b4c_1259297_300x0_resize_box_3.png'
     }
