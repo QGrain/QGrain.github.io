@@ -165,6 +165,8 @@ if [ -d /etc/profile.d ]; then
 fi
 ```
 
+### neovim
+
 ### fzf
 
 ### cmake
@@ -194,8 +196,26 @@ source /etc/profile.d/my_software.sh
 
 ### C/C++
 
-### Node
+- gcc-9/g++-9：由于Ubuntu22自带的gcc版本是11较高，为了兼容部分源码安装gcc-9以及g++-9
+
+```bash
+sudo apt install gcc-9 g++-9
+# 配置update-alternatives
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 20 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11
+sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 30 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
+```
+
+- llvm-9 (with gold plugin)：插桩利器
+
+```bash
+# 一键安装（预计四十分钟？）
+curl https://gitee.com/QGrain/aflgo-build/raw/master/build_llvm_11.sh | bash
+```
+
+### Go
 
 ### Java
 
-### Go
+### Rust
+
+### Node

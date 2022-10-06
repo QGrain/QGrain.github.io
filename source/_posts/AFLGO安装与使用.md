@@ -2,7 +2,7 @@
 title: AFLGO安装与使用
 toc: true
 date: 2020-10-21 14:25:11
-tags: [AFL, Fuzzing]
+tags: [AFL, Fuzz]
 index_img: /img/blur-sight.jpg
 ---
 
@@ -15,7 +15,7 @@ AFLGo基于llvm实现了函数调用图CG和控制流图CFG的获取，结合对
 ## 1 安装AFLGO
 
 - 安装llvm和clang，官方文档要求是3.8或者4.0，经过自己测试6.0和11.0和也可以使用，**确保环境$PATH或$LLVM_CONFIG变量已经添加**
-- 执行[一键安装脚本](https://raw.githubusercontent.com/aflgo/aflgo/master/scripts/build/aflgo-build.sh)，此脚本疑似有问题，其中llvm-4.0和clang-4.0会安装失败
+- 执行[官方一键安装脚本](https://raw.githubusercontent.com/aflgo/aflgo/master/scripts/build/aflgo-build.sh)，此脚本疑似有问题（截止至2020年10月），其中llvm-4.0和clang-4.0会安装失败
 - 因此依照[官方README](https://github.com/aflgo/aflgo)的指示，我编写了一键安装**llvm 11.0**以及AFLGo的[脚本](https://gitee.com/QGrain/aflgo-build/tree/master)：
 
 ```bash

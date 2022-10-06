@@ -190,7 +190,7 @@ jt -t monokai -f roboto -fs 12 -nfs 14 -tfs 13 -ofs 11 -dfs 10 -cellw 66% -T -N 
 
 具体界面效果如下（当然，passwd我为了测试，输入的是123）：
 
-<img src="https://gitee.com/QGrain/picgo-bed/raw/master/img/20210125012950.png"/>
+![](https://raw.githubusercontent.com/QGrain/picgo-bed/main/figure-2022/202210061313149.png)
 
 ## 4 参考
 

@@ -6,7 +6,7 @@ tags: [IDS, Zeek]
 index_img: /img/zeek-logo.png
 ---
 
-Zeek的安装是一个大坑  (* ￣︿￣)，本文将介绍Zeek的安装教程，然后附上了我的**踩坑记录。**
+Zeek的安装是一个大坑  (* ￣︿￣)，本文将介绍Zeek的安装教程，然后附上了我的**踩坑记录**和一键安装脚本。
 
 <!--more-->
 
@@ -117,4 +117,4 @@ Zeek的安装是一个大坑  (* ￣︿￣)，本文将介绍Zeek的安装教程
 
 ### 3.2 一键安装脚本
 
-[开源仓库](https://github.com/QGrain/auto-install-zeek) :rainbow:
+[开源仓库auto-install-zeek](https://github.com/QGrain/auto-install-zeek) :rainbow:

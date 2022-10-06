@@ -1,8 +1,8 @@
 ---
-title: AFL简介
+title: AFL简介与使用
 toc: true
 date: 2020-08-25 22:14:25
-tags: [AFL, Fuzzing]
+tags: [AFL, Fuzz]
 index_img: /img/afl-window.png
 ---
 
@@ -140,5 +140,65 @@ bitflip策略全部突变完毕后，进入到arithmetic突变阶段。arithmeti
 
 ### 4.6 splice
 
-## 5 Fuzzing后分析
+## 5 AFL安装与使用
 
+### 5.1 源码安装
+
+**采用源码安装AFL：**
+
+```bash
+# 从github下载最新的release v2.57b
+wget https://github.com/google/AFL/archive/v2.57b.tar.gz -O afl-2.57b.tar.gz
+# 官网自2017年11月就没有再更新，latest version 为2.52b
+# wget http://lcamtuf.coredump.cx/afl/releases/afl-latest.tgz -O afl-2.52b.tar.gz
+
+tar xvzf afl-2.57b.tar.gz
+cd afl-2.57b
+
+# make && make install
+sudo make && sudo make install
+```
+
+ 安装完成后，`afl-*`等二进制文件默认在`/usr/local/bin/`目录下 ，添加其到环境变量`PATH`即可
+
+> 出于研究的考虑，环境中很可能不止一种fuzzer，因此不建议make install，用绝对路径使用即可
+
+### 5.2 插桩与Fuzzing
+
+- 使用afl-gcc/afl-g++进行插桩：
+
+```bash
+# 进入待测程序目录，指定CC/CXX。注意需要提前创建/PATH/TO/BUILD安装目录
+cd /PATH/TO/PROGRAM
+CC=/PATH/TO/afl-gcc CXX=/PATH/TO/afl-g++ ./configure --prefix=/PATH/TO/BUILD
+make -j && sudo make install
+```
+
+- 也可以使用`llvm_mode`进行插桩：
+
+```bash
+# 编译afl-clang-fast
+cd llvm_mode && make
+
+# 插桩
+cd /PATH/TO/PROGRAM
+CC=/PATH/TO/afl-clang-fast CXX=/PATH/TO/afl-clang-fast++ ./configure --prefix=/PATH/TO/BUILD
+make -j && sudo make install
+```
+
+- 创建Fuzz的工作目录，开始Fuzz
+
+```bash
+# 我个人比较喜欢的目录结构如下
+├─fuzz-PROGRAM
+    ├─bin      # 使用bin/PROGRAM而不是PROGRAM可以避免在PATH中搜索
+    ├─in       # 存放初始种子
+    └─out      # Fuzz的输出
+
+cd fuzz-PROGRAM
+/PATH/TO/afl-fuzz -i in -o out bin/PROGRAM [argvs] @@
+```
+
+### 5.3 结果分析
+
+TO BE COMPLETED

@@ -1,5 +1,5 @@
 ---
-title: Linux磁盘分区扩容(非LVM)
+title: Linux磁盘分区扩容
 toc: true
 date: 2019-12-12 22:41:08
 tags: [Linux]
@@ -7,11 +7,13 @@ thumbnail: /image/thumbnails/logo-linux.jpg
 index_img: /img/logo-linux.jpg
 ---
 
+在主系统以外的系统(无论是虚拟机还是多系统)分配磁盘空间时我们常常**比较保守**，可能会面临需要扩容根分区的情况。<!-- more -->
+
+# Linux磁盘分区扩容（非LVM）
+
 ## 1 适用场景
 
-在为主系统以外的系统(无论是虚拟机还是多系统)分配磁盘空间时我们常常**比较保守**，这样导致的结果是根分区的空间不足。<!-- more -->
-
-如图：
+在为主系统以外的系统(无论是虚拟机还是多系统)分配磁盘空间时我们常常**比较保守**，这样可能会遇到根分区空间不足的情况，如图：
 
 ![](https://raw.githubusercontent.com/QGrain/picBed/master/img/20191102191126.png)
 
@@ -88,3 +90,7 @@ index_img: /img/logo-linux.jpg
 ## 3 一点补充
 
 后期分别在不同的系统上做过尝试，发现有的Linux发行版需要重新挂载/分区来更新分区表大小，比如Kali。而有的发行版比如CentOS，Ubuntu则不需要，进入操作系统后可以直接resize2fs
+
+# Linux磁盘分区扩容（LVM）
+
+TODO
