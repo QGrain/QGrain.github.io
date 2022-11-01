@@ -45,8 +45,15 @@ source /etc/profile.d/my_proxy.sh
 - 验证代理配置成功
 
 ```bash
-# 看到200或者301等状态返回码即说明配置成功
-curl google.com
+# 打印success即说明配置成功
+timeout 5s curl -I google.com && echo success || echo fail
+```
+
+- 配置代理的一个大坑：保证http_proxy等代理对sudo生效（不论当前用户是否为root，都需要添加以下内容）
+
+```bash
+#/etc/sudoers
+Defaults env_keep += "http_proxy https_proxy ftp_proxy"  
 ```
 
 ### 更换镜像源
@@ -64,7 +71,7 @@ deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted 
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse
 ```
 
-- 自动化换源
+- 自动化换源（暂时只支持Ubuntu）
 
 ```bash
 git clone git@github.com:QGrain/My-Awesome-Configuration.git awesome-conf
@@ -168,6 +175,11 @@ fi
 ### neovim
 
 ### fzf
+
+```bash
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
+```
 
 ### cmake
 
