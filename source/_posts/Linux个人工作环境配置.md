@@ -81,6 +81,11 @@ chmod u+x change-mirror-source.sh
 popd
 ```
 
+### 其他的坑
+
+- 再记录一个关于Ubuntu 22 in VMware的坑
+  - 安装[open-vm-tools, open-vm-tools-desktop]和vmware-tools是互斥的两个
+
 ## 2 软件配置
 
 ### 常用软件
