@@ -95,6 +95,10 @@ CONFIG_SECURITYFS=y
 CONFIG_CMDLINE_BOOL=y
 CONFIG_CMDLINE="net.ifnames=0"
 
+# 补充选项
+CONFIG_DEBUG_KMEMLEAK=y
+# CONFIG_KCOV_ENABLE_COMPARISONS=y
+
 # 然后使得上述追加内容生效，注意这六个选项的位置不再位于文件尾部
 make CC="/usr/bin/gcc" olddefconfig
 
@@ -104,6 +108,33 @@ make CC="/usr/bin/gcc" -j6
 # 期间并无报错且最后看到如下输出即编译成功
 # Kernel: arch/x86/boot/bzImage is ready  (#1)
 ```
+
+- 注：以下是一次运行日志的开头部分，有几个配置提示not enabled，是否有必要加入.config文件
+
+```bash
+2022/12/30 03:01:42 code coverage           : enabled
+2022/12/30 03:01:42 comparison tracing      : CONFIG_KCOV_ENABLE_COMPARISONS is not enabled
+2022/12/30 03:01:42 extra coverage          : enabled
+2022/12/30 03:01:42 delay kcov mmap         : enabled
+2022/12/30 03:01:42 setuid sandbox          : enabled
+2022/12/30 03:01:42 namespace sandbox       : /proc/self/ns/user does not exist
+2022/12/30 03:01:42 Android sandbox         : enabled
+2022/12/30 03:01:42 fault injection         : CONFIG_FAULT_INJECTION is not enabled
+2022/12/30 03:01:42 leak checking           : CONFIG_DEBUG_KMEMLEAK is not enabled
+2022/12/30 03:01:42 net packet injection    : /dev/net/tun does not exist
+2022/12/30 03:01:42 net device setup        : enabled
+2022/12/30 03:01:42 concurrency sanitizer   : /sys/kernel/debug/kcsan does not exist
+2022/12/30 03:01:42 devlink PCI setup       : PCI device 0000:00:10.0 is not available
+2022/12/30 03:01:42 NIC VF setup            : PCI device 0000:00:11.0 is not available
+2022/12/30 03:01:42 USB emulation           : /dev/raw-gadget does not exist
+2022/12/30 03:01:42 hci packet injection    : /dev/vhci does not exist
+2022/12/30 03:01:42 wifi device emulation   : /sys/class/mac80211_hwsim/ does not exist
+2022/12/30 03:01:42 802.15.4 emulation      : /sys/bus/platform/devices/mac802154_hwsim does not exist
+2022/12/30 03:01:42 corpus                  : 0 (deleted 0 broken)
+2022/12/30 03:01:44 seeds                   : 165/685
+```
+
+
 
 ## 4 创建虚拟机
 
