@@ -209,6 +209,16 @@ source /etc/profile.d/my_software.sh
 # 注: 如果是zsh，则需要注意是否在/etc/zsh/zprofile中添加了相关支持
 ```
 
+### docker
+
+- docker安装：
+
+```bash
+# tobe completed
+```
+
+
+
 ## 3 开发配置
 
 ### C/C++
