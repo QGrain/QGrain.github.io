@@ -217,7 +217,7 @@ source /etc/profile.d/my_software.sh
 # tobe completed
 ```
 
-
+- 容器内常用软件安装
 
 ## 3 开发配置
 
