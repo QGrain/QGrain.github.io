@@ -91,6 +91,10 @@ CONFIG_KASAN_INLINE=y
 CONFIG_CONFIGFS_FS=y
 CONFIG_SECURITYFS=y
 
+# 开启UBSAN
+CONFIG_UBSAN=y
+CONFIG_UBSAN_SANITIZE_ALL=y
+
 # 若想避免后续运行syzkaller的时候出现[FAILED] Failed to start Raise network interfaces.的错误，再追加以下两行
 CONFIG_CMDLINE_BOOL=y
 CONFIG_CMDLINE="net.ifnames=0"

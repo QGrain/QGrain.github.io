@@ -2,7 +2,7 @@
 title: Fluid主题样式备忘录
 toc: true
 date: 2020-07-15 17:55:55
-tags: [Blog, Second]
+tags: [Blog, Theme]
 index_img: /img/fluid-logo.png
 categories:
 	- [Configuration]
@@ -58,21 +58,13 @@ post:
 ```
 
 <p class="note note-primary">可选便签：success, danger, warning, primary, secondary, info, light</p>
-
 <p class="note note-success">success</p>
-
 <p class="note note-danger">danger</p>
-
 <p class="note note-warning">warning</p>
-
 <p class="note note-primary">primary</p>
-
 <p class="note note-secondary">secondary</p>
-
 <p class="note note-info">info</p>
-
 <p class="note note-light">light</p>
-
 ### 2.2 行内标签
 
 在 markdown 中加入如下的代码来使用 Label：
