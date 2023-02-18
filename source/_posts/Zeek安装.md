@@ -3,6 +3,7 @@ title: Zeek安装
 toc: true
 date: 2020-03-12 23:19:54
 tags: [IDS, Zeek]
+categories: [Tutorial]
 index_img: /img/zeek-logo.png
 ---
 

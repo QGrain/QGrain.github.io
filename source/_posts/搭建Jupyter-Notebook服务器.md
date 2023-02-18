@@ -2,7 +2,8 @@
 title: 搭建Jupyter-Notebook服务器
 toc: true
 date: 2020-06-02 16:39:01
-tags: [Selfhosted, Server]
+tags: [Selfhosted]
+categories: [Tutorial]
 index_img: /img/jupyter-welcome.png
 ---
 

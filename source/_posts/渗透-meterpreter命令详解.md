@@ -5,6 +5,7 @@ date: 2019-11-14 20:20:47
 tags: [Penetration, Kali]
 thumbnail: /image/thumbnails/cyberpunk1.jpg
 index_img: /image/thumbnails/cyberpunk1.jpg
+categories: [Security]
 ---
 
 ## 1 简介

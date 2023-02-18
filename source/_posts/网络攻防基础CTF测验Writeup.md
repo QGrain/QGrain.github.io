@@ -4,6 +4,7 @@ toc: true
 date: 2022-05-23 22:08:22
 index_img: /image/thumbnails/Icons_CTF-686x428.jpg
 tags: [CTF, Writeup]
+categories: [CTF]
 ---
 
 国科大2022年春季学期《网络攻防基础》课程CTF测验writeup。

@@ -130,6 +130,8 @@ ssh -T git@github.com
 
 # 注意！若提示需要输入git@github.com's password则说明github.com域名被污染，其解析的ip不正确，需要改/etc/hosts，添加以下一行即可（但是很奇怪的是无法再ping通了）
 20.205.243.166 github.com
+
+# 也可以直接上 https://github.com/521xueweihan/GitHub520
 ```
 
 ### Vim
@@ -239,10 +241,34 @@ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /u
 curl https://gitee.com/QGrain/aflgo-build/raw/master/build_llvm_11.sh | bash
 ```
 
+### Java
+
+- Java长期支持版本
+
+| 版本 | 初始发行   | 停止维护   | 下载链接                                                     |
+| ---- | ---------- | ---------- | ------------------------------------------------------------ |
+| 17   | 2021-09-14 | 2029-09-30 | [Java17 Download](https://www.oracle.com/java/technologies/downloads/#java17) |
+| 11   | 2018-09-25 | 2026-09-30 | [Java11 Download](https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html) |
+| 8    | 2014-03-18 | 2030-07-19 | [Java8 Download](https://www.oracle.com/java/technologies/javase/javase8u211-later-archive-downloads.html) |
+
+- 选择下载jdk17
+
 ### Go
 
-### Java
+- Easygoing: https://go.dev/dl/
 
 ### Rust
 
+- Easygoing: https://www.rust-lang.org/zh-CN/tools/install
+
 ### Node
+
+- Easygoing: https://nodejs.org/en/download/
+
+## 4 CTF配置
+
+### Burpsuite Pro 2022
+
+### IDA Pro 7.7
+
+To be completed

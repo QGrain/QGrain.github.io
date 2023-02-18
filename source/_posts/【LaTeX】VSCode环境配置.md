@@ -3,6 +3,7 @@ title: 【LaTeX】VSCode环境配置
 toc: true
 date: 2020-01-23 23:06:29
 tags: [LaTeX, VSCode]
+categories: [Configuration]
 index_img: /img/latex-logo-1.png
 ---
 

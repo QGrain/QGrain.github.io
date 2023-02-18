@@ -3,6 +3,7 @@ title: Linux磁盘分区扩容
 toc: true
 date: 2019-12-12 22:41:08
 tags: [Linux]
+categories: [Tricks]
 thumbnail: /image/thumbnails/logo-linux.jpg
 index_img: /img/logo-linux.jpg
 ---

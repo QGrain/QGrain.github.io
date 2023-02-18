@@ -3,6 +3,7 @@ title: AFLGO安装与使用
 toc: true
 date: 2020-10-21 14:25:11
 tags: [AFL, Fuzz]
+categories: [Fuzz]
 index_img: /img/blur-sight.jpg
 ---
 

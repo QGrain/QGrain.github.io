@@ -3,6 +3,7 @@ title: KVM的安装与使用
 toc: true
 date: 2020-05-25 21:58:44
 tags: [KVM, Virtualization]
+categories: [Tutorial]
 index_img: /img/kvm.png
 ---
 

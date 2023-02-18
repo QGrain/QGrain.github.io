@@ -3,6 +3,7 @@ title: AFL简介与使用
 toc: true
 date: 2020-08-25 22:14:25
 tags: [AFL, Fuzz]
+categories: [Fuzz]
 index_img: /img/afl-window.png
 ---
 

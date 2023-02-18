@@ -4,6 +4,7 @@ toc: true
 date: 2019-10-22 21:22:01
 thumbnail: /image/thumbnails/iptables.jpg
 tags: [Linux, iptables]
+categories: [Notes]
 index_img: /img/iptables.jpeg
 ---
 

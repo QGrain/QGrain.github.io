@@ -3,6 +3,7 @@ title: Kali Linux安装Docker
 toc: true
 date: 2019-01-12 23:10:44
 tags: [Kali, Docker]
+categories: [Tutorial]
 index_img: /img/Kali-logo.png
 ---
 

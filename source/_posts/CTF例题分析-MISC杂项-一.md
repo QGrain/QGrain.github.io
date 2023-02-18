@@ -3,6 +3,7 @@ title: 【CTF例题分析】MISC杂项(一)
 toc: true
 date: 2019-10-15 23:04:28
 tags: CTF
+categories: [CTF]
 index_img: /img/ctf.jpg
 ---
 

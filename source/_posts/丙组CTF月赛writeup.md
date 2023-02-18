@@ -5,7 +5,7 @@ date: 2022-09-25 10:33:16
 index_img: /image/thumbnails/ethereum-logo.png
 categories:
 	- [CTF]
-tags: [NeSE, CTF, Writeup]
+tags: [NeSE, Writeup]
 ---
 
 NeSE战队丙组月赛Writeup（包括解题和出题）

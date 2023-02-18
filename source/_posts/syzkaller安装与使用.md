@@ -3,12 +3,11 @@ title: syzkaller安装与使用
 toc: true
 date: 2022-10-31 20:09:22
 tags: [Kernel, Fuzz]
-categories:
-	- [Security]
+categories: [Fuzz]
 index_img: /image/thumbnails/fantasy-wallpaper-nature.jpg
 ---
 
-本文记录了我的syzkaller安装**踩坑记录**以及其基本使用方法。
+本文记录了我的syzkaller安装和使用的**踩坑记录**。
 
 syzkaller是2015年Google提出的一款主要用Go编写的基于覆盖率的内核fuzzer。<!--more-->2017年它的持续性fuzzing平台syzbot部署上线，迄今为止已经挖掘并报告了超过4000个内核漏洞。
 
@@ -103,10 +102,14 @@ CONFIG_CMDLINE="net.ifnames=0"
 CONFIG_DEBUG_KMEMLEAK=y
 CONFIG_STACKTRACE=y
 CONFIG_KCOV_INSTRUMENT_ALL=y
+CONFIG_FAULT_INJECTION=y
 # CONFIG_KCOV_ENABLE_COMPARISONS=y
 
 # 然后使得上述追加内容生效，注意这六个选项的位置不再位于文件尾部
 make CC="/usr/bin/gcc" olddefconfig
+
+# 可能会用上，很奇怪 DEBUG_INFO 总是开不了
+./scripts/config -e DEBUG_INFO
 
 # 最后开始编译内核（对内存有一定要求，我在虚拟机中编译失败，在台式物理机中5min编译完毕）
 make CC="/usr/bin/gcc" -j6
@@ -151,6 +154,10 @@ make CC="/usr/bin/gcc" -j6
 mkdir image && cd image
 cp ../syzkaller/tools/create-image.sh ./
 chmod u+x create-image.sh
+
+# debian的镜像太慢了，可切换到清华源 https://mirrors.tuna.tsinghua.edu.cn/debian/
+sed -i 's/http:\/\/deb.debian.org\/debian-ports/https:\/\/mirrors.tuna.tsinghua.edu.cn\/debian\//g' create-image.sh
+
 ./create-image.sh
 
 # 看到如下warning是正常现象，说明没有debian-archive-keyring，如果网络正常可以按照其替代方案切换到mirror https://deb.debian.org/debian并继续执行

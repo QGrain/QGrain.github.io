@@ -3,6 +3,7 @@ title: KVM虚拟机的四种网络模式
 toc: true
 date: 2020-06-24 22:56:40
 tags: [Virtualization, KVM]
+categories: [Notes]
 index_img: /img/kvm.png
 ---
 

@@ -3,7 +3,8 @@ title: CTF入门
 toc: true
 date: 2019-10-14 22:09:17
 thumbnail: /image/thumbnails/solidity_CTF.jpg
-tags: CTF
+tags: [CTF]
+categories: [Tutorial]
 index_img: /img/ctf.jpg
 ---
 

@@ -4,13 +4,14 @@ toc: true
 date: 2019-05-16 22:38:40
 thumbnail: /image/thumbnails/hello-world.jpg
 tag: [Windows, Virtualization]
+categories: [Tricks]
 index_img: /image/thumbnails/hello-world.jpg
 ---
 After we change the label of a disk, the Install control programs in the original driver may be inexecutable, with an error of **"Invalid Driver X:\ "**
 
 <!-- more -->
 
-## 1 Solutions
+## Solutions
 
 ### 1.1 Recommended
 

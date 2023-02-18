@@ -5,7 +5,7 @@ date: 2022-10-03 10:33:32
 index_img: /image/thumbnails/NeSE-logo-new.png
 categories:
 	- [CTF]
-tags: [NeSE, CTF, Writeup]
+tags: [NeSE, Writeup]
 ---
 
 10月2日NeSE丙组升乙组CTF升级赛Writeup

@@ -3,6 +3,7 @@ title: Zeek脚本语言(一)
 toc: true
 date: 2020-03-16 23:23:40
 tags: [IDS, Zeek]
+categories: [Tutorial]
 index_img: /img/zeek-logo.png
 ---
 

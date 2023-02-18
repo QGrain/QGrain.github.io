@@ -1,11 +1,11 @@
 ---
-
 title: 攻防世界-MISC新手区-Writeup
 toc: true
 thumbnail: /image/thumbnails/Icons_CTF-686x428.jpg
 index_img: /image/thumbnails/Icons_CTF-686x428.jpg
 date: 2020-04-12 00:51:06
 tags: [CTF, Writeup]
+categories: [CTF]
 ---
 
 XCTF线上练习网站[攻防世界](https://adworld.xctf.org.cn/)，MISC方向的新手区Writeup。第一次做CTF练习题，第一次写Writeup(/▽＼)

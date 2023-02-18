@@ -3,6 +3,7 @@ title: 开源网络流量分析框架Zeek
 toc: true
 date: 2020-03-12 23:19:16
 tags: [IDS, Zeek]
+categories: [Tutorial]
 index_img: /img/zeek-logo.png
 ---
 
