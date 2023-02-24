@@ -85,12 +85,17 @@ make CC="/usr/bin/gcc" kvm_guest.config
 # 在.config文件追加如下内容
 CONFIG_KCOV=y
 CONFIG_DEBUG_INFO=y
+CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y # 巨坑，在高版本中还需开启此选项，否则DEBUG_INFO会自动被DEBUG_INFO_NONE覆盖
 CONFIG_KASAN=y
 CONFIG_KASAN_INLINE=y
+CONFIG_KCOV_INSTRUMENT_ALL=y
+CONFIG_KCOV_ENABLE_COMPARISONS=y # 要求gcc8+
 CONFIG_CONFIGFS_FS=y
 CONFIG_SECURITYFS=y
+CONFIG_DEBUG_KMEMLEAK=y
+CONFIG_STACKTRACE=y
 
-# 开启UBSAN
+# 开启UBSAN，不可以(和哪些选项?)一起用，会报make编译错误。
 CONFIG_UBSAN=y
 CONFIG_UBSAN_SANITIZE_ALL=y
 
@@ -98,18 +103,46 @@ CONFIG_UBSAN_SANITIZE_ALL=y
 CONFIG_CMDLINE_BOOL=y
 CONFIG_CMDLINE="net.ifnames=0"
 
-# 补充选项
-CONFIG_DEBUG_KMEMLEAK=y
-CONFIG_STACKTRACE=y
-CONFIG_KCOV_INSTRUMENT_ALL=y
+# 启用错误注入技术
 CONFIG_FAULT_INJECTION=y
-# CONFIG_KCOV_ENABLE_COMPARISONS=y
+CONFIG_FAULT_INJECTION_DEBUG_FS=y
+CONFIG_FAULT_INJECTION_USERCOPY=y
+CONFIG_FAILSLAB=y
+CONFIG_FAIL_PAGE_ALLOC=y
+CONFIG_FAIL_MAKE_REQUEST=y
+CONFIG_FAIL_IO_TIMEOUT=y
+CONFIG_FAIL_FUTEX=y
+
+# 开启namespace sandboxing相关的选项
+CONFIG_NAMESPACES=y
+CONFIG_UTS_NS=y
+CONFIG_IPC_NS=y
+CONFIG_PID_NS=y
+CONFIG_NET_NS=y
+CONFIG_CGROUP_PIDS=y
+CONFIG_MEMCG=y
+CONFIG_USER_NS=y
+
+# 补充一些被证明有用的选项
+CONFIG_LOCKDEP=y
+CONFIG_PROVE_LOCKING=y
+CONFIG_DEBUG_ATOMIC_SLEEP=y
+CONFIG_PROVE_RCU=y
+CONFIG_DEBUG_VM=y
+CONFIG_REFCOUNT_FULL=y
+CONFIG_FORTIFY_SOURCE=y
+CONFIG_HARDENED_USERCOPY=y
+CONFIG_LOCKUP_DETECTOR=y
+CONFIG_SOFTLOCKUP_DETECTOR=y
+CONFIG_HARDLOCKUP_DETECTOR=y
+CONFIG_BOOTPARAM_HARDLOCKUP_PANIC=y
+CONFIG_DETECT_HUNG_TASK=y
+CONFIG_WQ_WATCHDOG=y
+CONFIG_DEFAULT_HUNG_TASK_TIMEOUT=140
+CONFIG_RCU_CPU_STALL_TIMEOUT=100
 
 # 然后使得上述追加内容生效，注意这六个选项的位置不再位于文件尾部
 make CC="/usr/bin/gcc" olddefconfig
-
-# 可能会用上，很奇怪 DEBUG_INFO 总是开不了
-./scripts/config -e DEBUG_INFO
 
 # 最后开始编译内核（对内存有一定要求，我在虚拟机中编译失败，在台式物理机中5min编译完毕）
 make CC="/usr/bin/gcc" -j6
@@ -235,7 +268,52 @@ mkdir workdir
 # 则说明之前boot.sh开启的qemu虚拟机尚未关机，进入到该虚拟机执行关机命令poweroff即可
 ```
 
-- 在 http://localhost:56741/ 查看fuzz的进度和结果
+- 在 http://localhost:56741/ 查看fuzz的进度和结果。关于web ui界面中coverage的数据` P1%(P2%) of N1(N2)`的含义，我通过分析源码`pkg/cover/html.go`理解了它们的含义。
+
+```go
+// pkg/cover/html.go
+...
+{{define "dir"}}
+	{{range $dir := .Dirs}}
+		<li>
+			<span id="path/{{$dir.Path}}" class="caret hover">
+				{{$dir.Name}}
+				<span class="cover hover">
+					{{if $dir.Covered}}{{$dir.Percent}}%({{$dir.PercentInCoveredFunc}}%){{else}}---{{end}}
+					<span class="cover-right">of {{$dir.Total}}({{$dir.TotalInCoveredFunc}})</span>
+				</span>
+			</span>
+			<ul class="nested">
+				{{template "dir" $dir}}
+			</ul>
+		</li>
+	{{end}}
+	{{range $file := .Files}}
+		<li><span class="hover">
+			{{if $file.Covered}}
+				<a href="#{{$file.Path}}" id="path/{{$file.Path}}" onclick="onFileClick({{$file.Index}})">
+					{{$file.Name}}
+				</a>
+				<span class="cover hover">
+					<a href="#{{$file.Path}}" id="path/{{$file.Path}}"
+						onclick="{{if .HasFunctions}}onPercentClick{{else}}onFileClick{{end}}({{$file.Index}})">
+                                                {{$file.Percent}}%({{$file.PercentInCoveredFunc}}%)
+					</a>
+					<span class="cover-right">of {{$file.Total}}({{$file.TotalInCoveredFunc}})</span>
+				</span>
+			{{else}}
+					{{$file.Name}}<span class="cover hover">---<span class="cover-right">
+						of {{$file.Total}}</span></span>
+			{{end}}
+		</span></li>
+	{{end}}
+{{end}}
+...
+```
+
+由此可知，`P1%`的含义是`file.Percent`**大概是PC覆盖占比**，对应`N1`为`file.Total`**PC覆盖总数**。`P2%`的含义是`file.PercentInCoveredFunc`**函数覆盖占比**，对应`N2`为`file.TotalInCoveredFunc`**函数覆盖总数**
+
+上面这段划掉，我还没搞清楚...
 
 ## 6 参考
 
@@ -246,3 +324,6 @@ mkdir workdir
 [[3] Syzkaller安装 Fuzz Qemu amd64 Kernel](http://pwn4.fun/2019/05/31/Syzkaller%E5%AE%89%E8%A3%85%20Fuzz%20Qemu%20amd64%20Kernel/)
 
 [[4] syzkaller官方troubleshooting](https://github.com/google/syzkaller/blob/master/docs/linux/troubleshooting.md)
+
+[[5] syzkaller官方kernel_configs](https://github.com/google/syzkaller/blob/master/docs/linux/kernel_configs.md)
+
