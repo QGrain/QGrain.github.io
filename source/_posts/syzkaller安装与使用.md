@@ -95,7 +95,7 @@ CONFIG_SECURITYFS=y
 CONFIG_DEBUG_KMEMLEAK=y
 CONFIG_STACKTRACE=y
 
-# 开启UBSAN，不可以(和哪些选项?)一起用，会报make编译错误。
+# UBSAN，不可以(和哪些选项?)一起用，会报make编译错误。
 CONFIG_UBSAN=y
 CONFIG_UBSAN_SANITIZE_ALL=y
 
@@ -145,13 +145,13 @@ CONFIG_RCU_CPU_STALL_TIMEOUT=100
 make CC="/usr/bin/gcc" olddefconfig
 
 # 最后开始编译内核（对内存有一定要求，我在虚拟机中编译失败，在台式物理机中5min编译完毕）
-make CC="/usr/bin/gcc" -j6
+make CC="/usr/bin/gcc" -j8
 
 # 期间并无报错且最后看到如下输出即编译成功
 # Kernel: arch/x86/boot/bzImage is ready  (#1)
 ```
 
-- 注：以下是一次运行日志的开头部分，有几个配置提示not enabled，是否有必要加入.config文件
+- 以下是(较早以前)一次运行日志的开头部分，所提示not enabled的几个config已经包含在上述配置里。
 
 ```bash
 2022/12/30 03:01:42 code coverage           : enabled
