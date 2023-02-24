@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.5k words
+      2.1k words
     </span>
   
 
@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      23
+      33
        minutes
     </span>
   
@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：February 18, 2023 pm
+                  Last updated on：February 20, 2023 pm
                 
               </p>
             
@@ -287,12 +287,17 @@ make CC=<span class="hljs-string">"/usr/bin/gcc"</span> kvm_guest.config
 <span class="hljs-comment"># 在.config文件追加如下内容</span>
 CONFIG_KCOV=y
 CONFIG_DEBUG_INFO=y
+CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y <span class="hljs-comment"># 巨坑，在高版本中还需开启此选项，否则DEBUG_INFO会自动被DEBUG_INFO_NONE覆盖</span>
 CONFIG_KASAN=y
 CONFIG_KASAN_INLINE=y
+CONFIG_KCOV_INSTRUMENT_ALL=y
+CONFIG_KCOV_ENABLE_COMPARISONS=y <span class="hljs-comment"># 要求gcc8+</span>
 CONFIG_CONFIGFS_FS=y
 CONFIG_SECURITYFS=y
+CONFIG_DEBUG_KMEMLEAK=y
+CONFIG_STACKTRACE=y
 
-<span class="hljs-comment"># 开启UBSAN</span>
+<span class="hljs-comment"># 开启UBSAN，不可以(和哪些选项?)一起用，会报make编译错误。</span>
 CONFIG_UBSAN=y
 CONFIG_UBSAN_SANITIZE_ALL=y
 
@@ -300,18 +305,46 @@ CONFIG_UBSAN_SANITIZE_ALL=y
 CONFIG_CMDLINE_BOOL=y
 CONFIG_CMDLINE=<span class="hljs-string">"net.ifnames=0"</span>
 
-<span class="hljs-comment"># 补充选项</span>
-CONFIG_DEBUG_KMEMLEAK=y
-CONFIG_STACKTRACE=y
-CONFIG_KCOV_INSTRUMENT_ALL=y
+<span class="hljs-comment"># 启用错误注入技术</span>
 CONFIG_FAULT_INJECTION=y
-<span class="hljs-comment"># CONFIG_KCOV_ENABLE_COMPARISONS=y</span>
+CONFIG_FAULT_INJECTION_DEBUG_FS=y
+CONFIG_FAULT_INJECTION_USERCOPY=y
+CONFIG_FAILSLAB=y
+CONFIG_FAIL_PAGE_ALLOC=y
+CONFIG_FAIL_MAKE_REQUEST=y
+CONFIG_FAIL_IO_TIMEOUT=y
+CONFIG_FAIL_FUTEX=y
+
+<span class="hljs-comment"># 开启namespace sandboxing相关的选项</span>
+CONFIG_NAMESPACES=y
+CONFIG_UTS_NS=y
+CONFIG_IPC_NS=y
+CONFIG_PID_NS=y
+CONFIG_NET_NS=y
+CONFIG_CGROUP_PIDS=y
+CONFIG_MEMCG=y
+CONFIG_USER_NS=y
+
+<span class="hljs-comment"># 补充一些被证明有用的选项</span>
+CONFIG_LOCKDEP=y
+CONFIG_PROVE_LOCKING=y
+CONFIG_DEBUG_ATOMIC_SLEEP=y
+CONFIG_PROVE_RCU=y
+CONFIG_DEBUG_VM=y
+CONFIG_REFCOUNT_FULL=y
+CONFIG_FORTIFY_SOURCE=y
+CONFIG_HARDENED_USERCOPY=y
+CONFIG_LOCKUP_DETECTOR=y
+CONFIG_SOFTLOCKUP_DETECTOR=y
+CONFIG_HARDLOCKUP_DETECTOR=y
+CONFIG_BOOTPARAM_HARDLOCKUP_PANIC=y
+CONFIG_DETECT_HUNG_TASK=y
+CONFIG_WQ_WATCHDOG=y
+CONFIG_DEFAULT_HUNG_TASK_TIMEOUT=140
+CONFIG_RCU_CPU_STALL_TIMEOUT=100
 
 <span class="hljs-comment"># 然后使得上述追加内容生效，注意这六个选项的位置不再位于文件尾部</span>
 make CC=<span class="hljs-string">"/usr/bin/gcc"</span> olddefconfig
-
-<span class="hljs-comment"># 可能会用上，很奇怪 DEBUG_INFO 总是开不了</span>
-./scripts/config -e DEBUG_INFO
 
 <span class="hljs-comment"># 最后开始编译内核（对内存有一定要求，我在虚拟机中编译失败，在台式物理机中5min编译完毕）</span>
 make CC=<span class="hljs-string">"/usr/bin/gcc"</span> -j6
@@ -425,12 +458,54 @@ mkdir workdir
 <span class="hljs-comment"># 则说明之前boot.sh开启的qemu虚拟机尚未关机，进入到该虚拟机执行关机命令poweroff即可</span></code></pre></div>
 
 <ul>
-<li>在 <a href="http://localhost:56741/" target="_blank" rel="noopener">http://localhost:56741/</a> 查看fuzz的进度和结果</li>
+<li>在 <a href="http://localhost:56741/" target="_blank" rel="noopener">http://localhost:56741/</a> 查看fuzz的进度和结果。关于web ui界面中coverage的数据<code> P1%(P2%) of N1(N2)</code>的含义，我通过分析源码<code>pkg/cover/html.go</code>理解了它们的含义。</li>
 </ul>
+<div class="hljs"><pre><code class="hljs go">// pkg/cover/html.go
+...
+&#123;&#123;define "dir"&#125;&#125;
+	&#123;&#123;range $dir := .Dirs&#125;&#125;
+		&lt;li&gt;
+			&lt;span id="path/&#123;&#123;$dir.Path&#125;&#125;" class="caret hover"&gt;
+				&#123;&#123;$dir.Name&#125;&#125;
+				&lt;span class="cover hover"&gt;
+					&#123;&#123;if $dir.Covered&#125;&#125;&#123;&#123;$dir.Percent&#125;&#125;%(&#123;&#123;$dir.PercentInCoveredFunc&#125;&#125;%)&#123;&#123;else&#125;&#125;---&#123;&#123;end&#125;&#125;
+					&lt;span class="cover-right"&gt;of &#123;&#123;$dir.Total&#125;&#125;(&#123;&#123;$dir.TotalInCoveredFunc&#125;&#125;)&lt;/span&gt;
+				&lt;/span&gt;
+			&lt;/span&gt;
+			&lt;ul class="nested"&gt;
+				&#123;&#123;template "dir" $dir&#125;&#125;
+			&lt;/ul&gt;
+		&lt;/li&gt;
+	&#123;&#123;end&#125;&#125;
+	&#123;&#123;range $file := .Files&#125;&#125;
+		&lt;li&gt;&lt;span class="hover"&gt;
+			&#123;&#123;if $file.Covered&#125;&#125;
+				&lt;a href="#&#123;&#123;$file.Path&#125;&#125;" id="path/&#123;&#123;$file.Path&#125;&#125;" onclick="onFileClick(&#123;&#123;$file.Index&#125;&#125;)"&gt;
+					&#123;&#123;$file.Name&#125;&#125;
+				&lt;/a&gt;
+				&lt;span class="cover hover"&gt;
+					&lt;a href="#&#123;&#123;$file.Path&#125;&#125;" id="path/&#123;&#123;$file.Path&#125;&#125;"
+						onclick="&#123;&#123;if .HasFunctions&#125;&#125;onPercentClick&#123;&#123;else&#125;&#125;onFileClick&#123;&#123;end&#125;&#125;(&#123;&#123;$file.Index&#125;&#125;)"&gt;
+                                                &#123;&#123;$file.Percent&#125;&#125;%(&#123;&#123;$file.PercentInCoveredFunc&#125;&#125;%)
+					&lt;/a&gt;
+					&lt;span class="cover-right"&gt;of &#123;&#123;$file.Total&#125;&#125;(&#123;&#123;$file.TotalInCoveredFunc&#125;&#125;)&lt;/span&gt;
+				&lt;/span&gt;
+			&#123;&#123;else&#125;&#125;
+					&#123;&#123;$file.Name&#125;&#125;&lt;span class="cover hover"&gt;---&lt;span class="cover-right"&gt;
+						of &#123;&#123;$file.Total&#125;&#125;&lt;/span&gt;&lt;/span&gt;
+			&#123;&#123;end&#125;&#125;
+		&lt;/span&gt;&lt;/li&gt;
+	&#123;&#123;end&#125;&#125;
+&#123;&#123;end&#125;&#125;
+...</code></pre></div>
+
+<p>由此可知，<code>P1%</code>的含义是<code>file.Percent</code><strong>大概是PC覆盖占比</strong>，对应<code>N1</code>为<code>file.Total</code><strong>PC覆盖总数</strong>。<code>P2%</code>的含义是<code>file.PercentInCoveredFunc</code><strong>函数覆盖占比</strong>，对应<code>N2</code>为<code>file.TotalInCoveredFunc</code><strong>函数覆盖总数</strong></p>
+<p>上面这段划掉，我还没搞清楚…</p>
 <h2 id="6-参考"><a href="#6-参考" class="headerlink" title="6 参考"></a>6 参考</h2><p><a href="https://github.com/google/syzkaller/blob/master/docs/linux/setup_ubuntu-host_qemu-vm_x86-64-kernel.md" target="_blank" rel="noopener">[1] Setup: Ubuntu host, QEMU vm, x86-64 kernel</a></p>
 <p><a href="https://zhuanlan.zhihu.com/p/506059739" target="_blank" rel="noopener">[2] 零基础syzkaller挖掘Linux内核漏洞</a></p>
 <p><a href="http://pwn4.fun/2019/05/31/Syzkaller%E5%AE%89%E8%A3%85%20Fuzz%20Qemu%20amd64%20Kernel/" target="_blank" rel="noopener">[3] Syzkaller安装 Fuzz Qemu amd64 Kernel</a></p>
 <p><a href="https://github.com/google/syzkaller/blob/master/docs/linux/troubleshooting.md" target="_blank" rel="noopener">[4] syzkaller官方troubleshooting</a></p>
+<p><a href="https://github.com/google/syzkaller/blob/master/docs/linux/kernel_configs.md" target="_blank" rel="noopener">[5] syzkaller官方kernel_configs</a></p>
 
             </article>
             <hr>
