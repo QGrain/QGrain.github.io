@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      91 words
+      305 words
     </span>
   
 
@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      1
+      4
        minutes
     </span>
   
@@ -223,15 +223,15 @@
             
               <p class="note note-info">
                 
-                  Last updated on：February 18, 2023 pm
+                  Last updated on：February 24, 2023 pm
                 
               </p>
             
             <article class="markdown-body">
-              <p>留个备忘录方便查看做kernel fuzzing中遇到的问题和解决技巧</p>
+              <p>留个备忘录方便查看做kernel fuzzing中遇到的问题和解决技巧（持续更新中ing）</p>
 <a id="more"></a>
 
-<h2 id="一些脚本"><a href="#一些脚本" class="headerlink" title="一些脚本"></a>一些脚本</h2><ul>
+<h2 id="常用脚本"><a href="#常用脚本" class="headerlink" title="常用脚本"></a>常用脚本</h2><ul>
 <li>查看crashs目录结果</li>
 </ul>
 <div class="hljs"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">!/bin/bash</span>
@@ -250,13 +250,52 @@ else
     do
         echo -e "\n======== $crash ========"
         desc=`cat $1/$crash/description`
-        echo -e "Description: $desc"
-        repro=`ls $1/$crash | grep repro | wc -l`
+        echo -e "$desc"
+        repro=`ls $1/$crash | grep "repro.prog" | wc -l`
         echo -e "Repro: $repro"
     done
     echo -e "\nDone!"
 fi</code></pre></div>
 
+<ul>
+<li>TBD</li>
+</ul>
+<h2 id="qemu-gdb调试内核"><a href="#qemu-gdb调试内核" class="headerlink" title="qemu+gdb调试内核"></a>qemu+gdb调试内核</h2><p><strong>通过qemu启动待调试的内核：</strong></p>
+<div class="hljs"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 基于syzkaller的create-image.sh，开启nokaslr</span>
+KERNEL=../linux-6.1.12
+IMAGE=./stretch.img
+
+qemu-system-x86_64 \
+  -kernel $KERNEL/arch/x86/boot/bzImage \
+  -append "console=ttyS0 root=/dev/sda nokaslr slub_debug=P kmemleak=on"\
+  -hda $IMAGE \
+  -net user,hostfwd=tcp::16112-:22 -net nic \
+  -enable-kvm \
+  -cpu host \
+  -nographic \
+  -serial mon:stdio \
+  -m 1G \
+  -s \
+  -smp 1 \
+  -pidfile kernel.debug.pid \
+<span class="hljs-meta">  2&gt;</span><span class="bash">&amp;1 | tee kernel.debug.log</span></code></pre></div>
+
+<p>相关参数解释：</p>
+<ul>
+<li><code>-s</code>：监听gdb 1234端口</li>
+<li><code>-S</code>：启动后挂起，等待连接（optional）</li>
+<li><code>-nographic</code>：不启动图形界面，与<code>console=ttyS0</code>组合使用，将调试信息输出到<code>ttyS0</code></li>
+</ul>
+<p><strong>gdb连接进行调试</strong>（我安装的是gdb 10.2，不存在部分博客中提到需要修改gdb源码再编译的问题）：</p>
+<div class="hljs"><pre><code class="hljs bash">gdb vmlinux --<span class="hljs-built_in">eval</span>-command=<span class="hljs-string">"target remote tcp::1234"</span></code></pre></div>
+
+<p><strong>Trouble shooting</strong></p>
+<ul>
+<li><code>Cannot insert breakpoint 1. Cannot access memory at address 0xffffffff8610ae1b</code><ul>
+<li>用硬件断点<code>hbreak</code>而不是软件断点<code>break</code></li>
+</ul>
+</li>
+</ul>
 
             </article>
             <hr>
@@ -284,6 +323,23 @@ fi</code></pre></div>
               
                 <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
               
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2023/01/26/批量窗口管理工具screenctl/">
+                        <span class="hidden-mobile">批量窗口管理工具screenctl</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
               
             </div>
 
