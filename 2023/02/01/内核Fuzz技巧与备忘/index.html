@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      305 words
+      319 words
     </span>
   
 
@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：February 24, 2023 pm
+                  Last updated on：February 28, 2023 pm
                 
               </p>
             
@@ -239,19 +239,21 @@
 set -e
 
 print_help() &#123;
-	echo -e "Usage: ./get_result.sh /path/to/crashs_dir"
+        echo -e "Usage: ./get_result.sh /path/to/crashs_dir"
 &#125;
 
 if [[ ! -n "$1" ]]
 then
-	print_help
+        print_help
 else
     ls $1 | while read crash
     do
         echo -e "\n======== $crash ========"
         desc=`cat $1/$crash/description`
         echo -e "$desc"
-        repro=`ls $1/$crash | grep "repro.prog" | wc -l`
+        syz_repro=`ls $1/$crash | grep "repro.prog" | wc -l`
+        c_repro=`ls $1/$crash | grep "repro.cprog" | wc -l`
+        repro=`echo "$syz_repro + $c_repro" | bc`
         echo -e "Repro: $repro"
     done
     echo -e "\nDone!"
