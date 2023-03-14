@@ -101,6 +101,4 @@ screen -x -S NAME -X stuff CMD
 screen -r NAME -X quit
 ```
 
-### xxxxxxxxxx \documentclass{article}  % 选择模版，使用Latex自带的article模版\author{my name}\title{Title}\usepackage{graphicx}   % 插入图片用到的宏包\usepackage{multirow}   % 插入表格用到的宏包​\begin{document} \maketitle    \section{Hello China} China is in East Asia. ​\subsection{Hello Hubei} Hubei Province is located in central China.​    \subsubsection{Hello Wuhan}         \paragraph{HUST}is Huazhong University of Science and Technology.         \subparagraph{Dian Group} is a student innovation technology team.​    \subsection{Test}        \centering        \begin{tabular}{|c|c|c|c|}         \hline         t & e & s & t\\         \hline         1 & 2 & 3 & 4\\         \hline         \end{tabular}​\end{document} tex
-
 To be completed
