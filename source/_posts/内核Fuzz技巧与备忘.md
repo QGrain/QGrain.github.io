@@ -22,19 +22,21 @@ hide: false
 set -e
 
 print_help() {
-	echo -e "Usage: ./get_result.sh /path/to/crashs_dir"
+        echo -e "Usage: ./get_result.sh /path/to/crashs_dir"
 }
 
 if [[ ! -n "$1" ]]
 then
-	print_help
+        print_help
 else
     ls $1 | while read crash
     do
         echo -e "\n======== $crash ========"
         desc=`cat $1/$crash/description`
         echo -e "$desc"
-        repro=`ls $1/$crash | grep "repro.prog" | wc -l`
+        syz_repro=`ls $1/$crash | grep "repro.prog" | wc -l`
+        c_repro=`ls $1/$crash | grep "repro.cprog" | wc -l`
+        repro=`echo "$syz_repro + $c_repro" | bc`
         echo -e "Repro: $repro"
     done
     echo -e "\nDone!"

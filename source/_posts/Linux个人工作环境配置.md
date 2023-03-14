@@ -190,7 +190,7 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 
 ### cmake
 
-- 源码安装指定版本
+- 源码安装指定版本，我曾经写过一个脚本，但是没空找了
 
 ### miniconda3
 
@@ -216,10 +216,11 @@ source /etc/profile.d/my_software.sh
 - docker安装：
 
 ```bash
-# tobe completed
+# 详细参见菜鸟教程，我就不照搬了 qwq
+https://www.runoob.com/docker/ubuntu-docker-install.html
 ```
 
-- 容器内常用软件安装
+- 容器内常用软件安装，参见本文前半部分的常用软件安装
 
 ## 3 开发配置
 
@@ -270,5 +271,7 @@ curl https://gitee.com/QGrain/aflgo-build/raw/master/build_llvm_11.sh | bash
 ### Burpsuite Pro 2022
 
 ### IDA Pro 7.7
+
+更多详见百度网盘
 
 To be completed
