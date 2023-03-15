@@ -14,6 +14,33 @@ hide: false
 
 ## 常用脚本
 
+- 一键安装syzkaller
+
+```bash
+#!/bin/bash
+
+set -e 
+
+sudo apt update
+sudo apt install -y debootstrap qemu qemu-kvm
+sudo apt install -y git make build-essential openssh-server
+sudo apt install -y libssl-dev libelf-dev
+sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-dev libmpfr-dev libmpc-dev
+
+pushd ~
+wget https://dl.google.com/go/go1.17.6.linux-amd64.tar.gz
+tar -zxvf go1.17.6.linux-amd64.tar.gz
+echo "export GOPATH=~/go" >> ~/.bashrc
+echo "export PATH=$GOPATH/bin:$PATH" >> ~/.bashrc
+source ~/.bashrc
+
+git clone https://github.com/google/syzkaller.git
+cd syzkaller
+make -j
+
+echo -e "\nDone!"
+```
+
 - 查看crashs目录结果
 
 ```shell

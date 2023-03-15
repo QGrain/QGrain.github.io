@@ -92,7 +92,7 @@ popd
 
 ```bash
 # 常用网络工具
-sudo apt install -y net-tools openssh-server curl
+sudo apt install -y net-tools openssh-server curl inetutils-ping
 
 # 常用运维工具
 sudo apt install -y screen tmux
