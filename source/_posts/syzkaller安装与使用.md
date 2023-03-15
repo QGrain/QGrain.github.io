@@ -40,7 +40,7 @@ sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-d
 
 ```bash
 cd ~
-wget https://dl.google.com/go/go1.17.6.linux-amd64.tar.gz
+wget https://go.dev/dl/go1.19.7.linux-amd64.tar.gz
 tar -zxvf go1.17.6.linux-amd64.tar.gz 
 export GOPATH=~/go
 export GOROOT=~/go
