@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      319 words
+      433 words
     </span>
   
 
@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      4
+      7
        minutes
     </span>
   
@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：February 28, 2023 pm
+                  Last updated on：March 15, 2023 am
                 
               </p>
             
@@ -232,6 +232,32 @@
 <a id="more"></a>
 
 <h2 id="常用脚本"><a href="#常用脚本" class="headerlink" title="常用脚本"></a>常用脚本</h2><ul>
+<li>一键安装syzkaller</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash
+</span>
+<span class="hljs-built_in">set</span> -e 
+
+sudo apt update
+sudo apt install -y debootstrap qemu qemu-kvm
+sudo apt install -y git make build-essential openssh-server
+sudo apt install -y libssl-dev libelf-dev
+sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-dev libmpfr-dev libmpc-dev
+
+<span class="hljs-built_in">pushd</span> ~
+wget https://dl.google.com/go/go1.17.6.linux-amd64.tar.gz
+tar -zxvf go1.17.6.linux-amd64.tar.gz
+<span class="hljs-built_in">echo</span> <span class="hljs-string">"export GOPATH=~/go"</span> &gt;&gt; ~/.bashrc
+<span class="hljs-built_in">echo</span> <span class="hljs-string">"export PATH=<span class="hljs-variable">$GOPATH</span>/bin:<span class="hljs-variable">$PATH</span>"</span> &gt;&gt; ~/.bashrc
+<span class="hljs-built_in">source</span> ~/.bashrc
+
+git <span class="hljs-built_in">clone</span> https://github.com/google/syzkaller.git
+<span class="hljs-built_in">cd</span> syzkaller
+make -j
+
+<span class="hljs-built_in">echo</span> -e <span class="hljs-string">"\nDone!"</span></code></pre></div>
+
+<ul>
 <li>查看crashs目录结果</li>
 </ul>
 <div class="hljs"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash">!/bin/bash</span>
