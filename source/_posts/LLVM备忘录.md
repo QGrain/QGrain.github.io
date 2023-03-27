@@ -2,9 +2,10 @@
 title: LLVM备忘录
 toc: true
 date: 2023-03-02 22:35:08
-tags:
+tags: [LLVM]
 categories:
-index_img:
+  - [Static Analysis]
+index_img: /image/thumbnails/dragon.jpg
 ---
 
 记录LLVM使用心得，备忘录
