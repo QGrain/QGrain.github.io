@@ -33,7 +33,8 @@ sudo apt update
 sudo apt install -y debootstrap qemu qemu-kvm
 sudo apt install -y git make build-essential openssh-server
 sudo apt install -y libssl-dev libelf-dev
-sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-dev libmpfr-dev libmpc-dev 
+sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-dev libmpfr-dev libmpc-dev
+sudo apt install -y bc # 在一次纯净docker测试中发现编译内核时缺少这个包
 ```
 
 - 安装Go
