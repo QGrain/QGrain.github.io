@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：March 15, 2023 pm
+                  Last updated on：March 27, 2023 pm
                 
               </p>
             
@@ -244,7 +244,8 @@ Defaults env_keep += <span class="hljs-string">"http_proxy https_proxy ftp_proxy
 sudo apt install -y debootstrap qemu qemu-kvm
 sudo apt install -y git make build-essential openssh-server
 sudo apt install -y libssl-dev libelf-dev
-sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-dev libmpfr-dev libmpc-dev</code></pre></div>
+sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-dev libmpfr-dev libmpc-dev
+sudo apt install -y bc <span class="hljs-comment"># 在一次纯净docker测试中发现编译内核时缺少这个包</span></code></pre></div>
 
 <ul>
 <li>安装Go</li>
