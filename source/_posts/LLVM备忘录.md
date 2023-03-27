@@ -59,3 +59,11 @@ echo -e "\nplease: sudo ninja install"
 ### 打印相关信息Pass
 
 ### CFG Pass
+
+## 参考
+
+[[1] LLVM官方文档](https://llvm.org/docs/index.html)（其中值得看的几个子链接[Getting Started with the LLVM System](https://llvm.org/docs/GettingStarted.html)，[LLVM Tutorial: Table of Contents](https://llvm.org/docs/tutorial/index.html)，[LLVM Programmer’s Manual](https://llvm.org/docs/ProgrammersManual.html)，[Writing an LLVM Pass](https://llvm.org/docs/WritingAnLLVMPass.html)）
+
+[[2] LLVM Analysis Pass 实验（一）基础操作汇总](https://zhuanlan.zhihu.com/p/594998469)
+
+[[3] LLVM Analysis Pass 实验（二）控制流（Control Flow）可视化](https://zhuanlan.zhihu.com/p/596465125)
