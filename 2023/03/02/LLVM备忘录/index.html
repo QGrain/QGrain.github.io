@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      836 words
+      1k words
     </span>
   
 
@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      11
+      14
        minutes
     </span>
   
@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：April 4, 2023 pm
+                  Last updated on：April 10, 2023 pm
                 
               </p>
             
@@ -265,7 +265,7 @@
 <td>Makefile&#x2F;build processor(Optional)</td>
 </tr>
 </tbody></table>
-<h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><p><strong>一键安装脚本：</strong></p>
+<h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><p><strong>一键安装脚本：build_llvm-project.sh</strong></p>
 <div class="hljs"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash
 </span>
 <span class="hljs-built_in">set</span> -e
@@ -273,7 +273,31 @@
 <span class="hljs-function"><span class="hljs-title">print_help</span></span>()
 &#123;
     <span class="hljs-built_in">echo</span> -e <span class="hljs-string">"Usage: ./build_llvm-project.sh LLVM_VERSION\n"</span>
+    <span class="hljs-built_in">echo</span> -e <span class="hljs-string">"[Notice] LLVM_VERSION's format is X.Y.Z, *-rcN versions are not supported\n"</span>
     <span class="hljs-built_in">exit</span> 1
+&#125;
+
+
+<span class="hljs-function"><span class="hljs-title">get_url</span></span>()
+&#123;
+    OLD_IFS=<span class="hljs-variable">$IFS</span>
+    IFS=<span class="hljs-string">"."</span>
+    arr=(<span class="hljs-variable">$1</span>)
+    IFS=<span class="hljs-variable">$OLD_IFS</span>
+
+    ver_val=0
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> $(seq 0 2)
+    <span class="hljs-keyword">do</span>
+        ver_val=`<span class="hljs-built_in">echo</span> <span class="hljs-string">"<span class="hljs-variable">$ver_val</span> * 10 + <span class="hljs-variable">$&#123;arr[$i]&#125;</span>"</span> | bc`
+    <span class="hljs-keyword">done</span>
+
+    threshold=1101
+    <span class="hljs-keyword">if</span> [[ <span class="hljs-variable">$ver_val</span> -ge <span class="hljs-variable">$threshold</span> ]]
+    <span class="hljs-keyword">then</span>
+        <span class="hljs-built_in">echo</span> <span class="hljs-string">"https://github.com/llvm/llvm-project/releases/download/llvmorg-<span class="hljs-variable">$1</span>/llvm-project-<span class="hljs-variable">$1</span>.src.tar.xz"</span>
+    <span class="hljs-keyword">else</span>
+        <span class="hljs-built_in">echo</span> <span class="hljs-string">"https://github.com/llvm/llvm-project/releases/download/llvmorg-<span class="hljs-variable">$1</span>/llvm-project-<span class="hljs-variable">$1</span>.tar.xz"</span>
+    <span class="hljs-keyword">fi</span>
 &#125;
 
 
@@ -292,9 +316,12 @@ sudo apt install -y cmake ninja-build
 
 <span class="hljs-comment"># download source</span>
 INSTALL_DIR=llvm-project-<span class="hljs-variable">$version</span>.install
-SRC_DIR=llvm-project-<span class="hljs-variable">$version</span>.src
-wget https://github.com/llvm/llvm-project/releases/download/llvmorg-<span class="hljs-variable">$version</span>/<span class="hljs-variable">$SRC_DIR</span>.tar.xz
+URL=`get_url <span class="hljs-variable">$version</span>`
+SRC_DIR=$(basename <span class="hljs-variable">$URL</span> .tar.xz)
+
+wget <span class="hljs-variable">$URL</span>
 tar xvJf <span class="hljs-variable">$SRC_DIR</span>.tar.xz
+
 mkdir <span class="hljs-variable">$INSTALL_DIR</span>
 mkdir -p <span class="hljs-variable">$SRC_DIR</span>/build
 <span class="hljs-built_in">cd</span> <span class="hljs-variable">$SRC_DIR</span>/build
@@ -357,8 +384,22 @@ ninja -j8
 </li>
 <li><code>-c</code>：运行前面所有的阶段并生成目标文件，<code>clang -c foo.c -o foo.o</code></li>
 <li><code>-###</code>：打印此次编译所执行的命令及选项，但实际不进行编译运行</li>
+<li><code>-fsyntax-only -Xclang -ast-dump</code>：打印语法树AST</li>
+<li>&#96;&#96;-E -Xclang -dump-tokens&#96;：解析并打印tokens，可用作词法分析</li>
 </ul>
-<h2 id="3-常用分析Pass"><a href="#3-常用分析Pass" class="headerlink" title="3 常用分析Pass"></a>3 常用分析Pass</h2><h3 id="打印相关信息Pass"><a href="#打印相关信息Pass" class="headerlink" title="打印相关信息Pass"></a>打印相关信息Pass</h3><h3 id="CFG-Pass"><a href="#CFG-Pass" class="headerlink" title="CFG Pass"></a>CFG Pass</h3><h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h2><p><a href="https://llvm.org/docs/index.html" target="_blank" rel="noopener">[1] LLVM官方文档</a>（其中值得看的几个子链接<a href="https://llvm.org/docs/GettingStarted.html" target="_blank" rel="noopener">Getting Started with the LLVM System</a>，<a href="https://llvm.org/docs/tutorial/index.html" target="_blank" rel="noopener">LLVM Tutorial: Table of Contents</a>，<a href="https://llvm.org/docs/ProgrammersManual.html" target="_blank" rel="noopener">LLVM Programmer’s Manual</a>，<a href="https://llvm.org/docs/WritingAnLLVMPass.html" target="_blank" rel="noopener">Writing an LLVM Pass</a>）</p>
+<h3 id="opt"><a href="#opt" class="headerlink" title="opt"></a>opt</h3><ul>
+<li><p><code>--print-passes</code>：打印可用passes</p>
+</li>
+<li><p><code> -enable-new-pm=0 --dot-cfg foo.ll</code>：生成dot格式的cfg，是以函数为粒度生成<code>.*.dot</code>文件的</p>
+</li>
+<li><p><code>-enable-new-pm=0 --dot-callgraph foo.ll</code>：生成dot格式的cg</p>
+</li>
+</ul>
+<h3 id="dot"><a href="#dot" class="headerlink" title="dot"></a>dot</h3><ul>
+<li><code>dot -Tpng .main.dot -o main.cfg.png</code>：将dot转为png</li>
+</ul>
+<h2 id="3-常用分析Pass"><a href="#3-常用分析Pass" class="headerlink" title="3 常用分析Pass"></a>3 常用分析Pass</h2><p>To be completed</p>
+<h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h2><p><a href="https://llvm.org/docs/index.html" target="_blank" rel="noopener">[1] LLVM官方文档</a>（其中值得看的几个子链接<a href="https://llvm.org/docs/GettingStarted.html" target="_blank" rel="noopener">Getting Started with the LLVM System</a>，<a href="https://llvm.org/docs/tutorial/index.html" target="_blank" rel="noopener">LLVM Tutorial: Table of Contents</a>，<a href="https://llvm.org/docs/ProgrammersManual.html" target="_blank" rel="noopener">LLVM Programmer’s Manual</a>，<a href="https://llvm.org/docs/WritingAnLLVMPass.html" target="_blank" rel="noopener">Writing an LLVM Pass</a>）</p>
 <p><a href="https://zhuanlan.zhihu.com/p/594998469" target="_blank" rel="noopener">[2] LLVM Analysis Pass 实验（一）基础操作汇总</a></p>
 <p><a href="https://zhuanlan.zhihu.com/p/596465125" target="_blank" rel="noopener">[3] LLVM Analysis Pass 实验（二）控制流（Control Flow）可视化</a></p>
 <p><a href="https://zhqli.com/category/7c7d2b9e8389cc541dc5a615e05bcf1e" target="_blank" rel="noopener">[4] zhqli的博客: LLVM教程</a></p>
