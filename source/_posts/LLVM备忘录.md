@@ -26,7 +26,7 @@ LLVM备忘录、笔记兼心得
 
 ### 编译安装
 
-**一键安装脚本：**
+**一键安装脚本：build_llvm-project.sh**
 
 ```bash
 #!/bin/bash
@@ -36,7 +36,31 @@ set -e
 print_help()
 {
     echo -e "Usage: ./build_llvm-project.sh LLVM_VERSION\n"
+    echo -e "[Notice] LLVM_VERSION's format is X.Y.Z, *-rcN versions are not supported\n"
     exit 1
+}
+
+
+get_url()
+{
+    OLD_IFS=$IFS
+    IFS="."
+    arr=($1)
+    IFS=$OLD_IFS
+
+    ver_val=0
+    for i in $(seq 0 2)
+    do
+        ver_val=`echo "$ver_val * 10 + ${arr[$i]}" | bc`
+    done
+
+    threshold=1101
+    if [[ $ver_val -ge $threshold ]]
+    then
+        echo "https://github.com/llvm/llvm-project/releases/download/llvmorg-$1/llvm-project-$1.src.tar.xz"
+    else
+        echo "https://github.com/llvm/llvm-project/releases/download/llvmorg-$1/llvm-project-$1.tar.xz"
+    fi
 }
 
 
@@ -55,9 +79,12 @@ sudo apt install -y cmake ninja-build
 
 # download source
 INSTALL_DIR=llvm-project-$version.install
-SRC_DIR=llvm-project-$version.src
-wget https://github.com/llvm/llvm-project/releases/download/llvmorg-$version/$SRC_DIR.tar.xz
+URL=`get_url $version`
+SRC_DIR=$(basename $URL .tar.xz)
+
+wget $URL
 tar xvJf $SRC_DIR.tar.xz
+
 mkdir $INSTALL_DIR
 mkdir -p $SRC_DIR/build
 cd $SRC_DIR/build
@@ -121,12 +148,23 @@ $ clang -ccc-print-phases foo.c
   - 目标代码生成与优化：根据中间语言生成依赖具体机器的汇编语言，并优化汇编语言
 - `-c`：运行前面所有的阶段并生成目标文件，`clang -c foo.c -o foo.o`
 - `-###`：打印此次编译所执行的命令及选项，但实际不进行编译运行
+- `-fsyntax-only -Xclang -ast-dump`：打印语法树AST
+- ``-E -Xclang -dump-tokens`：解析并打印tokens，可用作词法分析
+
+### opt
+
+- `--print-passes`：打印可用passes
+
+- ` -enable-new-pm=0 --dot-cfg foo.ll`：生成dot格式的cfg，是以函数为粒度生成`.*.dot`文件的
+- `-enable-new-pm=0 --dot-callgraph foo.ll`：生成dot格式的cg
+
+### dot
+
+- `dot -Tpng .main.dot -o main.cfg.png`：将dot转为png
 
 ## 3 常用分析Pass
 
-### 打印相关信息Pass
-
-### CFG Pass
+To be completed
 
 ## 4 参考
 
