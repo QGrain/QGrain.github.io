@@ -37,12 +37,12 @@ sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-d
 sudo apt install -y bc # 在一次纯净docker测试中发现编译内核时缺少这个包
 ```
 
-- 安装Go
+- 安装Go（建议1.19）
 
 ```bash
 cd ~
 wget https://go.dev/dl/go1.19.7.linux-amd64.tar.gz
-tar -zxvf go1.17.6.linux-amd64.tar.gz 
+tar -zxvf go1.19.7.linux-amd64.tar.gz 
 export GOPATH=~/go
 export GOROOT=~/go
 export PATH=$GOPATH/bin:$PATH
@@ -68,18 +68,18 @@ make
 
 - 下载内核源码
 
-在 https://mirrors.edge.kernel.org/pub/linux/kernel/ 选择想要测试的内核版本
+在 https://mirrors.edge.kernel.org/pub/linux/kernel/ 选择想要测试的内核版本（拉最新的吧）
 
 ```bash
-wget https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/linux-4.9.331.tar.xz
-tar xvJf linux-4.9.331.tar.xz
+wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.2.10.tar.xz
+tar xvJf linux-6.2.10.tar.xz
 ```
 
 - 编译内核
 
 ```bash
 # 生成编译配置
-cd linux-4.9.331
+cd linux-6.2.10
 make CC="/usr/bin/gcc" defconfig
 make CC="/usr/bin/gcc" kvm_guest.config
 
@@ -152,7 +152,7 @@ make CC="/usr/bin/gcc" -j8
 # Kernel: arch/x86/boot/bzImage is ready  (#1)
 ```
 
-- 以下是(较早以前)一次运行日志的开头部分，所提示not enabled的几个config已经包含在上述配置里。
+- 以下是**(较早以前，不具参考价值)**一次运行日志的开头部分，所提示not enabled的几个config已经包含在上述配置里。
 
 ```bash
 2022/12/30 03:01:42 code coverage           : enabled
@@ -208,11 +208,12 @@ chroot  create-image.sh  stretch.id_rsa  stretch.id_rsa.pub  stretch.img
 
 ```bash
 # 在当前image目录创建boot.sh，注意路径的指向要正确
+# x86_64/boot/bzImage是x86/boot/bzImage的软链接
 qemu-system-x86_64 \
- -kernel ../kernels/linux-4.9.331/arch/x86/boot/bzImage \
+ -kernel ../kernels/linux-6.2.10/arch/x86/boot/bzImage \
  -append "console=ttyS0 root=/dev/sda debug earlyprintk=serial slub_debug=QUZ"\
  -hda ./stretch.img \
- -net user,hostfwd=tcp::10021-:22 -net nic   \
+ -net user,hostfwd=tcp::16210-:22 -net nic   \
  -enable-kvm \
  -nographic \
  -m 2560M \
@@ -225,7 +226,7 @@ chmod u+x boot.sh
 ./boot.sh
 
 # 然后测试qemu虚拟机的ssh服务是否成功启动
-ssh -i stretch.id_rsa -p 10021 -o "StrictHostKeyChecking no" root@localhost
+ssh -i stretch.id_rsa -p 16210 -o "StrictHostKeyChecking no" root@localhost
 ```
 
 ## 5 运行syzkaller
@@ -244,7 +245,7 @@ mkdir workdir
     "target": "linux/amd64",
     "http": "127.0.0.1:56741",
     "workdir": "/home/zzy/kernel-fuzz/syzkaller/workdir",
-    "kernel_obj": "/home/zzy/kernel-fuzz/kernels/linux-4.9.331",
+    "kernel_obj": "/home/zzy/kernel-fuzz/kernels/linux-6.2.10",
     "image": "/home/zzy/kernel-fuzz/image/stretch.img",
     "sshkey": "/home/zzy/kernel-fuzz/image/stretch.id_rsa",
     "syzkaller": "/home/zzy/kernel-fuzz/syzkaller",
@@ -252,7 +253,7 @@ mkdir workdir
     "type": "qemu",
     "vm": {
         "count": 8,
-        "kernel": "/home/zzy/kernel-fuzz/kernels/linux-4.9.331/arch/x86/boot/bzImage",
+        "kernel": "/home/zzy/kernel-fuzz/kernels/linux-6.2.10/arch/x86/boot/bzImage",
         "cmdline": "net.ifnames=0",
         "cpu": 2,
         "mem": 2048
@@ -316,7 +317,11 @@ mkdir workdir
 
 上面这段划掉，我还没搞清楚...
 
-## 6 参考
+## 6 调试内核
+
+参见[内核Fuzz技巧与备忘: qemu+gdb调试内核](https://qgrain.github.io/2023/02/01/%E5%86%85%E6%A0%B8Fuzz%E6%8A%80%E5%B7%A7%E4%B8%8E%E5%A4%87%E5%BF%98/#qemu-gdb%E8%B0%83%E8%AF%95%E5%86%85%E6%A0%B8)
+
+## 7 参考
 
 [[1] Setup: Ubuntu host, QEMU vm, x86-64 kernel](https://github.com/google/syzkaller/blob/master/docs/linux/setup_ubuntu-host_qemu-vm_x86-64-kernel.md)
 

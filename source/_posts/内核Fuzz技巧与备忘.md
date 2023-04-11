@@ -74,9 +74,10 @@ fi
 
 ## qemu+gdb调试内核
 
-**通过qemu启动待调试的内核：**
+**通过qemu启动待调试的内核：**`./debug.sh`
 
 ```shell
+# debug.sh
 # 基于syzkaller的create-image.sh，开启nokaslr
 KERNEL=../linux-6.1.12
 IMAGE=./stretch.img

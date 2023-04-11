@@ -100,7 +100,7 @@ cmake -G Ninja\
 echo -e "\ncmake finish\n"
 ninja -j8
 echo -e "\nninja finish, return value: $?"
-echo -e "\nplease: sudo ninja install"
+echo -e "\nplease: cd $SRC_DIR/build && ninja install"
 # sudo ninja install
 ```
 
@@ -166,7 +166,24 @@ $ clang -ccc-print-phases foo.c
 
 To be completed
 
-## 4 参考
+## 4 基于LLVM的静态分析工具
+
+### crix/ndi/IPPO
+
+它们基本都是由The Systems Security Group at University of Minnesota（[umnsec](https://github.com/umnsec)）开发的静态分析工具，用于挖掘特定的内核漏洞，`analyzer`部分的代码架构几乎一样
+
+- Crix: Detecting Missing-Check Bugs in OS Kernels
+  - Usenix Security 2019
+  - https://github.com/umnsec/crix
+- NDI: Non-Distinguishable Inconsistencies as a Deterministic Oracle for Detecting Security Bugs
+  - CCS 2022
+  - https://github.com/umnsec/ndi
+
+### deadline
+
+
+
+## 5 参考
 
 [[1] LLVM官方文档](https://llvm.org/docs/index.html)（其中值得看的几个子链接[Getting Started with the LLVM System](https://llvm.org/docs/GettingStarted.html)，[LLVM Tutorial: Table of Contents](https://llvm.org/docs/tutorial/index.html)，[LLVM Programmer’s Manual](https://llvm.org/docs/ProgrammersManual.html)，[Writing an LLVM Pass](https://llvm.org/docs/WritingAnLLVMPass.html)）
 
