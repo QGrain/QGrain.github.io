@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      433 words
+      437 words
     </span>
   
 
@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：March 15, 2023 am
+                  Last updated on：April 11, 2023 pm
                 
               </p>
             
@@ -288,8 +288,9 @@ fi</code></pre></div>
 <ul>
 <li>TBD</li>
 </ul>
-<h2 id="qemu-gdb调试内核"><a href="#qemu-gdb调试内核" class="headerlink" title="qemu+gdb调试内核"></a>qemu+gdb调试内核</h2><p><strong>通过qemu启动待调试的内核：</strong></p>
-<div class="hljs"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> 基于syzkaller的create-image.sh，开启nokaslr</span>
+<h2 id="qemu-gdb调试内核"><a href="#qemu-gdb调试内核" class="headerlink" title="qemu+gdb调试内核"></a>qemu+gdb调试内核</h2><p><strong>通过qemu启动待调试的内核：</strong><code>./debug.sh</code></p>
+<div class="hljs"><pre><code class="hljs shell"><span class="hljs-meta">#</span><span class="bash"> debug.sh</span>
+<span class="hljs-meta">#</span><span class="bash"> 基于syzkaller的create-image.sh，开启nokaslr</span>
 KERNEL=../linux-6.1.12
 IMAGE=./stretch.img
 

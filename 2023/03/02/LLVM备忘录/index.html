@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1k words
+      1.1k words
     </span>
   
 
@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      14
+      16
        minutes
     </span>
   
@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：April 10, 2023 pm
+                  Last updated on：April 11, 2023 pm
                 
               </p>
             
@@ -337,7 +337,7 @@ cmake -G Ninja\
 <span class="hljs-built_in">echo</span> -e <span class="hljs-string">"\ncmake finish\n"</span>
 ninja -j8
 <span class="hljs-built_in">echo</span> -e <span class="hljs-string">"\nninja finish, return value: $?"</span>
-<span class="hljs-built_in">echo</span> -e <span class="hljs-string">"\nplease: sudo ninja install"</span>
+<span class="hljs-built_in">echo</span> -e <span class="hljs-string">"\nplease: cd <span class="hljs-variable">$SRC_DIR</span>/build &amp;&amp; ninja install"</span>
 <span class="hljs-comment"># sudo ninja install</span></code></pre></div>
 
 <p><strong>部分参数说明：</strong></p>
@@ -399,7 +399,20 @@ ninja -j8
 <li><code>dot -Tpng .main.dot -o main.cfg.png</code>：将dot转为png</li>
 </ul>
 <h2 id="3-常用分析Pass"><a href="#3-常用分析Pass" class="headerlink" title="3 常用分析Pass"></a>3 常用分析Pass</h2><p>To be completed</p>
-<h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h2><p><a href="https://llvm.org/docs/index.html" target="_blank" rel="noopener">[1] LLVM官方文档</a>（其中值得看的几个子链接<a href="https://llvm.org/docs/GettingStarted.html" target="_blank" rel="noopener">Getting Started with the LLVM System</a>，<a href="https://llvm.org/docs/tutorial/index.html" target="_blank" rel="noopener">LLVM Tutorial: Table of Contents</a>，<a href="https://llvm.org/docs/ProgrammersManual.html" target="_blank" rel="noopener">LLVM Programmer’s Manual</a>，<a href="https://llvm.org/docs/WritingAnLLVMPass.html" target="_blank" rel="noopener">Writing an LLVM Pass</a>）</p>
+<h2 id="4-基于LLVM的静态分析工具"><a href="#4-基于LLVM的静态分析工具" class="headerlink" title="4 基于LLVM的静态分析工具"></a>4 基于LLVM的静态分析工具</h2><h3 id="crix-x2F-ndi-x2F-IPPO"><a href="#crix-x2F-ndi-x2F-IPPO" class="headerlink" title="crix&#x2F;ndi&#x2F;IPPO"></a>crix&#x2F;ndi&#x2F;IPPO</h3><p>它们基本都是由The Systems Security Group at University of Minnesota（<a href="https://github.com/umnsec" target="_blank" rel="noopener">umnsec</a>）开发的静态分析工具，用于挖掘特定的内核漏洞，<code>analyzer</code>部分的代码架构几乎一样</p>
+<ul>
+<li>Crix: Detecting Missing-Check Bugs in OS Kernels<ul>
+<li>Usenix Security 2019</li>
+<li><a href="https://github.com/umnsec/crix" target="_blank" rel="noopener">https://github.com/umnsec/crix</a></li>
+</ul>
+</li>
+<li>NDI: Non-Distinguishable Inconsistencies as a Deterministic Oracle for Detecting Security Bugs<ul>
+<li>CCS 2022</li>
+<li><a href="https://github.com/umnsec/ndi" target="_blank" rel="noopener">https://github.com/umnsec/ndi</a></li>
+</ul>
+</li>
+</ul>
+<h3 id="deadline"><a href="#deadline" class="headerlink" title="deadline"></a>deadline</h3><h2 id="5-参考"><a href="#5-参考" class="headerlink" title="5 参考"></a>5 参考</h2><p><a href="https://llvm.org/docs/index.html" target="_blank" rel="noopener">[1] LLVM官方文档</a>（其中值得看的几个子链接<a href="https://llvm.org/docs/GettingStarted.html" target="_blank" rel="noopener">Getting Started with the LLVM System</a>，<a href="https://llvm.org/docs/tutorial/index.html" target="_blank" rel="noopener">LLVM Tutorial: Table of Contents</a>，<a href="https://llvm.org/docs/ProgrammersManual.html" target="_blank" rel="noopener">LLVM Programmer’s Manual</a>，<a href="https://llvm.org/docs/WritingAnLLVMPass.html" target="_blank" rel="noopener">Writing an LLVM Pass</a>）</p>
 <p><a href="https://zhuanlan.zhihu.com/p/594998469" target="_blank" rel="noopener">[2] LLVM Analysis Pass 实验（一）基础操作汇总</a></p>
 <p><a href="https://zhuanlan.zhihu.com/p/596465125" target="_blank" rel="noopener">[3] LLVM Analysis Pass 实验（二）控制流（Control Flow）可视化</a></p>
 <p><a href="https://zhqli.com/category/7c7d2b9e8389cc541dc5a615e05bcf1e" target="_blank" rel="noopener">[4] zhqli的博客: LLVM教程</a></p>

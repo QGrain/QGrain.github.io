@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      2.1k words
+      2.2k words
     </span>
   
 
@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      33
+      34
        minutes
     </span>
   
@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：March 27, 2023 pm
+                  Last updated on：April 11, 2023 pm
                 
               </p>
             
@@ -248,11 +248,11 @@ sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-d
 sudo apt install -y bc <span class="hljs-comment"># 在一次纯净docker测试中发现编译内核时缺少这个包</span></code></pre></div>
 
 <ul>
-<li>安装Go</li>
+<li>安装Go（建议1.19）</li>
 </ul>
 <div class="hljs"><pre><code class="hljs bash"><span class="hljs-built_in">cd</span> ~
 wget https://go.dev/dl/go1.19.7.linux-amd64.tar.gz
-tar -zxvf go1.17.6.linux-amd64.tar.gz 
+tar -zxvf go1.19.7.linux-amd64.tar.gz 
 <span class="hljs-built_in">export</span> GOPATH=~/go
 <span class="hljs-built_in">export</span> GOROOT=~/go
 <span class="hljs-built_in">export</span> PATH=<span class="hljs-variable">$GOPATH</span>/bin:<span class="hljs-variable">$PATH</span>
@@ -273,15 +273,15 @@ make
 <h2 id="3-编译内核"><a href="#3-编译内核" class="headerlink" title="3 编译内核"></a>3 编译内核</h2><ul>
 <li>下载内核源码</li>
 </ul>
-<p>在 <a href="https://mirrors.edge.kernel.org/pub/linux/kernel/" target="_blank" rel="noopener">https://mirrors.edge.kernel.org/pub/linux/kernel/</a> 选择想要测试的内核版本</p>
-<div class="hljs"><pre><code class="hljs bash">wget https://mirrors.edge.kernel.org/pub/linux/kernel/v4.x/linux-4.9.331.tar.xz
-tar xvJf linux-4.9.331.tar.xz</code></pre></div>
+<p>在 <a href="https://mirrors.edge.kernel.org/pub/linux/kernel/" target="_blank" rel="noopener">https://mirrors.edge.kernel.org/pub/linux/kernel/</a> 选择想要测试的内核版本（拉最新的吧）</p>
+<div class="hljs"><pre><code class="hljs bash">wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.2.10.tar.xz
+tar xvJf linux-6.2.10.tar.xz</code></pre></div>
 
 <ul>
 <li>编译内核</li>
 </ul>
 <div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 生成编译配置</span>
-<span class="hljs-built_in">cd</span> linux-4.9.331
+<span class="hljs-built_in">cd</span> linux-6.2.10
 make CC=<span class="hljs-string">"/usr/bin/gcc"</span> defconfig
 make CC=<span class="hljs-string">"/usr/bin/gcc"</span> kvm_guest.config
 
@@ -354,7 +354,7 @@ make CC=<span class="hljs-string">"/usr/bin/gcc"</span> -j8
 <span class="hljs-comment"># Kernel: arch/x86/boot/bzImage is ready  (#1)</span></code></pre></div>
 
 <ul>
-<li>以下是(较早以前)一次运行日志的开头部分，所提示not enabled的几个config已经包含在上述配置里。</li>
+<li>以下是**(较早以前，不具参考价值)**一次运行日志的开头部分，所提示not enabled的几个config已经包含在上述配置里。</li>
 </ul>
 <div class="hljs"><pre><code class="hljs bash">2022/12/30 03:01:42 code coverage           : enabled
 2022/12/30 03:01:42 comparison tracing      : CONFIG_KCOV_ENABLE_COMPARISONS is not enabled
@@ -403,11 +403,12 @@ chroot  create-image.sh  stretch.id_rsa  stretch.id_rsa.pub  stretch.img</code><
 <li>安装qemu虚拟机</li>
 </ul>
 <div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 在当前image目录创建boot.sh，注意路径的指向要正确</span>
+<span class="hljs-comment"># x86_64/boot/bzImage是x86/boot/bzImage的软链接</span>
 qemu-system-x86_64 \
- -kernel ../kernels/linux-4.9.331/arch/x86/boot/bzImage \
+ -kernel ../kernels/linux-6.2.10/arch/x86/boot/bzImage \
  -append <span class="hljs-string">"console=ttyS0 root=/dev/sda debug earlyprintk=serial slub_debug=QUZ"</span>\
  -hda ./stretch.img \
- -net user,hostfwd=tcp::10021-:22 -net nic   \
+ -net user,hostfwd=tcp::16210-:22 -net nic   \
  -<span class="hljs-built_in">enable</span>-kvm \
  -nographic \
  -m 2560M \
@@ -420,7 +421,7 @@ chmod u+x boot.sh
 ./boot.sh
 
 <span class="hljs-comment"># 然后测试qemu虚拟机的ssh服务是否成功启动</span>
-ssh -i stretch.id_rsa -p 10021 -o <span class="hljs-string">"StrictHostKeyChecking no"</span> root@localhost</code></pre></div>
+ssh -i stretch.id_rsa -p 16210 -o <span class="hljs-string">"StrictHostKeyChecking no"</span> root@localhost</code></pre></div>
 
 <h2 id="5-运行syzkaller"><a href="#5-运行syzkaller" class="headerlink" title="5 运行syzkaller"></a>5 运行syzkaller</h2><ul>
 <li>创建syzkaller配置文件</li>
@@ -435,7 +436,7 @@ mkdir workdir
     <span class="hljs-string">"target"</span>: <span class="hljs-string">"linux/amd64"</span>,
     <span class="hljs-string">"http"</span>: <span class="hljs-string">"127.0.0.1:56741"</span>,
     <span class="hljs-string">"workdir"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/syzkaller/workdir"</span>,
-    <span class="hljs-string">"kernel_obj"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/kernels/linux-4.9.331"</span>,
+    <span class="hljs-string">"kernel_obj"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/kernels/linux-6.2.10"</span>,
     <span class="hljs-string">"image"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/image/stretch.img"</span>,
     <span class="hljs-string">"sshkey"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/image/stretch.id_rsa"</span>,
     <span class="hljs-string">"syzkaller"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/syzkaller"</span>,
@@ -443,7 +444,7 @@ mkdir workdir
     <span class="hljs-string">"type"</span>: <span class="hljs-string">"qemu"</span>,
     <span class="hljs-string">"vm"</span>: &#123;
         <span class="hljs-string">"count"</span>: 8,
-        <span class="hljs-string">"kernel"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/kernels/linux-4.9.331/arch/x86/boot/bzImage"</span>,
+        <span class="hljs-string">"kernel"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/kernels/linux-6.2.10/arch/x86/boot/bzImage"</span>,
         <span class="hljs-string">"cmdline"</span>: <span class="hljs-string">"net.ifnames=0"</span>,
         <span class="hljs-string">"cpu"</span>: 2,
         <span class="hljs-string">"mem"</span>: 2048
@@ -502,7 +503,8 @@ mkdir workdir
 
 <p>由此可知，<code>P1%</code>的含义是<code>file.Percent</code><strong>大概是PC覆盖占比</strong>，对应<code>N1</code>为<code>file.Total</code><strong>PC覆盖总数</strong>。<code>P2%</code>的含义是<code>file.PercentInCoveredFunc</code><strong>函数覆盖占比</strong>，对应<code>N2</code>为<code>file.TotalInCoveredFunc</code><strong>函数覆盖总数</strong></p>
 <p>上面这段划掉，我还没搞清楚…</p>
-<h2 id="6-参考"><a href="#6-参考" class="headerlink" title="6 参考"></a>6 参考</h2><p><a href="https://github.com/google/syzkaller/blob/master/docs/linux/setup_ubuntu-host_qemu-vm_x86-64-kernel.md" target="_blank" rel="noopener">[1] Setup: Ubuntu host, QEMU vm, x86-64 kernel</a></p>
+<h2 id="6-调试内核"><a href="#6-调试内核" class="headerlink" title="6 调试内核"></a>6 调试内核</h2><p>参见<a href="https://qgrain.github.io/2023/02/01/%E5%86%85%E6%A0%B8Fuzz%E6%8A%80%E5%B7%A7%E4%B8%8E%E5%A4%87%E5%BF%98/#qemu-gdb%E8%B0%83%E8%AF%95%E5%86%85%E6%A0%B8">内核Fuzz技巧与备忘: qemu+gdb调试内核</a></p>
+<h2 id="7-参考"><a href="#7-参考" class="headerlink" title="7 参考"></a>7 参考</h2><p><a href="https://github.com/google/syzkaller/blob/master/docs/linux/setup_ubuntu-host_qemu-vm_x86-64-kernel.md" target="_blank" rel="noopener">[1] Setup: Ubuntu host, QEMU vm, x86-64 kernel</a></p>
 <p><a href="https://zhuanlan.zhihu.com/p/506059739" target="_blank" rel="noopener">[2] 零基础syzkaller挖掘Linux内核漏洞</a></p>
 <p><a href="http://pwn4.fun/2019/05/31/Syzkaller%E5%AE%89%E8%A3%85%20Fuzz%20Qemu%20amd64%20Kernel/" target="_blank" rel="noopener">[3] Syzkaller安装 Fuzz Qemu amd64 Kernel</a></p>
 <p><a href="https://github.com/google/syzkaller/blob/master/docs/linux/troubleshooting.md" target="_blank" rel="noopener">[4] syzkaller官方troubleshooting</a></p>
