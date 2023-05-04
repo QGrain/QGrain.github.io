@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.4k words
+      1.6k words
     </span>
   
 
@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      22
+      25
        minutes
     </span>
   
@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：March 14, 2023 pm
+                  Last updated on：April 17, 2023 pm
                 
               </p>
             
@@ -409,11 +409,41 @@ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 20 --slave /
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9 --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-9 --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-9 --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-9</code></pre></div>
 
 <ul>
-<li>llvm-11 (with gold plugin)：插桩利器</li>
+<li>llvm-12.0.1(with gold plugin)：插桩利器</li>
 </ul>
 <div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 一键安装（预计四十分钟？）</span>
-curl https://gitee.com/QGrain/aflgo-build/raw/master/build_llvm_11.sh | bash</code></pre></div>
+curl https://gitee.com/QGrain/aflgo-build/raw/master/build_llvm_12.sh | bash</code></pre></div>
 
+<h3 id="gdb"><a href="#gdb" class="headerlink" title="gdb"></a>gdb</h3><ul>
+<li>源码安装gdb 10.2</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash">wget http://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.xz
+tar xvJf gdb-10.2.tar.xz
+<span class="hljs-built_in">cd</span> gdb-10.2
+
+<span class="hljs-comment"># 需要安装python3-dev，否则./configure --with-python=/usr/bin/python3之后make会报错找不到distutils.sysconfig</span>
+sudo apt install -y python3-dev texinfo
+
+./configure --with-python=/usr/bin/python3
+make -j8
+sudo make install</code></pre></div>
+
+<ul>
+<li>安装gef插件</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># manually</span>
+wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
+<span class="hljs-built_in">echo</span> <span class="hljs-built_in">source</span> ~/.gdbinit-gef.py &gt;&gt; ~/.gdbinit
+
+<span class="hljs-comment"># 运行gdb遇到以下报错，通常是终端字符集不支持某些Unicode字符引起的</span>
+Python Exception &lt;class <span class="hljs-string">'UnicodeEncodeError'</span>&gt; <span class="hljs-string">'ascii'</span> codec can<span class="hljs-string">'t encode character '</span>\u27a4<span class="hljs-string">' in position 12: ordinal not in range(128)
+# 在终端中设置正确的字符集以解决问题
+echo "export LC_CTYPE=C.UTF-8" &gt;&gt; ~/.bashrc
+source ~/.bashrc</span></code></pre></div>
+
+<ul>
+<li>安装pwndbg</li>
+</ul>
 <h3 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h3><ul>
 <li>Java长期支持版本</li>
 </ul>

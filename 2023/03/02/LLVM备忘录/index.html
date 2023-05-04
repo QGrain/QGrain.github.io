@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      16
+      17
        minutes
     </span>
   
@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：April 11, 2023 pm
+                  Last updated on：April 18, 2023 am
                 
               </p>
             
@@ -399,19 +399,36 @@ ninja -j8
 <li><code>dot -Tpng .main.dot -o main.cfg.png</code>：将dot转为png</li>
 </ul>
 <h2 id="3-常用分析Pass"><a href="#3-常用分析Pass" class="headerlink" title="3 常用分析Pass"></a>3 常用分析Pass</h2><p>To be completed</p>
-<h2 id="4-基于LLVM的静态分析工具"><a href="#4-基于LLVM的静态分析工具" class="headerlink" title="4 基于LLVM的静态分析工具"></a>4 基于LLVM的静态分析工具</h2><h3 id="crix-x2F-ndi-x2F-IPPO"><a href="#crix-x2F-ndi-x2F-IPPO" class="headerlink" title="crix&#x2F;ndi&#x2F;IPPO"></a>crix&#x2F;ndi&#x2F;IPPO</h3><p>它们基本都是由The Systems Security Group at University of Minnesota（<a href="https://github.com/umnsec" target="_blank" rel="noopener">umnsec</a>）开发的静态分析工具，用于挖掘特定的内核漏洞，<code>analyzer</code>部分的代码架构几乎一样</p>
+<h2 id="4-基于LLVM的静态分析工具"><a href="#4-基于LLVM的静态分析工具" class="headerlink" title="4 基于LLVM的静态分析工具"></a>4 基于LLVM的静态分析工具</h2><h3 id="crix-x2F-ndi-x2F-IPPO"><a href="#crix-x2F-ndi-x2F-IPPO" class="headerlink" title="crix&#x2F;ndi&#x2F;IPPO"></a>crix&#x2F;ndi&#x2F;IPPO</h3><p>它们基本都是由The Systems Security Group at University of Minnesota（<a href="https://github.com/umnsec" target="_blank" rel="noopener">umnsec</a>）开发的静态分析工具，用于挖掘特定的内核漏洞，代码架构几乎一样：</p>
 <ul>
-<li>Crix: Detecting Missing-Check Bugs in OS Kernels<ul>
+<li><p>Crix: Detecting Missing-Check Bugs in OS Kernels</p>
+<ul>
 <li>Usenix Security 2019</li>
 <li><a href="https://github.com/umnsec/crix" target="_blank" rel="noopener">https://github.com/umnsec/crix</a></li>
 </ul>
 </li>
-<li>NDI: Non-Distinguishable Inconsistencies as a Deterministic Oracle for Detecting Security Bugs<ul>
+<li><p>Detecting Missed Security Operations Through Differential Checking of Object-based Similar Paths</p>
+<ul>
+<li>CCS 2021</li>
+<li><a href="https://github.com/dinghaoliu/IPPO" target="_blank" rel="noopener">https://github.com/dinghaoliu/IPPO</a></li>
+</ul>
+</li>
+<li><p>NDI: Non-Distinguishable Inconsistencies as a Deterministic Oracle for Detecting Security Bugs</p>
+<ul>
 <li>CCS 2022</li>
 <li><a href="https://github.com/umnsec/ndi" target="_blank" rel="noopener">https://github.com/umnsec/ndi</a></li>
 </ul>
 </li>
 </ul>
+<p>安装时可能遇到以下坑：</p>
+<ul>
+<li>zlib</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 需要ZLIB_ROOT</span>
+<span class="hljs-built_in">export</span> ZLIB_ROOT=
+
+<span class="hljs-comment"># 并修改CMakeFileList.txt</span></code></pre></div>
+
 <h3 id="deadline"><a href="#deadline" class="headerlink" title="deadline"></a>deadline</h3><h2 id="5-参考"><a href="#5-参考" class="headerlink" title="5 参考"></a>5 参考</h2><p><a href="https://llvm.org/docs/index.html" target="_blank" rel="noopener">[1] LLVM官方文档</a>（其中值得看的几个子链接<a href="https://llvm.org/docs/GettingStarted.html" target="_blank" rel="noopener">Getting Started with the LLVM System</a>，<a href="https://llvm.org/docs/tutorial/index.html" target="_blank" rel="noopener">LLVM Tutorial: Table of Contents</a>，<a href="https://llvm.org/docs/ProgrammersManual.html" target="_blank" rel="noopener">LLVM Programmer’s Manual</a>，<a href="https://llvm.org/docs/WritingAnLLVMPass.html" target="_blank" rel="noopener">Writing an LLVM Pass</a>）</p>
 <p><a href="https://zhuanlan.zhihu.com/p/594998469" target="_blank" rel="noopener">[2] LLVM Analysis Pass 实验（一）基础操作汇总</a></p>
 <p><a href="https://zhuanlan.zhihu.com/p/596465125" target="_blank" rel="noopener">[3] LLVM Analysis Pass 实验（二）控制流（Control Flow）可视化</a></p>

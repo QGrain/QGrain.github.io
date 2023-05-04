@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      861 words
+      956 words
     </span>
   
 
@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      11
+      12
        minutes
     </span>
   
@@ -223,23 +223,35 @@
             
               <p class="note note-info">
                 
-                  Last updated on：February 18, 2023 pm
+                  Last updated on：April 18, 2023 am
                 
               </p>
             
             <article class="markdown-body">
-              <p><a href="https://github.com/aflgo/aflgo" target="_blank" rel="noopener">AFLGO</a>是基于<a href="https://github.com/google/AFL" target="_blank" rel="noopener">AFL</a>改进而来的一种定向灰盒模糊测试工具。</p>
+              <p><a href="https://github.com/aflgo/aflgo" target="_blank" rel="noopener">AFLGO</a>是基于<a href="https://github.com/google/AFL" target="_blank" rel="noopener">AFL</a>改进而来的一种定向灰盒模糊测试工具。定向Fuzz的鼻祖(之一)。</p>
 <a id="more"></a>
 
 <p>AFLGo基于llvm实现了函数调用图CG和控制流图CFG的获取，结合对程序CG&#x2F;CFG定义了一种基于目标distance衡量的种子调度策略，使得Fuzzer能够更快生成可抵达目的位置的测试用例。定向灰盒模糊测试(Directed Greybox Fuzzing)常常用于补丁测试，漏洞复现等等具备特定待测目标的软件测试任务场景。</p>
 <h2 id="1-安装AFLGO"><a href="#1-安装AFLGO" class="headerlink" title="1 安装AFLGO"></a>1 安装AFLGO</h2><ul>
 <li>安装llvm和clang，官方文档要求是3.8或者4.0，经过自己测试6.0和11.0和也可以使用，<strong>确保环境$PATH或$LLVM_CONFIG变量已经添加</strong></li>
 <li>执行<a href="https://raw.githubusercontent.com/aflgo/aflgo/master/scripts/build/aflgo-build.sh" target="_blank" rel="noopener">官方一键安装脚本</a>，此脚本疑似有问题（截止至2020年10月），其中llvm-4.0和clang-4.0会安装失败</li>
-<li>因此依照<a href="https://github.com/aflgo/aflgo" target="_blank" rel="noopener">官方README</a>的指示，我编写了一键安装<strong>llvm 11.0</strong>以及AFLGo的<a href="https://gitee.com/QGrain/aflgo-build/tree/master" target="_blank" rel="noopener">脚本</a>：</li>
+<li>因此依照<a href="https://github.com/aflgo/aflgo" target="_blank" rel="noopener">官方README</a>的流程，我编写了一键安装<strong>llvm 12.0.1</strong>以及AFLGo的<a href="https://gitee.com/QGrain/aflgo-build/tree/master" target="_blank" rel="noopener">脚本</a>：</li>
 </ul>
 <div class="hljs"><pre><code class="hljs bash">curl https://gitee.com/QGrain/aflgo-build/raw/master/aflgo-build.sh | bash</code></pre></div>
 
-<h2 id="2-常见开源库和软件"><a href="#2-常见开源库和软件" class="headerlink" title="2 常见开源库和软件"></a>2 常见开源库和软件</h2><p><strong>Google</strong>已经总结了<a href="https://github.com/google/oss-fuzz/tree/master/projects" target="_blank" rel="noopener">三百多款常见的开源软件</a>用于模糊测试，每一个工具的目录结构如下：</p>
+<ul>
+<li>也可以直接使用我打包好的<a href="https://hub.docker.com/repository/docker/qgrain/aflgo/general" target="_blank" rel="noopener">docker镜像</a></li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash">docker pull qgrain/aflgo:ubuntu20.04_llvm12.0.1</code></pre></div>
+
+<h2 id="2-使用AFLGO"><a href="#2-使用AFLGO" class="headerlink" title="2 使用AFLGO"></a>2 使用AFLGO</h2><p>可能遇到的问题：</p>
+<ul>
+<li>计算distance：gen_distance_fast.py不好用，建议用genDistance.sh。此外如果报错<code>AttributeError: module &#39;networkx&#39; has no attribute &#39;info&#39;</code>，则卸载networkx然后安装低版本</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash">pip uninstall networkx
+pip install networkx==2.2</code></pre></div>
+
+<h2 id="3-常见开源库和软件"><a href="#3-常见开源库和软件" class="headerlink" title="3 常见开源库和软件"></a>3 常见开源库和软件</h2><p><strong>Google</strong>已经总结了<a href="https://github.com/google/oss-fuzz/tree/master/projects" target="_blank" rel="noopener">三百多款常见的开源软件</a>用于模糊测试，每一个工具的目录结构如下：</p>
 <blockquote>
 <p>&#x2F;PATH&#x2F;TO&#x2F;TOOL<br>│─  <strong>build.sh</strong><br>│─  <strong>Dockerfile</strong><br>│─  <strong>project.yaml</strong><br>└─  <strong>my-api-repo</strong><br>        │─  do_stuff_fuzzer.cpp<br>        │─  do_stuff_fuzzer.dict<br>        │─  do_stuff_unittest.cpp<br>        │─  Makefile<br>        │─  my_api.cpp<br>        │─  my_api.h<br>        │─  README.md<br>        │─  standalone_fuzz_target_runner.cpp<br>    └─  <strong>do_stuff_test_data</strong><br>        │─  410c23d234e7f97a2dd6265eb2909324deb8c13a<br>        │─  7a74862169c3375f4149daff75187cbca7372a38</p>
 </blockquote>
@@ -275,27 +287,28 @@
 <p>binutils brotli brunsli bzip2<br>c-ares capstone cjson cmark<br>graphicsmagick grok harfbuzz<br>hermes hostap<br>jbig2dec json-c<br>lcms libcbor libexif libfdk-aac libidn2 libldac libpcap libplist libspectre libtasn1 libteken libwebp libxml2 libyaml libyuv lz4<br>miniz monero mupdf<br>nanopb ndpi nestegg nghttp2 ntp<br>openjpeg openthread opus ots<br>pcre2 pffft proxygen<br>qubes-os<br>rnp<br>speex stb<br>tidy-html5 tor tremor<br>unicorn usrsctp<br>vorbis<br>wireshark woff2 wolfssl wuffs<br>xz<br>yajl-ruby<br>zlib zlib-ng zstd</p>
 </blockquote>
 <p>然后选取了其中较为常用，轻量级的几款工具来做AFLGO Fuzzing测试</p>
-<h3 id="2-1-bzip2"><a href="#2-1-bzip2" class="headerlink" title="2.1 bzip2"></a>2.1 bzip2</h3><ul>
+<h3 id="3-1-bzip2"><a href="#3-1-bzip2" class="headerlink" title="3.1 bzip2"></a>3.1 bzip2</h3><ul>
 <li>介绍： bzip2是一款比传统的<a href="https://zh.wikipedia.org/wiki/Gzip" target="_blank" rel="noopener">gzip</a>或者<a href="https://zh.wikipedia.org/wiki/ZIP" target="_blank" rel="noopener">ZIP</a>的压缩效率更高但是压缩速度较慢的压缩工具，其算法可以排名到前百分之十到十五。 </li>
 <li>源码地址： <a href="https://sourceware.org/git/bzip2.git" target="_blank" rel="noopener">https://sourceware.org/git/bzip2.git</a></li>
 <li>oss-fuzz项目地址：<a href="https://github.com/google/oss-fuzz/tree/master/projects/bzip2" target="_blank" rel="noopener">https://github.com/google/oss-fuzz/tree/master/projects/bzip2</a></li>
 </ul>
-<h3 id="2-2-binutils"><a href="#2-2-binutils" class="headerlink" title="2.2 binutils"></a>2.2 binutils</h3><ul>
+<h3 id="3-2-binutils"><a href="#3-2-binutils" class="headerlink" title="3.2 binutils"></a>3.2 binutils</h3><ul>
 <li>介绍： binutils 是一组开发工具，包括连接器，汇编器和其他用于目标文件和档案的工具。 </li>
 <li>源码地址：<a href="https://github.com/bminor/binutils-gdb" target="_blank" rel="noopener">https://github.com/bminor/binutils-gdb</a></li>
 <li>oss-fuzz项目地址：<a href="https://github.com/google/oss-fuzz/tree/master/projects/binutils" target="_blank" rel="noopener">https://github.com/google/oss-fuzz/tree/master/projects/binutils</a></li>
 </ul>
-<h3 id="2-3-cJSON"><a href="#2-3-cJSON" class="headerlink" title="2.3 cJSON"></a>2.3 cJSON</h3><ul>
+<h3 id="3-3-cJSON"><a href="#3-3-cJSON" class="headerlink" title="3.3 cJSON"></a>3.3 cJSON</h3><ul>
 <li>介绍： JSON是使用C语言编写，用来创建、解析JSON文件的库。 </li>
 <li>源码地址：<a href="https://github.com/DaveGamble/cJSON" target="_blank" rel="noopener">https://github.com/DaveGamble/cJSON</a></li>
 <li>oss-fuzz项目地址：<a href="https://github.com/google/oss-fuzz/tree/master/projects/cjson" target="_blank" rel="noopener">https://github.com/google/oss-fuzz/tree/master/projects/cjson</a></li>
 </ul>
-<h3 id="2-4-libpcap"><a href="#2-4-libpcap" class="headerlink" title="2.4 libpcap"></a>2.4 libpcap</h3><ul>
+<h3 id="3-4-libpcap"><a href="#3-4-libpcap" class="headerlink" title="3.4 libpcap"></a>3.4 libpcap</h3><ul>
 <li>介绍： libpcap（Packet Capture Library），即数据包捕获函数库，是Unix&#x2F;Linux平台下的网络数据包捕获函数库。它是一个独立于系统的用户层包捕获的API接口，为底层网络监测提供了一个可移植的框架。 </li>
 <li>源码地址：<a href="https://github.com/the-tcpdump-group/libpcap" target="_blank" rel="noopener">https://github.com/the-tcpdump-group/libpcap</a></li>
 <li>oss-fuzz项目地址：<a href="https://github.com/google/oss-fuzz/tree/master/projects/libpcap" target="_blank" rel="noopener">https://github.com/google/oss-fuzz/tree/master/projects/libpcap</a></li>
 </ul>
-<h2 id="3-参考文档"><a href="#3-参考文档" class="headerlink" title="3 参考文档"></a>3 参考文档</h2><p><a href="https://blog.csdn.net/iw1210/article/details/52093742" target="_blank" rel="noopener">值得推荐的C&#x2F;C++开源框架和库</a></p>
+<h2 id="4-参考文档"><a href="#4-参考文档" class="headerlink" title="4 参考文档"></a>4 参考文档</h2><p><a href="https://github.com/aflgo/aflgo#readme" target="_blank" rel="noopener">AFLGO官方README</a></p>
+<p><a href="https://blog.csdn.net/iw1210/article/details/52093742" target="_blank" rel="noopener">值得推荐的C&#x2F;C++开源框架和库</a></p>
 <p><a href="https://blog.csdn.net/h_mich/article/details/7402059" target="_blank" rel="noopener">开源软件分类列表</a></p>
 <p><a href="https://www.oschina.net/project/tags" target="_blank" rel="noopener">软件分类-开源中国OSCHINA</a></p>
 

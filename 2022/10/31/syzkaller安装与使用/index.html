@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      34
+      35
        minutes
     </span>
   
@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：April 11, 2023 pm
+                  Last updated on：May 4, 2023 pm
                 
               </p>
             
@@ -274,14 +274,14 @@ make
 <li>下载内核源码</li>
 </ul>
 <p>在 <a href="https://mirrors.edge.kernel.org/pub/linux/kernel/" target="_blank" rel="noopener">https://mirrors.edge.kernel.org/pub/linux/kernel/</a> 选择想要测试的内核版本（拉最新的吧）</p>
-<div class="hljs"><pre><code class="hljs bash">wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.2.10.tar.xz
-tar xvJf linux-6.2.10.tar.xz</code></pre></div>
+<div class="hljs"><pre><code class="hljs bash">wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.1.12.tar.xz
+tar xvJf linux-6.1.12.tar.xz</code></pre></div>
 
 <ul>
 <li>编译内核</li>
 </ul>
 <div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 生成编译配置</span>
-<span class="hljs-built_in">cd</span> linux-6.2.10
+<span class="hljs-built_in">cd</span> linux-6.1.12
 make CC=<span class="hljs-string">"/usr/bin/gcc"</span> defconfig
 make CC=<span class="hljs-string">"/usr/bin/gcc"</span> kvm_guest.config
 
@@ -378,7 +378,7 @@ make CC=<span class="hljs-string">"/usr/bin/gcc"</span> -j8
 2022/12/30 03:01:44 seeds                   : 165/685</code></pre></div>
 
 <h2 id="4-创建虚拟机"><a href="#4-创建虚拟机" class="headerlink" title="4 创建虚拟机"></a>4 创建虚拟机</h2><ul>
-<li>创建image</li>
+<li>创建image（<strong>注意</strong>，自2023-04-12 syzkaller的<a href="https://github.com/google/syzkaller/commit/d4d447cd780753901f9e00aa246cc835458a8f06" target="_blank" rel="noopener">d4d447c</a> commit之后，<strong>create-image.sh中的默认release由stretch变更为了bullseye</strong>）</li>
 </ul>
 <div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 在创建一个image目录</span>
 mkdir image &amp;&amp; <span class="hljs-built_in">cd</span> image
@@ -397,7 +397,10 @@ sed -i <span class="hljs-string">'s/http:\/\/deb.debian.org\/debian-ports/https:
 sudo apt install -y debian-archive-keyring
 
 <span class="hljs-comment"># 执行create-image.sh完毕后看到目录有如下内容即为成功</span>
-chroot  create-image.sh  stretch.id_rsa  stretch.id_rsa.pub  stretch.img</code></pre></div>
+chroot  create-image.sh  stretch.id_rsa  stretch.id_rsa.pub  stretch.img
+
+<span class="hljs-comment"># 2023-05-04补充说明：最新版create-image.sh执行结果如下，随后与之相关的boot.sh和my.cfg中的stretch*都要改为bullseye*</span>
+chroot  create-image.sh  bullseye.id_rsa  bullseye.id_rsa.pub  bullseye.img</code></pre></div>
 
 <ul>
 <li>安装qemu虚拟机</li>
@@ -405,10 +408,10 @@ chroot  create-image.sh  stretch.id_rsa  stretch.id_rsa.pub  stretch.img</code><
 <div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 在当前image目录创建boot.sh，注意路径的指向要正确</span>
 <span class="hljs-comment"># x86_64/boot/bzImage是x86/boot/bzImage的软链接</span>
 qemu-system-x86_64 \
- -kernel ../kernels/linux-6.2.10/arch/x86/boot/bzImage \
+ -kernel ../kernels/linux-6.1.12/arch/x86/boot/bzImage \
  -append <span class="hljs-string">"console=ttyS0 root=/dev/sda debug earlyprintk=serial slub_debug=QUZ"</span>\
  -hda ./stretch.img \
- -net user,hostfwd=tcp::16210-:22 -net nic   \
+ -net user,hostfwd=tcp::16112-:22 -net nic   \
  -<span class="hljs-built_in">enable</span>-kvm \
  -nographic \
  -m 2560M \
@@ -436,7 +439,7 @@ mkdir workdir
     <span class="hljs-string">"target"</span>: <span class="hljs-string">"linux/amd64"</span>,
     <span class="hljs-string">"http"</span>: <span class="hljs-string">"127.0.0.1:56741"</span>,
     <span class="hljs-string">"workdir"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/syzkaller/workdir"</span>,
-    <span class="hljs-string">"kernel_obj"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/kernels/linux-6.2.10"</span>,
+    <span class="hljs-string">"kernel_obj"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/kernels/linux-6.1.12"</span>,
     <span class="hljs-string">"image"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/image/stretch.img"</span>,
     <span class="hljs-string">"sshkey"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/image/stretch.id_rsa"</span>,
     <span class="hljs-string">"syzkaller"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/syzkaller"</span>,
@@ -444,7 +447,7 @@ mkdir workdir
     <span class="hljs-string">"type"</span>: <span class="hljs-string">"qemu"</span>,
     <span class="hljs-string">"vm"</span>: &#123;
         <span class="hljs-string">"count"</span>: 8,
-        <span class="hljs-string">"kernel"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/kernels/linux-6.2.10/arch/x86/boot/bzImage"</span>,
+        <span class="hljs-string">"kernel"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/kernels/linux-6.1.12/arch/x86/boot/bzImage"</span>,
         <span class="hljs-string">"cmdline"</span>: <span class="hljs-string">"net.ifnames=0"</span>,
         <span class="hljs-string">"cpu"</span>: 2,
         <span class="hljs-string">"mem"</span>: 2048
