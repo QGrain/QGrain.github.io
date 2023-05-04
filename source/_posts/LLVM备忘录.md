@@ -170,14 +170,31 @@ To be completed
 
 ### crix/ndi/IPPO
 
-它们基本都是由The Systems Security Group at University of Minnesota（[umnsec](https://github.com/umnsec)）开发的静态分析工具，用于挖掘特定的内核漏洞，`analyzer`部分的代码架构几乎一样
+它们基本都是由The Systems Security Group at University of Minnesota（[umnsec](https://github.com/umnsec)）开发的静态分析工具，用于挖掘特定的内核漏洞，代码架构几乎一样：
 
 - Crix: Detecting Missing-Check Bugs in OS Kernels
   - Usenix Security 2019
   - https://github.com/umnsec/crix
+- Detecting Missed Security Operations Through Differential Checking of Object-based Similar Paths
+  - CCS 2021
+  - https://github.com/dinghaoliu/IPPO
+
 - NDI: Non-Distinguishable Inconsistencies as a Deterministic Oracle for Detecting Security Bugs
   - CCS 2022
   - https://github.com/umnsec/ndi
+
+安装时可能遇到以下坑：
+
+- zlib
+
+```bash
+# 需要ZLIB_ROOT
+export ZLIB_ROOT=
+
+# 并修改CMakeFileList.txt
+```
+
+
 
 ### deadline
 

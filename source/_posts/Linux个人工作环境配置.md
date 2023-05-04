@@ -235,12 +235,45 @@ sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 20 --slave /
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9 --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-9 --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-9 --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-9
 ```
 
-- llvm-11 (with gold plugin)：插桩利器
+- llvm-12.0.1(with gold plugin)：插桩利器
 
 ```bash
 # 一键安装（预计四十分钟？）
-curl https://gitee.com/QGrain/aflgo-build/raw/master/build_llvm_11.sh | bash
+curl https://gitee.com/QGrain/aflgo-build/raw/master/build_llvm_12.sh | bash
 ```
+
+### gdb
+
+- 源码安装gdb 10.2
+
+```bash
+wget http://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.xz
+tar xvJf gdb-10.2.tar.xz
+cd gdb-10.2
+
+# 需要安装python3-dev，否则./configure --with-python=/usr/bin/python3之后make会报错找不到distutils.sysconfig
+sudo apt install -y python3-dev texinfo
+
+./configure --with-python=/usr/bin/python3
+make -j8
+sudo make install
+```
+
+- 安装gef插件
+
+```bash
+# manually
+wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
+echo source ~/.gdbinit-gef.py >> ~/.gdbinit
+
+# 运行gdb遇到以下报错，通常是终端字符集不支持某些Unicode字符引起的
+Python Exception <class 'UnicodeEncodeError'> 'ascii' codec can't encode character '\u27a4' in position 12: ordinal not in range(128)
+# 在终端中设置正确的字符集以解决问题
+echo "export LC_CTYPE=C.UTF-8" >> ~/.bashrc
+source ~/.bashrc
+```
+
+- 安装pwndbg
 
 ### Java
 

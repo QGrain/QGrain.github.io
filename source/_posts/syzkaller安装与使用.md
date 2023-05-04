@@ -71,15 +71,15 @@ make
 在 https://mirrors.edge.kernel.org/pub/linux/kernel/ 选择想要测试的内核版本（拉最新的吧）
 
 ```bash
-wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.2.10.tar.xz
-tar xvJf linux-6.2.10.tar.xz
+wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.1.12.tar.xz
+tar xvJf linux-6.1.12.tar.xz
 ```
 
 - 编译内核
 
 ```bash
 # 生成编译配置
-cd linux-6.2.10
+cd linux-6.1.12
 make CC="/usr/bin/gcc" defconfig
 make CC="/usr/bin/gcc" kvm_guest.config
 
@@ -181,7 +181,7 @@ make CC="/usr/bin/gcc" -j8
 
 ## 4 创建虚拟机
 
-- 创建image
+- 创建image（**注意**，自2023-04-12 syzkaller的[d4d447c](https://github.com/google/syzkaller/commit/d4d447cd780753901f9e00aa246cc835458a8f06) commit之后，**create-image.sh中的默认release由stretch变更为了bullseye**）
 
 ```bash
 # 在创建一个image目录
@@ -202,6 +202,9 @@ sudo apt install -y debian-archive-keyring
 
 # 执行create-image.sh完毕后看到目录有如下内容即为成功
 chroot  create-image.sh  stretch.id_rsa  stretch.id_rsa.pub  stretch.img
+
+# 2023-05-04补充说明：最新版create-image.sh执行结果如下，随后与之相关的boot.sh和my.cfg中的stretch*都要改为bullseye*
+chroot  create-image.sh  bullseye.id_rsa  bullseye.id_rsa.pub  bullseye.img  
 ```
 
 - 安装qemu虚拟机
@@ -210,10 +213,10 @@ chroot  create-image.sh  stretch.id_rsa  stretch.id_rsa.pub  stretch.img
 # 在当前image目录创建boot.sh，注意路径的指向要正确
 # x86_64/boot/bzImage是x86/boot/bzImage的软链接
 qemu-system-x86_64 \
- -kernel ../kernels/linux-6.2.10/arch/x86/boot/bzImage \
+ -kernel ../kernels/linux-6.1.12/arch/x86/boot/bzImage \
  -append "console=ttyS0 root=/dev/sda debug earlyprintk=serial slub_debug=QUZ"\
  -hda ./stretch.img \
- -net user,hostfwd=tcp::16210-:22 -net nic   \
+ -net user,hostfwd=tcp::16112-:22 -net nic   \
  -enable-kvm \
  -nographic \
  -m 2560M \
@@ -245,7 +248,7 @@ mkdir workdir
     "target": "linux/amd64",
     "http": "127.0.0.1:56741",
     "workdir": "/home/zzy/kernel-fuzz/syzkaller/workdir",
-    "kernel_obj": "/home/zzy/kernel-fuzz/kernels/linux-6.2.10",
+    "kernel_obj": "/home/zzy/kernel-fuzz/kernels/linux-6.1.12",
     "image": "/home/zzy/kernel-fuzz/image/stretch.img",
     "sshkey": "/home/zzy/kernel-fuzz/image/stretch.id_rsa",
     "syzkaller": "/home/zzy/kernel-fuzz/syzkaller",
@@ -253,7 +256,7 @@ mkdir workdir
     "type": "qemu",
     "vm": {
         "count": 8,
-        "kernel": "/home/zzy/kernel-fuzz/kernels/linux-6.2.10/arch/x86/boot/bzImage",
+        "kernel": "/home/zzy/kernel-fuzz/kernels/linux-6.1.12/arch/x86/boot/bzImage",
         "cmdline": "net.ifnames=0",
         "cpu": 2,
         "mem": 2048

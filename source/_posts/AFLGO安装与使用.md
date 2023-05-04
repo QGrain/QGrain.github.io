@@ -7,7 +7,7 @@ categories: [Fuzz]
 index_img: /img/blur-sight.jpg
 ---
 
-[AFLGO](https://github.com/aflgo/aflgo)是基于[AFL](https://github.com/google/AFL)改进而来的一种定向灰盒模糊测试工具。
+[AFLGO](https://github.com/aflgo/aflgo)是基于[AFL](https://github.com/google/AFL)改进而来的一种定向灰盒模糊测试工具。定向Fuzz的鼻祖(之一)。
 
 <!--more-->
 
@@ -17,13 +17,32 @@ AFLGo基于llvm实现了函数调用图CG和控制流图CFG的获取，结合对
 
 - 安装llvm和clang，官方文档要求是3.8或者4.0，经过自己测试6.0和11.0和也可以使用，**确保环境$PATH或$LLVM_CONFIG变量已经添加**
 - 执行[官方一键安装脚本](https://raw.githubusercontent.com/aflgo/aflgo/master/scripts/build/aflgo-build.sh)，此脚本疑似有问题（截止至2020年10月），其中llvm-4.0和clang-4.0会安装失败
-- 因此依照[官方README](https://github.com/aflgo/aflgo)的指示，我编写了一键安装**llvm 11.0**以及AFLGo的[脚本](https://gitee.com/QGrain/aflgo-build/tree/master)：
+- 因此依照[官方README](https://github.com/aflgo/aflgo)的流程，我编写了一键安装**llvm 12.0.1**以及AFLGo的[脚本](https://gitee.com/QGrain/aflgo-build/tree/master)：
 
 ```bash
 curl https://gitee.com/QGrain/aflgo-build/raw/master/aflgo-build.sh | bash
 ```
 
-## 2 常见开源库和软件
+- 也可以直接使用我打包好的[docker镜像](https://hub.docker.com/repository/docker/qgrain/aflgo/general)
+
+```bash
+docker pull qgrain/aflgo:ubuntu20.04_llvm12.0.1
+```
+
+## 2 使用AFLGO
+
+可能遇到的问题：
+
+- 计算distance：gen_distance_fast.py不好用，建议用genDistance.sh。此外如果报错`AttributeError: module 'networkx' has no attribute 'info'`，则卸载networkx然后安装低版本
+
+```bash
+pip uninstall networkx
+pip install networkx==2.2
+```
+
+
+
+## 3 常见开源库和软件
 
 **Google**已经总结了[三百多款常见的开源软件](https://github.com/google/oss-fuzz/tree/master/projects)用于模糊测试，每一个工具的目录结构如下：
 
@@ -97,31 +116,33 @@ sanitizers:
 
 然后选取了其中较为常用，轻量级的几款工具来做AFLGO Fuzzing测试
 
-### 2.1 bzip2
+### 3.1 bzip2
 
 - 介绍： bzip2是一款比传统的[gzip](https://zh.wikipedia.org/wiki/Gzip)或者[ZIP](https://zh.wikipedia.org/wiki/ZIP)的压缩效率更高但是压缩速度较慢的压缩工具，其算法可以排名到前百分之十到十五。 
 - 源码地址： https://sourceware.org/git/bzip2.git
 - oss-fuzz项目地址：https://github.com/google/oss-fuzz/tree/master/projects/bzip2
 
-### 2.2 binutils
+### 3.2 binutils
 
 - 介绍： binutils 是一组开发工具，包括连接器，汇编器和其他用于目标文件和档案的工具。 
 - 源码地址：https://github.com/bminor/binutils-gdb
 - oss-fuzz项目地址：https://github.com/google/oss-fuzz/tree/master/projects/binutils
 
-### 2.3 cJSON
+### 3.3 cJSON
 
 - 介绍： JSON是使用C语言编写，用来创建、解析JSON文件的库。 
 - 源码地址：https://github.com/DaveGamble/cJSON
 - oss-fuzz项目地址：https://github.com/google/oss-fuzz/tree/master/projects/cjson
 
-### 2.4 libpcap
+### 3.4 libpcap
 
 - 介绍： libpcap（Packet Capture Library），即数据包捕获函数库，是Unix/Linux平台下的网络数据包捕获函数库。它是一个独立于系统的用户层包捕获的API接口，为底层网络监测提供了一个可移植的框架。 
 - 源码地址：https://github.com/the-tcpdump-group/libpcap
 - oss-fuzz项目地址：https://github.com/google/oss-fuzz/tree/master/projects/libpcap
 
-## 3 参考文档
+## 4 参考文档
+
+[AFLGO官方README](https://github.com/aflgo/aflgo#readme)
 
 [值得推荐的C/C++开源框架和库](https://blog.csdn.net/iw1210/article/details/52093742)
 
