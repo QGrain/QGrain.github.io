@@ -2,7 +2,7 @@
 title: syzkaller安装与使用
 toc: true
 date: 2022-10-31 20:09:22
-tags: [Kernel, Fuzz]
+tags: [Kernel, Fuzz, Syzkaller]
 categories: [Fuzz]
 index_img: /image/thumbnails/fantasy-wallpaper-nature.jpg
 ---
