@@ -215,7 +215,7 @@ chroot  create-image.sh  bullseye.id_rsa  bullseye.id_rsa.pub  bullseye.img
 qemu-system-x86_64 \
  -kernel ../kernels/linux-6.1.12/arch/x86/boot/bzImage \
  -append "console=ttyS0 root=/dev/sda debug earlyprintk=serial slub_debug=QUZ"\
- -hda ./stretch.img \
+ -hda ./bullseye.img \
  -net user,hostfwd=tcp::16112-:22 -net nic   \
  -enable-kvm \
  -nographic \
@@ -229,7 +229,7 @@ chmod u+x boot.sh
 ./boot.sh
 
 # 然后测试qemu虚拟机的ssh服务是否成功启动
-ssh -i stretch.id_rsa -p 16210 -o "StrictHostKeyChecking no" root@localhost
+ssh -i bullseye.id_rsa -p 16112 -o "StrictHostKeyChecking no" root@localhost
 ```
 
 ## 5 运行syzkaller
@@ -249,16 +249,16 @@ mkdir workdir
     "http": "127.0.0.1:56741",
     "workdir": "/home/zzy/kernel-fuzz/syzkaller/workdir",
     "kernel_obj": "/home/zzy/kernel-fuzz/kernels/linux-6.1.12",
-    "image": "/home/zzy/kernel-fuzz/image/stretch.img",
-    "sshkey": "/home/zzy/kernel-fuzz/image/stretch.id_rsa",
+    "image": "/home/zzy/kernel-fuzz/image/bullseye.img",
+    "sshkey": "/home/zzy/kernel-fuzz/image/bullseye.id_rsa",
     "syzkaller": "/home/zzy/kernel-fuzz/syzkaller",
     "procs": 8,
     "type": "qemu",
     "vm": {
         "count": 8,
         "kernel": "/home/zzy/kernel-fuzz/kernels/linux-6.1.12/arch/x86/boot/bzImage",
-        "cmdline": "net.ifnames=0",
-        "cpu": 2,
+        # "cmdline": "net.ifnames=0",
+        # "cpu": 2,
         "mem": 2048
     }
 }
@@ -267,7 +267,8 @@ mkdir workdir
 - 开始内核模糊测试
 
 ```bash
-./bin/syz-manager -config my.cfg
+# 将日志写入./bench.log
+./bin/syz-manager -config my.cfg -bench bench.log
 
 # 如果出现Is another process using the image [/home/zzy/kernel-fuzz/image/stretch.img]?提示
 # 则说明之前boot.sh开启的qemu虚拟机尚未关机，进入到该虚拟机执行关机命令poweroff即可
