@@ -223,7 +223,7 @@
             
               <p class="note note-info">
                 
-                  Last updated on：May 4, 2023 pm
+                  Last updated on：May 26, 2023 pm
                 
               </p>
             
@@ -410,7 +410,7 @@ chroot  create-image.sh  bullseye.id_rsa  bullseye.id_rsa.pub  bullseye.img</cod
 qemu-system-x86_64 \
  -kernel ../kernels/linux-6.1.12/arch/x86/boot/bzImage \
  -append <span class="hljs-string">"console=ttyS0 root=/dev/sda debug earlyprintk=serial slub_debug=QUZ"</span>\
- -hda ./stretch.img \
+ -hda ./bullseye.img \
  -net user,hostfwd=tcp::16112-:22 -net nic   \
  -<span class="hljs-built_in">enable</span>-kvm \
  -nographic \
@@ -424,7 +424,7 @@ chmod u+x boot.sh
 ./boot.sh
 
 <span class="hljs-comment"># 然后测试qemu虚拟机的ssh服务是否成功启动</span>
-ssh -i stretch.id_rsa -p 16210 -o <span class="hljs-string">"StrictHostKeyChecking no"</span> root@localhost</code></pre></div>
+ssh -i bullseye.id_rsa -p 16112 -o <span class="hljs-string">"StrictHostKeyChecking no"</span> root@localhost</code></pre></div>
 
 <h2 id="5-运行syzkaller"><a href="#5-运行syzkaller" class="headerlink" title="5 运行syzkaller"></a>5 运行syzkaller</h2><ul>
 <li>创建syzkaller配置文件</li>
@@ -440,16 +440,16 @@ mkdir workdir
     <span class="hljs-string">"http"</span>: <span class="hljs-string">"127.0.0.1:56741"</span>,
     <span class="hljs-string">"workdir"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/syzkaller/workdir"</span>,
     <span class="hljs-string">"kernel_obj"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/kernels/linux-6.1.12"</span>,
-    <span class="hljs-string">"image"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/image/stretch.img"</span>,
-    <span class="hljs-string">"sshkey"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/image/stretch.id_rsa"</span>,
+    <span class="hljs-string">"image"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/image/bullseye.img"</span>,
+    <span class="hljs-string">"sshkey"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/image/bullseye.id_rsa"</span>,
     <span class="hljs-string">"syzkaller"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/syzkaller"</span>,
     <span class="hljs-string">"procs"</span>: 8,
     <span class="hljs-string">"type"</span>: <span class="hljs-string">"qemu"</span>,
     <span class="hljs-string">"vm"</span>: &#123;
         <span class="hljs-string">"count"</span>: 8,
         <span class="hljs-string">"kernel"</span>: <span class="hljs-string">"/home/zzy/kernel-fuzz/kernels/linux-6.1.12/arch/x86/boot/bzImage"</span>,
-        <span class="hljs-string">"cmdline"</span>: <span class="hljs-string">"net.ifnames=0"</span>,
-        <span class="hljs-string">"cpu"</span>: 2,
+        <span class="hljs-comment"># "cmdline": "net.ifnames=0",</span>
+        <span class="hljs-comment"># "cpu": 2,</span>
         <span class="hljs-string">"mem"</span>: 2048
     &#125;
 &#125;</code></pre></div>
@@ -457,7 +457,8 @@ mkdir workdir
 <ul>
 <li>开始内核模糊测试</li>
 </ul>
-<div class="hljs"><pre><code class="hljs bash">./bin/syz-manager -config my.cfg
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 将日志写入./bench.log</span>
+./bin/syz-manager -config my.cfg -bench bench.log
 
 <span class="hljs-comment"># 如果出现Is another process using the image [/home/zzy/kernel-fuzz/image/stretch.img]?提示</span>
 <span class="hljs-comment"># 则说明之前boot.sh开启的qemu虚拟机尚未关机，进入到该虚拟机执行关机命令poweroff即可</span></code></pre></div>
@@ -532,6 +533,8 @@ mkdir workdir
                       <a class="hover-with-bg" href="/tags/Fuzz/">Fuzz</a>
                     
                       <a class="hover-with-bg" href="/tags/Kernel/">Kernel</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Syzkaller/">Syzkaller</a>
                     
                   </div>
                 
