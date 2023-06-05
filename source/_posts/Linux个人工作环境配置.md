@@ -134,6 +134,14 @@ ssh -T git@github.com
 # 也可以直接上 https://github.com/521xueweihan/GitHub520
 ```
 
+- **好用的插件⭐**
+  - gitlen：功能包括但不限于行末显示代码commit历史
+  - gitblame：See git blame information in the status bar.
+  - Compare Folder：对比文件夹
+  - Remote - SSH(WSL)：远程连接服务器
+  - vscode-icons：给文件和文件夹替换精美icon
+  - Markdown All in One：markdown插件
+
 ### Vim
 
 - 安装vim
