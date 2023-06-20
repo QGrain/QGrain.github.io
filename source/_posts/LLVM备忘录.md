@@ -54,12 +54,17 @@ get_url()
         ver_val=`echo "$ver_val * 10 + ${arr[$i]}" | bc`
     done
 
-    threshold=1101
-    if [[ $ver_val -ge $threshold ]]
+    new_ver=1101
+    old_ver=901
+    if [[ $ver_val -ge $new_ver ]]
     then
         echo "https://github.com/llvm/llvm-project/releases/download/llvmorg-$1/llvm-project-$1.src.tar.xz"
-    else
+    elif [[ $ver_val -ge $old_ver ]]
+    then
         echo "https://github.com/llvm/llvm-project/releases/download/llvmorg-$1/llvm-project-$1.tar.xz"
+    else
+    	echo "Old version < 9.0.1, not supported (TODO). Exit."
+    	exit 1
     fi
 }
 
@@ -75,18 +80,26 @@ fi
 
 # dependencies
 sudo apt update
-sudo apt install -y cmake ninja-build
+sudo apt install -y cmake ninja-build libedit-dev python3-dev swig
 
 # download source
 INSTALL_DIR=llvm-project-$version.install
 URL=`get_url $version`
 SRC_DIR=$(basename $URL .tar.xz)
 
-wget $URL
-tar xvJf $SRC_DIR.tar.xz
+if [[ ! -e $SRC_DIR.tar.xz ]]; then
+	wget $URL
+fi
 
-mkdir $INSTALL_DIR
-mkdir -p $SRC_DIR/build
+if [[ ! -d $SRC_DIR ]]; then
+	tar xvJf $SRC_DIR.tar.xz
+fi
+
+if [[ ! -d $INSTALL_DIR ]]; then
+	mkdir $INSTALL_DIR
+	mkdir -p $SRC_DIR/build
+fi
+
 cd $SRC_DIR/build
 
 cmake -G Ninja\
@@ -123,7 +136,6 @@ echo -e "\nplease: cd $SRC_DIR/build && ninja install"
 **文件转换图**
 
 <div align=center><img src="https://raw.githubusercontent.com/QGrain/picgo-bed/main/figure-2023/202304042211483.png" style="zoom: 60%;" /></div>
-
 - `-ccc-print-phrases`：打印编译阶段，指定`-save-temps`参数即可保存以下各阶段的中间文件
 
 ```bash
