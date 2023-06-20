@@ -28,10 +28,10 @@ sudo apt install -y libssl-dev libelf-dev
 sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-dev libmpfr-dev libmpc-dev
 
 pushd ~
-wget https://dl.google.com/go/go1.17.6.linux-amd64.tar.gz
-tar -zxvf go1.17.6.linux-amd64.tar.gz
+wget https://dl.google.com/go/go1.19.6.linux-amd64.tar.gz
+tar -zxvf go1.19.6.linux-amd64.tar.gz
 echo "export GOPATH=~/go" >> ~/.bashrc
-echo "export PATH=$GOPATH/bin:$PATH" >> ~/.bashrc
+echo "export PATH=\$GOPATH/bin:\$PATH" >> ~/.bashrc
 source ~/.bashrc
 
 git clone https://github.com/google/syzkaller.git
@@ -48,26 +48,50 @@ echo -e "\nDone!"
 
 set -e
 
+crash_dir=$1
+dumb_mode=$2
+
 print_help() {
         echo -e "Usage: ./get_result.sh /path/to/crashs_dir"
+        exit 0
 }
 
-if [[ ! -n "$1" ]]
+# customized
+# $1=desc, $2=repro
+dumb_filter() {
+        if [[ $2 -gt 0 ]]
+        then
+                echo 0
+        else
+                echo 1
+        fi
+}
+
+if [[ ! -n "$crash_dir" ]]
 then
         print_help
-else
-    ls $1 | while read crash
-    do
-        echo -e "\n======== $crash ========"
-        desc=`cat $1/$crash/description`
-        echo -e "$desc"
-        syz_repro=`ls $1/$crash | grep "repro.prog" | wc -l`
-        c_repro=`ls $1/$crash | grep "repro.cprog" | wc -l`
-        repro=`echo "$syz_repro + $c_repro" | bc`
-        echo -e "Repro: $repro"
-    done
-    echo -e "\nDone!"
 fi
+
+cnt=0
+for crash in `ls $crash_dir`
+do
+        desc=`cat $crash_dir/$crash/description`
+        syz_repro=`ls $crash_dir/$crash | grep "repro.prog" | wc -l`
+        c_repro=`ls $crash_dir/$crash | grep "repro.cprog" | wc -l`
+        repro=`echo "$syz_repro + $c_repro" | bc`
+        if [[ $repro -gt 0 ]]
+        then
+                cnt=`echo "$cnt+1" | bc`
+        fi
+        dumb_ret=$(dumb_filter "$desc" "$repro")
+        if [[ $dumb_mode == "dumb" && $dumb_ret -eq "1" ]]
+        then
+                continue
+        fi
+        echo -e "\n============= $crash ============="
+        echo -e "$desc"
+        echo -e "C Repro: ${c_repro}, Syz Repro: ${syz_repro}"
+done
 ```
 
 - TBD
