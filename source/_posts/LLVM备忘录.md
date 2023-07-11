@@ -18,13 +18,87 @@ LLVM备忘录、笔记兼心得
 
 | Package                                           | Version   | Notes                                                        |
 | ------------------------------------------------- | --------- | ------------------------------------------------------------ |
-| [cmake](http://cmake.org/)                        | >=3.13.4  | Makefile/workspace generator                                 |
+| [cmake](http://cmake.org/)                        | >=3.20.0  | Makefile/workspace generator                                 |
 | [GCC](http://gcc.gnu.org/)                        | >=7.1.0   | C/C++ compiler                                               |
 | [python](http://www.python.org/)                  | >=3.6     | Automated test suite(Only needed for automatic test suite in `llvm/test`) |
 | [zlib](http://zlib.net/)                          | >=1.2.3.4 | Compression library(Optional)                                |
 | [GNU Make](http://savannah.gnu.org/projects/make) | >=3.79.1  | Makefile/build processor(Optional)                           |
 
 ### 编译安装
+
+**更新cmake：**
+
+```bash
+# 卸载cmake
+sudo apt remove -y cmake
+sudo apt install -y libssl-dev
+
+wget https://cmake.org/files/v3.23/cmake-3.23.0.tar.gz
+tar zxvf cmake-3.23.0.tar.gz
+cd cmake-3.23.0
+./configure
+make -j8
+sudo make install
+```
+
+**老版本一键安装脚本：build_llvm-old.sh**
+
+```bash
+#!/bin/bash
+# Install old version llvm-project from source. Two reasons why use this script:
+# 1. llvm-project before 9.0.1 does not have a tarball of llvm-project. We need to download them seperately.
+# 2. Older llvm-project (before 9.0.1?) uses some features which would be changed or deprecated in C++17. So we'd better use gcc-5 to compile llvm.
+
+set -e
+
+cwd=`pwd`
+ver=$1
+packages=(llvm cfe compiler-rt libcxx libcxxabi lld clang-tools-extra)
+base_url=https://releases.llvm.org/$ver
+
+src_dir=llvm-project-$ver.src
+install_dir=llvm-project-$ver.install
+
+mkdir $src_dir $install_dir
+
+# download and extract
+pushd $src_dir
+for pack in ${packages[@]}
+do
+        wget $base_url/$pack-$ver.src.tar.xz
+        tar xvJf $pack-$ver.src.tar.xz
+done
+echo -e "\ndownload and extract finish"
+
+mv llvm-$ver.src llvm
+mv cfe-$ver.src clang
+mv compiler-rt-$ver.src compiler-rt
+mv libcxx-$ver.src libcxx
+mv libcxxabi-$ver.src libcxxabi
+mv lld-$ver.src lld
+mv clang-tools-extra-$ver.src clang-tools-extra
+
+
+# build in $src_dir
+mkdir build
+cd build
+
+cmake -G Ninja\
+                -DCMAKE_BUILD_TYPE=Release \
+                # -DLLVM_ENABLE_PROJECTS="clang;lld;compiler-rt" \
+                -DLLVM_TARGETS_TO_BUILD="X86" \
+                -DCMAKE_INSTALL_PREFIX=$cwd/$install_dir \
+                -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" ../llvm
+
+# cmake -G Ninja -DLIBCXX_ENABLE_SHARED=OFF -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD="X86" -DLLVM_BINUTILS_INCDIR=/usr/include ../llvm
+
+echo -e "\ncmake finish\n"
+ninja -j16
+echo -e "\nninja finish, return value: $?"
+echo -e "\nplease: cd $cwd$src_dir/build && ninja install"
+```
+
+
 
 **一键安装脚本：build_llvm-project.sh**
 
@@ -104,9 +178,9 @@ cd $SRC_DIR/build
 
 cmake -G Ninja\
                 -DCMAKE_BUILD_TYPE="Release" \
-                -DLLVM_ENABLE_PROJECTS="clang;lld;lldb;compiler-rt" \
+                -DLLVM_ENABLE_PROJECTS="clang;lld;compiler-rt" \ # Notice, compiler-rt has trouble with old ver of llvm
+                -DLLVM_TARGETS_TO_BUILD="X86" \
                 -DLLVM_INSTALL_UTILS=ON \
-                -DLLVM_ENABLE_RTTI=ON \
                 -DCMAKE_INSTALL_PREFIX=$cwd/$INSTALL_DIR \
                 -DLLVM_ENABLE_RUNTIMES="libcxx;libcxxabi" ../llvm
 
