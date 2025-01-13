@@ -37,6 +37,7 @@ export https_proxy=http://PROXY_IP:PROXY:PORT
 sudo touch /etc/profile.d/my_proxy.sh
 echo "export http_proxy=http://PROXY_IP:PROXY:PORT" >> /etc/profile.d/my_proxy.sh
 echo "export https_proxy=http://PROXY_IP:PROXY:PORT" >> /etc/profile.d/my_proxy.sh
+echo "no_proxy=\"localhost, 127.0.0.1\"" >> /etc/profile.d/my_proxy.sh
 sudo chmod +x /etc/profile.d/my_proxy.sh
 source /etc/profile.d/my_proxy.sh
 # 注: 如果是zsh，则需要注意是否在/etc/zsh/zprofile中添加了相关支持

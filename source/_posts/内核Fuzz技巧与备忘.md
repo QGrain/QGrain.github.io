@@ -12,7 +12,7 @@ hide: false
 
 <!--more-->
 
-## 常用脚本
+## 1 常用脚本
 
 - 一键安装syzkaller
 
@@ -23,7 +23,7 @@ set -e
 
 sudo apt update
 sudo apt install -y debootstrap qemu qemu-kvm
-sudo apt install -y git make build-essential openssh-server
+sudo apt install -y git make build-essential openssh-server bc
 sudo apt install -y libssl-dev libelf-dev
 sudo apt install -y flex bison libc6-dev libc6-dev-i386 linux-libc-dev libgmp3-dev libmpfr-dev libmpc-dev
 
@@ -96,7 +96,11 @@ done
 
 - TBD
 
-## qemu+gdb调试内核
+## 2 qemu内复现poc
+
+
+
+## 3 qemu+gdb调试内核
 
 **通过qemu启动待调试的内核：**`./debug.sh`
 
@@ -117,6 +121,7 @@ qemu-system-x86_64 \
   -serial mon:stdio \
   -m 1G \
   -s \
+  -S \
   -smp 1 \
   -pidfile kernel.debug.pid \
   2>&1 | tee kernel.debug.log
@@ -134,7 +139,38 @@ qemu-system-x86_64 \
 gdb vmlinux --eval-command="target remote tcp::1234"
 ```
 
+**常用命令**：
+
+- 下软件断点：b，下硬件断点：hb，删除第N个断点：delete N
+- 打印源码：l，打印内存：x（`x/nfu addr`”。含义为以`f`格式打印从`addr`开始的`n`个长度单元为`u`的内存值。如 x/16xw）
+- 查看堆栈：bt，步进：n，步入：s，继续运行：c
+
+**详细调试技巧请见[gdb调试内核技巧总结]()**
+
 **Trouble shooting**
 
 - `Cannot insert breakpoint 1. Cannot access memory at address 0xffffffff8610ae1b`
   - 用硬件断点`hbreak`而不是软件断点`break`
+
+## 4 Troubleshooting
+
+### 内核编译
+
+- 遇到`FATAL: modpost: vmlinux.o is truncated.`
+
+```bash
+  LD      vmlinux.o
+  OBJCOPY modules.builtin.modinfo
+objcopy: warning: vmlinux.o has a corrupt section with a size (3b7bb65e) larger than the file size
+objcopy: warning: vmlinux.o has a corrupt section with a size (59e797c0) larger than the file size
+objcopy: warning: vmlinux.o has a corrupt section with a size (20ce7197) larger than the file size
+objcopy: warning: vmlinux.o has a corrupt section with a size (168af608) larger than the file size
+  GEN     modules.builtin
+  GEN     .vmlinux.objs
+  MODPOST Module.symvers
+FATAL: modpost: vmlinux.o is truncated. sechdrs[i].sh_offset=370247648 > sizeof(*hrd)=64
+make[2]: *** [scripts/Makefile.modpost:144: Module.symvers] Error 1
+make[1]: *** [/root/kernels/linux-6.5-rc3/Makefile:1984: modpost] Error 2
+```
+
+- 原因可能是.config开启了某些较新的模块而编译器版本过低，建议升级编译器（gcc ≥ 12，clang ≥ 15）
