@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/qq.jpg">
+  <link rel="icon" type="image/png" href="/img/qq.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Personal Blog of Zhiyu Zhang">
+  <meta name="author" content="Zhiyu Zhang">
+  <meta name="keywords" content="Security, Machine Learning, Linux">
+  <title>Zeek脚本语言(一) - Zhiyu&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/agate.min.css" />
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.6.2/gitalk.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zhiyu's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 54vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Zhiyu's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                Friends
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/horse_running.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-03-16 23:23">
+      March 16, 2020 pm
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1k words
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      11
+       minutes
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> views
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p class="note note-info">
+                
+                  Last updated on：February 16, 2026 pm
+                
+              </p>
+            
+            <article class="markdown-body">
+              <p>本文将主要介绍和讲解Zeek脚本语言的<strong>数据类型</strong>，<strong>基于语法</strong>和<strong>属性</strong></p>
+<span id="more"></span>
+<h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><h3 id="基础数据类型"><a href="#基础数据类型" class="headerlink" title="基础数据类型"></a>基础数据类型</h3><p><strong>Zeek有以下内建数据类型</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-bool"><code>bool</code></a></td>
+<td>布尔型</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-count"><code>count</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-int"><code>int</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-double"><code>double</code></a></td>
+<td>数值类型</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-time"><code>time</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-interval"><code>interval</code></a></td>
+<td>时间类型</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-string"><code>string</code></a></td>
+<td>字符串</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-pattern"><code>pattern</code></a></td>
+<td>正则表达式</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-port"><code>port</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-addr"><code>addr</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-subnet"><code>subnet</code></a></td>
+<td>网络类型</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-enum"><code>enum</code></a></td>
+<td>枚举（用户定义类型）</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-table"><code>table</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-set"><code>set</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-vector"><code>vector</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-record"><code>record</code></a></td>
+<td>容器类型</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-function"><code>function</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-event"><code>event</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-hook"><code>hook</code></a></td>
+<td>可执行类型</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-file"><code>file</code></a></td>
+<td>文件类型（仅用于写入）</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-opaque"><code>opaque</code></a></td>
+<td>不透明类型（用于某些内建功能）</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-any"><code>any</code></a></td>
+<td>任何类型（用于函数或容器）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>以下是每一种数据类型的详细说明</strong></p>
+<ul>
+<li><strong><code>bool</code></strong>：拥有<code>T</code>和<code>F</code>两种取值。支持比较运算（==，!=），逻辑运算和绝对值运算（|T|=1，|F|=0，类型为<code>count</code>）</li>
+<li><strong><code>int</code></strong>：64位有符号整型。支持算术，比较，逻辑，赋值和绝对值运算（运算结果类型为<code>count</code>）</li>
+<li><strong><code>count</code></strong>：64位无符号整型。支持的运算符和<code>int</code>相同，其中一元加减运算的结果的类型为<code>int</code></li>
+<li><strong><code>double</code></strong>：双精度浮点型。支持的运算符与<code>int</code>相同</li>
+<li><strong><code>time</code></strong>：表示绝对时间的时间类型。<code>time</code>类型仅能通过<code>double_to_time</code>, <code>current_time</code>, <code>network_time</code>内建函数来赋值。<code>time</code>类型支持比较运算符。<code>time</code>类型相减能够产生<code>interval</code>类型数据，<code>time</code>类型的绝对值是<code>double</code>类型</li>
+<li><strong><code>interval</code></strong>：表示相对时间的时间类型。其格式为数字常数+时间单位，时间单位有<code>usec</code>, <code>msec</code>, <code>sec</code>, <code>min</code>, <code>hr</code>和<code>day</code>。以下几种均为正确的表达形式：<code>3.5 min</code>, <code>3.5min</code>, <code>3.5mins</code>, <code>-12 hr</code></li>
+<li><strong><code>string</code></strong>：字符串类型。由双引号包括，脚本中不支持多行字符串<ul>
+<li>支持<code>+</code>拼接，<code>=</code>和<code>+=</code>来赋值。支持pp比较运算符。取绝对值运算可以计算出字符串的长度。支持<code>in</code>和<code>!in</code>来判断字符串包含关系</li>
+<li>支持<code>\</code>转义如：<code>\\</code>, <code>\n</code>, <code>\t</code>, <code>\v</code>, <code>\b</code>, <code>\r</code>, <code>\f</code>, <code>\a</code>, <code>\onn</code>(n为8进制数码), <code>\xhh</code>(h为16进制数码)。当Zeek无法识别转义字符串时将会忽略<code>\</code>，如<code>\g</code>将会变成<code>g</code></li>
+<li>支持下标法访问字符串中的字符。但是不可以对下表法表示的字符串进行赋值修改，即它们是只读的</li>
+</ul>
+</li>
+<li><p><strong><code>pattern</code></strong>：正则表达式类型。<code>pattern</code>常量是通过两个正斜杠<code>/</code>来创建的，并采用与<a target="_blank" rel="noopener" href="http://westes.github.io/flex/manual/Patterns.html">flex词法分析器</a>语法</p>
+</li>
+<li><p><strong><code>port</code></strong>：表示传输层端口的数据类型。<code>port</code>常量由一个无符号整数和端口类型（<code>\tcp</code>, <code>\udp</code>, <code>\icmp</code> or <code>\unknow</code>）组成</p>
+<ul>
+<li><code>port</code>类型支持比较运算符，且比较顺序为 <code>unknown</code> &lt; <code>tcp</code> &lt; <code>udp</code> &lt; <code>icmp</code>，比如<code>65535/tcp</code> &lt; <code>0/udp</code> </li>
+<li><code>get_port_transport_proto</code>和<code>port_to_count</code>是Zeek内建的函数，分别能够从<code>port</code>型数据提取传输协议（后面的协议字符串）和端口号（前面的<code>count</code>型端口号）</li>
+</ul>
+</li>
+<li><strong><code>addr</code></strong>：表示IP地址的类型。支持ipv4和ipv6，且支持其常规的表示方式<ul>
+<li>支持比较运算符，比较大小时当作正常数值进行比较。如<code>192.168.99.254</code> &lt; <code>192.168.100.0</code></li>
+<li>可以通过<code>/</code>来产生<code>subnet</code>型数据。并可以用<code>in</code>来判断一个<code>addr</code>是否属于<code>subnet</code></li>
+<li>一个域名数据可能对应多个IP地址，因此常用<code>set[addr]</code>来表示</li>
+</ul>
+</li>
+<li><strong><code>subnet</code></strong>：表示子网的类型。由<code>addr</code>和<code>/network_prefix_size</code>组成。如<code>192.168.100.0/24</code>和 <code>[fe80::]/64</code>。<code>subnet</code>类型仅支持<code>==</code>和<code>!=</code> 比较运算符</li>
+<li><strong><code>enum</code></strong>：枚举类型。且枚举类型的value不具备深层次的结构。仅支持<code>==</code>, <code>!=</code> 和<code>=</code>运算符</li>
+</ul>
+<h3 id="高级数据类型"><a href="#高级数据类型" class="headerlink" title="高级数据类型"></a>高级数据类型</h3><p><strong>Zeek还有以下内建数据类型</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-table"><code>table</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-set"><code>set</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-vector"><code>vector</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-record"><code>record</code></a></td>
+<td>容器类型</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-function"><code>function</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-event"><code>event</code></a>， <a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-hook"><code>hook</code></a></td>
+<td>可执行类型</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-file"><code>file</code></a></td>
+<td>文件类型（仅用于写入）</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-opaque"><code>opaque</code></a></td>
+<td>不透明类型（用于某些内建功能）</td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://docs.zeek.org/en/master/script-reference/types.html#type-any"><code>any</code></a></td>
+<td>任何类型（用于函数或容器）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong><code>table</code></strong>：表示映射关系的表类型。被映射的值称为<code>index</code>或者<code>indices</code>，映射的结果称为<code>yield</code>。是一种非常高效的索引类型，其内部实质为一个单哈希查找表</li>
+<li><strong><code>set</code></strong>：</li>
+</ul>
+<h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h3 id="定义变量"><a href="#定义变量" class="headerlink" title="定义变量"></a>定义变量</h3><h3 id="定义函数"><a href="#定义函数" class="headerlink" title="定义函数"></a>定义函数</h3><h3 id="运算符"><a href="#运算符" class="headerlink" title="运算符"></a>运算符</h3><h3 id="条件语句"><a href="#条件语句" class="headerlink" title="条件语句"></a>条件语句</h3><h3 id="循环语句"><a href="#循环语句" class="headerlink" title="循环语句"></a>循环语句</h3><h2 id="属性"><a href="#属性" class="headerlink" title="属性"></a>属性</h2>
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Tutorial/">Tutorial</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/IDS/">IDS</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Zeek/">Zeek</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/03/27/SSH%E4%BF%9D%E6%8C%81%E9%95%BF%E8%BF%9E%E6%8E%A5/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SSH保持长连接</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2020/03/12/Zeek%E5%AE%89%E8%A3%85/">
+                        <span class="hidden-mobile">Zeek安装</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <script type="text/javascript">
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'QGrain/QGrain.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
+    }
+    createObserver(loadUtterances, 'comments')
+  </script>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"Ilomilo","artist":"Billie Eilish","url":"/songs/Ilomilo-3D.mp3","cover":"/img/songs/Ilomilo.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+      <i class="iconfont icon-rss"></i>
+        <a href="https://qgrain.github.io/atom.xml" target="_blank" rel="nofollow noopener">
+          <span>RSS</span></a>
+    </div>
+    
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            ( •̀ ω •́ )✧ 总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+    
+
+    
+  </div>
+</footer>
+<div class="text-center">
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+  var now = new Date();
+  function createtime(){
+      var grt= new Date("05/16/2019 00:00:00");//此处修改你的建站时间或者网站上线时间
+      now.setTime(now.getTime()+250);
+      days = (now - grt ) / 1000 / 60 / 60 / 24;
+      dnum = Math.floor(days);
+      hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+      hnum = Math.floor(hours);
+      if(String(hnum).length ==1 ){
+          hnum = "0" + hnum;
+      }
+      minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+      mnum = Math.floor(minutes);
+      if(String(mnum).length ==1 ){
+                mnum = "0" + mnum;
+      }
+      seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+      snum = Math.round(seconds);
+      if(String(snum).length ==1 ){
+                snum = "0" + snum;
+      }
+      document.getElementById("timeDate").innerHTML = "本站安全运行&nbsp"+dnum+"&nbsp天";
+      document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒, 博主很懒更新很慢ㄟ( ▔, ▔ )ㄏ";
+  }
+  setInterval("createtime()",250);
+  </script>
+</div>
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Zeek脚本语言(一)&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: true,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+  <script>(function (i, s, o, g, r, a, m) {
+      i['DaoVoiceObject'] = r;
+      i[r] = i[r] ||
+        function () {
+          (i[r].q = i[r].q || []).push(arguments);
+        };
+      i[r].l = 1 * new Date();
+      a = s.createElement(o);
+      m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      a.charset = 'utf-8';
+      m.parentNode.insertBefore(a, m);
+    })(window, document, 'script', ('https:' === document.location.protocol ? 'https:' : 'http:') + "//widget.daovoice.io/widget/2bbf5718.js", 'daovoice');
+    daovoice('init', {
+      app_id: "2bbf5718",
+    });
+    daovoice('update');
+  </script>
+
+
+
+
+
+
+
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'UA-187967588-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>

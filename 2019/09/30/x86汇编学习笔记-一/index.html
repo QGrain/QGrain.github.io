@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/qq.jpg">
+  <link rel="icon" type="image/png" href="/img/qq.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Personal Blog of Zhiyu Zhang">
+  <meta name="author" content="Zhiyu Zhang">
+  <meta name="keywords" content="Security, Machine Learning, Linux">
+  <title>x86汇编学习笔记(一) - Zhiyu&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/agate.min.css" />
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.6.2/gitalk.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zhiyu's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 54vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Zhiyu's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                Friends
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/horse_running.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-09-30 15:30">
+      September 30, 2019 pm
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.7k words
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      28
+       minutes
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> views
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p class="note note-info">
+                
+                  Last updated on：February 16, 2026 pm
+                
+              </p>
+            
+            <article class="markdown-body">
+              <p>本文主要介绍了80x86的寄存器，80x86处理器的工作模式，Windows的内存管理和寻址方式。</p>
+<span id="more"></span>
+<h2 id="1-80386的寄存器"><a href="#1-80386的寄存器" class="headerlink" title="1 80386的寄存器"></a>1 80386的寄存器</h2><h3 id="1-1-通用寄存器"><a href="#1-1-通用寄存器" class="headerlink" title="1.1 通用寄存器"></a>1.1 通用寄存器</h3><ul>
+<li><strong>EAX:</strong> 通用寄存器。相对其他寄存器，在进行运算方面比较常用。在保护模式中，也可以作为内存偏移指针（此时，DS作为段寄存器或选择器）</li>
+<li><strong>EBX:</strong> 通用寄存器。通常作为内存偏移指针使用（相对于EAX、ECX、EDX）。在保护模式中，同样可以起这个作用。</li>
+<li><strong>ECX:</strong> 通用寄存器。通常用于特定指令的计数。在保护模式中，也可以作为内存偏移指针（此时，DS作为寄存器或段选择器）。</li>
+<li><strong>EDX:</strong> 通用寄存器。在某些运算中作为EAX的溢出寄存器（例如乘、除）。在保护模式中，也可以作为内存偏移指针（此时，DS作为段 寄存器或选择器）。</li>
+</ul>
+<p><strong>注：</strong>以上四个寄存器均为32位，且具有16-bit和8-bit的分组。即我们可以通过AX来访问EAX的低16位，通过AH和AL来访问AX的高8位和低8位。</p>
+<ul>
+<li><strong>ESI:</strong> 通常在内存操作指令中作为“源地址指针”使用。当然，ESI可以被装入任意的数值，但通常没有人把它当作通用寄存器来用。</li>
+<li><strong>EDI:</strong> 通常在内存操作指令中作为“目的地址指针”使用。当然，EDI也可以被装入任意的数值，但通常没有人把它当作通用寄存器来用。</li>
+<li><strong>EBP:</strong> 一个指针的寄存器。通常，它被高级语言编译器用以建造‘堆栈帧’来保存函数或过程的局部变量，不过，还是那句话，你可以在其中保存你希望的任何数据。SS是它的默认段寄存器或选择器。</li>
+</ul>
+<p><strong>注：</strong>以上三个寄存器也是32位寄存器，但是<strong>没有8-bit分组</strong>。</p>
+<h3 id="1-2-段寄存器和选择器"><a href="#1-2-段寄存器和选择器" class="headerlink" title="1.2 段寄存器和选择器"></a>1.2 段寄存器和选择器</h3><ul>
+<li><strong>CS:</strong> 代码段，或代码选择器。同IP寄存器一同指向当前正在执行的那个地址。处理器执行时从这个寄存器指向的段（实模式）或内存（保护模式）中获取指令。除了跳转或其他分支指令之外，你无法修改这个寄存器的内容。</li>
+<li><strong>DS:</strong> 数据段，或数据选择器。这个寄存器的低16 bit连同ESI一同指向的指令将要处理的内存。同时，所有的内存操作指令 默认情况下都用它指定操作段(实模式)或内存(作为选择器，在保护模式)。</li>
+<li><strong>ES:</strong> 附加段，或附加选择器。这个寄存器的低16 bit连同EDI一同指向的指令将要处理的内存。同样的，这个寄存器可以被装入任意数值，方法和DS类似。</li>
+<li><strong>FS: </strong>F段或F选择器(推测F可能是Free?)。可以用这个寄存器作为默认段寄存器或选择器的一个替代品。它可以被装入任何数值，方法和DS类似。</li>
+<li><strong>GS:</strong> G段或G选择器(G的意义和F一样，没有在Intel的文档中解释)。它和FS几乎完全一样。</li>
+<li><strong>SS:</strong> 堆栈段或堆栈选择器。这个寄存器的低16 bit连同ESP一同指向下一次堆栈操作(push和pop)所要使用的堆栈地址。这个寄存器也可以被装入任意数值，你可以通过入栈和出栈操作来给他赋值，不过由于堆栈对于很多操作有很重要的意义，因此，不正确的修改有可能造成对堆栈的破坏。</li>
+</ul>
+<p><strong>注：</strong>段寄存器和选择器在没有制定的情况下都是使用默认对应的寄存器。</p>
+<h3 id="1-3-特殊寄存器"><a href="#1-3-特殊寄存器" class="headerlink" title="1.3 特殊寄存器"></a>1.3 特殊寄存器</h3><ul>
+<li><strong>EIP:</strong> 一个32位宽的寄存器 ，同CS一同指向即将执行的那条指令的地址。不能够直接修改这个寄存器的值，修改它的唯一方法是跳转或分支指令。(CS是默认的段或选择器)</li>
+<li><strong>ESP:</strong> 这个32位寄存器指向<strong>堆栈</strong>中<strong>即将被操作的那个地址</strong>。尽管可以修改它的值，然而并不提倡这样做，因为如果你不是非常明白自己在做什么，那么你可能造成堆栈的破坏。对于绝大多数情况而言，这对程序是致命的。(SS是默认的段或选择器)</li>
+</ul>
+<h3 id="1-4-其他寄存器"><a href="#1-4-其他寄存器" class="headerlink" title="1.4 其他寄存器"></a>1.4 其他寄存器</h3><p><em>以下寄存器均为32位</em></p>
+<ul>
+<li><strong>CR0, CR2, CR3:</strong> 控制寄存器。其中CR0的作用是切换实模式和保护模式</li>
+<li><strong>D0, D1, D2, D3, D6, D7:</strong> 调试寄存器。可以作为调试器的硬件支持来设置条件断点</li>
+<li><strong>TR3, TR4, TR5, TR6:</strong> 测试寄存器。用于某些条件测试</li>
+</ul>
+<h2 id="2-80x86的工作模式"><a href="#2-80x86的工作模式" class="headerlink" title="2 80x86的工作模式"></a>2 80x86的工作模式</h2><p>80386处理器由三个工作模式：实模式，保护模式和虚拟86模式。实模式和虚拟86模式都是为了和8086处理器<strong>兼容</strong>而设置的。</p>
+<h3 id="2-1-实模式"><a href="#2-1-实模式" class="headerlink" title="2.1 实模式"></a>2.1 实模式</h3><ul>
+<li>80386处理器被复位或加电的时候以实模式启动。这时候处理器中的各寄存器以实模式的初始化值工作。</li>
+<li>80386处理器在实模式下的存储器寻址方式和8086是一样的：由段寄存器的内容乘以16当作基地址，加上段内的偏移地址形成最终的物理地址。<strong>（32位地址线只用了20位，即1MB）</strong>。</li>
+<li>实模式下80386处理器不能对内存进行分页管理，所以指令寻址的地址就是<strong>内存的实际地址</strong>。</li>
+<li>实模式下，所有的段都是可读写和执行的。</li>
+<li>实模式下的80386不支持优先级，所有的指令相当于工作在特权级（优先级0），所以它可以执行所有的特权指令。<strong>实际上，80386就是通过在实模式下初始化控制寄存器，GDTR，LDTR, IDTR与TR等管理寄存器以及页表，然后再通过加载CR0使其中的保护模式使能位置位而进入保护模式的。</strong></li>
+<li>实模式下中断处理方式和80386处理器相同。也是用中断向量表来定位中断服务程序地址。中断向量表的结构也和8086处理器一样：每4个字节组成一个中断向量，其中包括两个字节的段地址和2个字节的偏移地址。</li>
+</ul>
+<h3 id="2-2-保护模式"><a href="#2-2-保护模式" class="headerlink" title="2.2 保护模式"></a>2.2 保护模式</h3><ul>
+<li>当80386处理器工作在保护模式时，其所有功能都是可用的。</li>
+<li>80386所有的32根地址线都可提供寻址，物理寻址空间达<strong>4GB</strong></li>
+<li>保护模式下，支持内存分页机制，提供了对虚拟内存的良好支持。</li>
+<li>保护模式下，支持多任务。仅依靠硬件即可再一条指令中实现任务切换。任务环境的保护工作是由处理器自动完成的。</li>
+<li>保护模式下，80386处理器还支持<strong>优先级机制</strong>。优先级分为4个（0级到3级），操作系统运行在最高优先级0级上。应用程序则运行在较低优先级上。配合良好的检查机制后，即可实现多任务的数据安全共享，也能够很好地隔离各个任务。</li>
+<li>实模式切换到保护模式是通过修改<strong>控制寄存器CR0的控制位PE(位0)</strong>实现的。在此之前，需要建立保护模式必须的数据表，如全局描述表GDT和中断描述表IDT等。</li>
+<li><strong>DOS操作系统运行于实模式下，而Windows操作系统运行于保护模式下。</strong></li>
+</ul>
+<h3 id="2-3-虚拟86模式"><a href="#2-3-虚拟86模式" class="headerlink" title="2.3 虚拟86模式"></a>2.3 虚拟86模式</h3><ul>
+<li>虚拟86模式是为了在保护模式下执行8086程序而设置的。（实模式的兼容做得并不足够）</li>
+<li>虚拟86模式是以<strong>任务形式</strong>在保护模式上执行的。在80386上可以<strong>同时支持</strong>由多个真正的80386任务和虚拟86模式构成的任务。</li>
+<li>虚拟86模式支持任务切换机制。在Windows操作系统中，有一部分程序专门用来管理虚拟86模式的任务，成为<strong>虚拟86管理程序</strong></li>
+<li>虚拟86模式采用和8086一样的寻址方式：即用段寄存器乘以16当作基址在加上偏移地址。寻址空间为<strong>1MB</strong>。</li>
+<li>虚拟86模式支持内存分页机制，因此能够很好地解决不同虚拟86任务的地址空间问题，通过分页机制的地址映射，让<strong>每个任务都认为自己在使用0~1MB的地址空间</strong>。</li>
+<li>8086有部分指令在保护模式下属于特权指令，如屏蔽中断的cli和中断返回指令iret等。为了让8086的代码能够正常执行，虚拟86管理程序<strong>采用模拟</strong>的方式来完成这些指令：这些指令首先会引起保护异常，虚拟86程序则在异常处理程序中检查这些指令，并做出合理的响应。MS-DOS应用程序在Windows操作系统就是这样工作的。</li>
+</ul>
+<h2 id="3-Windwos的内存管理"><a href="#3-Windwos的内存管理" class="headerlink" title="3 Windwos的内存管理"></a>3 Windwos的内存管理</h2><h3 id="3-1-DOS操作系统的内存安排"><a href="#3-1-DOS操作系统的内存安排" class="headerlink" title="3.1 DOS操作系统的内存安排"></a>3.1 DOS操作系统的内存安排</h3><p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20190930151927.png" srcset="/img/loading.gif" alt=""></p>
+<ul>
+<li>DOS运行于实模式，存储器的地址被安排在高端，从A0000h（即640KB）开始的384KB中。</li>
+<li>而在内存低端，则安排了中断向量表和BIOS数据区。</li>
+<li>剩余的从500h到A0000h总共不到640KB的内存是操作系统和应用程序所能使用的。<strong>(著名的640KB限制)</strong></li>
+<li>当80386处理器（32位）推出后，可寻址空间达到了4GB，利用XMS驱动程序可以访问到所有的地址空间。但是16位的段寻址方式限制了DOS程序，<strong>“可见”</strong>的内存范围还是停留在前1MB范围内。所有高于1MB的扩展内存<strong>只能通过XMS驱动程序当作数据交换使用</strong>，程序执行的空间并无增加。</li>
+</ul>
+<p><strong>DOS的寻址方式：</strong></p>
+<ul>
+<li>一个完整的地址分为段地址和偏移地址两部分组成：<ul>
+<li>段地址xxxx存放在16位的段寄存器中</li>
+<li>16位的偏移地址yyyy存放在指令中</li>
+</ul>
+</li>
+<li>计算方法：<strong>real = xxxx * 0x10 + yyyy</strong></li>
+</ul>
+<h3 id="3-2-80386的内存寻址机制"><a href="#3-2-80386的内存寻址机制" class="headerlink" title="3.2 80386的内存寻址机制"></a>3.2 80386的内存寻址机制</h3><p><strong>实模式下的内存寻址方式：</strong></p>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20190930152012.png" srcset="/img/loading.gif" alt=""></p>
+<p><strong>保护模式下GDTR、LDTR、全局描述表、局部描述表和选择器的关系：</strong></p>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20190930152046.png" srcset="/img/loading.gif" alt=""></p>
+<h3 id="3-3-80386的分页机制"><a href="#3-3-80386的分页机制" class="headerlink" title="3.3 80386的分页机制"></a>3.3 80386的分页机制</h3><p><strong>80386的内存地址转换：</strong></p>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20190930152119.png" srcset="/img/loading.gif" alt=""></p>
+<p><strong>虚拟内存的实现：</strong></p>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20190930152137.png" srcset="/img/loading.gif" alt=""></p>
+<h3 id="3-4-Windows的内存安排"><a href="#3-4-Windows的内存安排" class="headerlink" title="3.4 Windows的内存安排"></a>3.4 Windows的内存安排</h3><p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20190930152203.png" srcset="/img/loading.gif" alt=""></p>
+<h2 id="4-参考"><a href="#4-参考" class="headerlink" title="4 参考"></a>4 参考</h2><p>[1]《Windows PE 权威指南》</p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Notes/">Notes</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/x86-Assembly/">x86 Assembly</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/09/30/x86%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%BA%8C/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">x86汇编学习笔记(二)</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/16/Invalid-Driver-Label-on-Windows/">
+                        <span class="hidden-mobile">Invalid Driver Label in Windows</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <script type="text/javascript">
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'QGrain/QGrain.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
+    }
+    createObserver(loadUtterances, 'comments')
+  </script>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"Ilomilo","artist":"Billie Eilish","url":"/songs/Ilomilo-3D.mp3","cover":"/img/songs/Ilomilo.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+      <i class="iconfont icon-rss"></i>
+        <a href="https://qgrain.github.io/atom.xml" target="_blank" rel="nofollow noopener">
+          <span>RSS</span></a>
+    </div>
+    
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            ( •̀ ω •́ )✧ 总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+    
+
+    
+  </div>
+</footer>
+<div class="text-center">
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+  var now = new Date();
+  function createtime(){
+      var grt= new Date("05/16/2019 00:00:00");//此处修改你的建站时间或者网站上线时间
+      now.setTime(now.getTime()+250);
+      days = (now - grt ) / 1000 / 60 / 60 / 24;
+      dnum = Math.floor(days);
+      hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+      hnum = Math.floor(hours);
+      if(String(hnum).length ==1 ){
+          hnum = "0" + hnum;
+      }
+      minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+      mnum = Math.floor(minutes);
+      if(String(mnum).length ==1 ){
+                mnum = "0" + mnum;
+      }
+      seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+      snum = Math.round(seconds);
+      if(String(snum).length ==1 ){
+                snum = "0" + snum;
+      }
+      document.getElementById("timeDate").innerHTML = "本站安全运行&nbsp"+dnum+"&nbsp天";
+      document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒, 博主很懒更新很慢ㄟ( ▔, ▔ )ㄏ";
+  }
+  setInterval("createtime()",250);
+  </script>
+</div>
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "x86汇编学习笔记(一)&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: true,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+  <script>(function (i, s, o, g, r, a, m) {
+      i['DaoVoiceObject'] = r;
+      i[r] = i[r] ||
+        function () {
+          (i[r].q = i[r].q || []).push(arguments);
+        };
+      i[r].l = 1 * new Date();
+      a = s.createElement(o);
+      m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      a.charset = 'utf-8';
+      m.parentNode.insertBefore(a, m);
+    })(window, document, 'script', ('https:' === document.location.protocol ? 'https:' : 'http:') + "//widget.daovoice.io/widget/2bbf5718.js", 'daovoice');
+    daovoice('init', {
+      app_id: "2bbf5718",
+    });
+    daovoice('update');
+  </script>
+
+
+
+
+
+
+
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'UA-187967588-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>

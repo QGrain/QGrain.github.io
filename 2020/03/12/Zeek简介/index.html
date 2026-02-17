@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/qq.jpg">
+  <link rel="icon" type="image/png" href="/img/qq.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Personal Blog of Zhiyu Zhang">
+  <meta name="author" content="Zhiyu Zhang">
+  <meta name="keywords" content="Security, Machine Learning, Linux">
+  <title>开源网络流量分析框架Zeek - Zhiyu&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/agate.min.css" />
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.6.2/gitalk.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zhiyu's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 54vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Zhiyu's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                Friends
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/horse_running.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2020-03-12 23:19">
+      March 12, 2020 pm
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.1k words
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      22
+       minutes
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> views
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p class="note note-info">
+                
+                  Last updated on：February 16, 2026 pm
+                
+              </p>
+            
+            <article class="markdown-body">
+              <h1 id="1-Zeek基本介绍"><a href="#1-Zeek基本介绍" class="headerlink" title="1 Zeek基本介绍"></a>1 Zeek基本介绍</h1><h2 id="1-1-Overview"><a href="#1-1-Overview" class="headerlink" title="1.1 Overview"></a>1.1 Overview</h2><p>Zeek又名Bro，是一个被动的开源网络流量分析器。它主要是一种安全监视器，可深入检查链接上的所有流量以查找可疑活动的迹象。在安全领域以外，Zeek还能够进行性能测量，故障检测等工作。</p>
+<span id="more"></span>
+<p>1995年劳伦斯伯克利实验室的研究员Vern开始了Bro的开发，并于1996年在实验室进行内部部署，1998年在USENIX安全研讨会进行发表。2003年，美国国家科学基金会（NSF）开始在国际计算机科学研究所（ICSI）上支持Bro的研究和高级开发。2010年NSF通过向ICSI授予SDCI计划中专门用于Bro开发的赠款，美国国家超级计算应用中心（NCSA）作为该团队的核心合作伙伴加入了该计划。现如今Bro团队现在正在努力通过进一步提高系统功能来应对未来网络的挑战，以此取得成功。</p>
+<h2 id="1-2-Architecture"><a href="#1-2-Architecture" class="headerlink" title="1.2 Architecture"></a>1.2 Architecture</h2><p><img src="https://raw.githubusercontent.com/QGrain/picgo-bed/master/figure/architecture.png" srcset="/img/loading.gif" alt=""></p>
+<p>由上图可知Zeek的体系结构主要分为两个部分：</p>
+<ul>
+<li><strong>事件引擎：</strong>Event Engine 将传入的数据包流减少为一系列更高级别的<em>events</em>。这些事件以与策略无关的术语反映了网络活动，它描述已看到的内容，但不对现象进行解释或分析。例如它能将线路上的HTTP request都转化为一个相应的<code>http_request</code>事件，该事件包含了请求的IP，端口和URL以及http version等信息。<strong>但是Event Engine不会对此事件进一步解读，如该URL是否对应于已知的恶意站点。</strong></li>
+<li><strong>策略脚本解释器：</strong>上例中的事件语义解析将由Zeek的第二个主要组件Policy Script Interpreter派生。该脚本解释器执行一组Zeek自定义脚本语言编写的<strong>事件处理程序</strong>来对事件进行语义分析。例如一个站点的安全策略将包括监测器检测到不同活动时应该做出的响应等。最重要的是，Zeek允许其脚本随着时间推移而保持工作状态，从而使它们能够跟踪并关联跨连接和主机边界观察到的内容的演变。Bro脚本可以生成实时警报，还可以按需执行任意外部程序，例如触发对攻击的主动响应。</li>
+</ul>
+<h2 id="1-3-Features"><a href="#1-3-Features" class="headerlink" title="1.3 Features"></a>1.3 Features</h2><p>Zeek支持很多基于其脚本的分析，并且即便是不采用自定义脚本，它也能具备以下强大的功能特性：</p>
+<ul>
+<li><strong>Deployment</strong><ul>
+<li>在标准Unix-Style的商用硬件上运行</li>
+<li>能对来自网络分接头或者监测端口的流量进行完全被动的流量分析</li>
+<li>用于捕获数据包的标准libpcap接口</li>
+<li>实时和离线分析</li>
+<li>对于大规模部署支持集群化，且无论是独立还是集群都采用统一的管理框架</li>
+<li>BSD许可下开源</li>
+</ul>
+</li>
+<li><p><strong>Analysis</strong></p>
+<ul>
+<li>全面记录活动，以进行离线分析和取证</li>
+<li>独立与应用层协议的端口分析</li>
+<li>支持许多应用程序层协议（包括DNS，FTP，HTTP，IRC，SMTP，SSH，SSL）</li>
+<li>分析通过应用层协议交换的文件内容，包括用于指纹识别的MD5 / SHA1计算</li>
+<li>全面的IPv6支持</li>
+<li>隧道检测和分析（包括Ayiya，Teredo，GTPv1）。Zeek将隧道解封装，然后继续分析其内容，就像没有隧道一样</li>
+<li>在协议分析过程中进行全面的健全性检查</li>
+<li>支持IDS样式的模式匹配</li>
+</ul>
+</li>
+<li><p><strong>Scripting Language</strong></p>
+<ul>
+<li>图灵完备的语言，用于表达任意分析任务</li>
+<li>基于事件的编程模型</li>
+<li>特定于域的数据类型，例如IP地址（透明地处理IPv4和IPv6），端口号和计时器</li>
+<li>支持基于时间的跟踪和管理网络状态</li>
+</ul>
+</li>
+<li><p><strong>Interfacing</strong></p>
+<ul>
+<li>默认输出到格式良好的ACSII日志</li>
+<li><code>ElasticSearch</code>和<code>DataSeries</code>的备用后端，并将后续支持其它数据接口</li>
+<li>外部输入实时集成到分析中，并将后续支持实时数据库的输入</li>
+<li>外部的C库用于与外部程序交换Zeek的事件，同样支持与Perl，Python和Ruby的绑定</li>
+<li>能够从脚本语言内部触发任意外部进程</li>
+</ul>
+</li>
+</ul>
+<h1 id="2-Zeek集群架构"><a href="#2-Zeek集群架构" class="headerlink" title="2 Zeek集群架构"></a>2 Zeek集群架构</h1><p><strong>为什么Zeek需要集群架构？因为Zeek是是单线程的，因此一旦达到单个处理器内核的限制，当前唯一的方法就是把工作负载分散到多个内核甚至是多个物理机上。</strong></p>
+<h2 id="2-1-Cluster-Architecture"><a href="#2-1-Cluster-Architecture" class="headerlink" title="2.1 Cluster Architecture"></a>2.1 Cluster Architecture</h2><p><img src="https://raw.githubusercontent.com/QGrain/picgo-bed/main/figure-2022/202210061328175.png" srcset="/img/loading.gif"/></p>
+<p>上图是Zeek的集群架构示意图</p>
+<ul>
+<li><strong>Tap</strong>是一种机制用来拆分数据流并创建副本用于检测。例如交换机上的监测端口和光纤网络上的分光路器。</li>
+<li><strong>Frontend</strong>是一种离散的硬件设备或主机技术，可将流量分为许多流。Zeek的二进制文件并不执行此工作。</li>
+<li><strong>Manager</strong>是一个Zeek的进程，具有两个主要任务。第一个是从集群的其他采用Zeek通信协议的节点接收日志和通知（如果你用的是logger则会取代manager来接收所有的日志）它的输出结果是一个单独的日志而不是许多需要被后期处理组合的离散的日志。第二个任务是它能够作为通知的阻塞节点来进行重复数据删除操作和通知行为化操作（如将通知以邮件形式发送，分页或者阻止）。</li>
+<li><strong>Logger</strong>是一个可选的Zeek进程，它使用Zeek通信协议从群集的其余节点接收日志消息。让logger代替manager接收日志的目的是为了减轻manager的负担。</li>
+<li><strong>Proxy</strong>是一个用于同步状态的Zeek进程，变量能够自动地在连接的Zeek进程间同步。proxy避免了所有worker都相互直连。</li>
+<li><strong>Worker</strong>是嗅探网络流量并对重新组合的流量进行协议分析的Zeek进程。由于一个集群的所有协议解析和大多数分析都将在此处进行，因此建议采用尽可能高性能的内存和CPU。因为几乎所有日志记录都是在远程对manager完成的，并且通常很少写入磁盘，因此workers对磁盘没有特殊要求。</li>
+</ul>
+<h2 id="2-2-Frontend-Options"><a href="#2-2-Frontend-Options" class="headerlink" title="2.2 Frontend Options"></a>2.2 Frontend Options</h2><h3 id="2-2-1-分立的硬件流量平衡器"><a href="#2-2-1-分立的硬件流量平衡器" class="headerlink" title="2.2.1 分立的硬件流量平衡器"></a>2.2.1 分立的硬件流量平衡器</h3><ul>
+<li><strong>cPacket：</strong>如果要监视一个或多个10G物理接口，建议的解决方案是使用cPacket的cFlow或cVu设备，这些设备将通过重写目标以太网MAC地址以使与特定流关联的每个数据包具有相同的目标MAC，来执行第2层负载平衡。然后可以将数据包直接传递到监视主机，在监视主机上，每个worker都有一个BPF Filter以将其可见性限制为仅该流，或者继续传递到商用交换机，以将流量拆分为多个以适配worker的1G接口。从而大大降低成本。</li>
+<li><strong>OpenFlow Switches：</strong>基于OpenFlow的交换机直接在交换机上进行基于流的负载平衡，从而大大降低了许多用户的前端成本。<strong>官方正在探索中…</strong></li>
+</ul>
+<h3 id="2-2-2-主机流量平衡机制"><a href="#2-2-2-主机流量平衡机制" class="headerlink" title="2.2.2 主机流量平衡机制"></a>2.2.2 主机流量平衡机制</h3><ul>
+<li><strong>PF_RING： </strong>Linux的PF_RING软件具有“群集”功能，该功能将在嗅探同一接口的多个进程之间进行基于流的负载平衡。这使您可以轻松地在单个物理主机中利用多个内核，因为Bro的主事件循环是单线程的，因此无法本机利用所有内核。如果要使用PF_RING，请参阅有关如何使用PF_RING配置Zeek的<a target="_blank" rel="noopener" href="http://bro.org/documentation/load-balancing.html">文档</a>。</li>
+<li><strong>Netmap：</strong> FreeBSD有一个正在进行的名为Netmap的项目，该项目还将启用基于流的负载平衡。<strong>官方正在探索中…</strong></li>
+<li><strong>Software Router：</strong> 可以通过简单的配置用于基于流的负载平衡。由于Zeek的PF_RING支持，因此不建议在Linux上使用此解决方案，并且仅将其作为其他操作系统上的不得已的方法，因为该解决方案会因每个数据包在内核和用户域之间来回上下文切换数次而导致大量开销。</li>
+</ul>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Tutorial/">Tutorial</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/IDS/">IDS</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Zeek/">Zeek</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/03/12/Zeek%E5%AE%89%E8%A3%85/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Zeek安装</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2020/01/23/%E3%80%90LaTeX%E3%80%91VSCode%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/">
+                        <span class="hidden-mobile">【LaTeX】VSCode环境配置</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <script type="text/javascript">
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'QGrain/QGrain.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
+    }
+    createObserver(loadUtterances, 'comments')
+  </script>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"Ilomilo","artist":"Billie Eilish","url":"/songs/Ilomilo-3D.mp3","cover":"/img/songs/Ilomilo.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+      <i class="iconfont icon-rss"></i>
+        <a href="https://qgrain.github.io/atom.xml" target="_blank" rel="nofollow noopener">
+          <span>RSS</span></a>
+    </div>
+    
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            ( •̀ ω •́ )✧ 总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+    
+
+    
+  </div>
+</footer>
+<div class="text-center">
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+  var now = new Date();
+  function createtime(){
+      var grt= new Date("05/16/2019 00:00:00");//此处修改你的建站时间或者网站上线时间
+      now.setTime(now.getTime()+250);
+      days = (now - grt ) / 1000 / 60 / 60 / 24;
+      dnum = Math.floor(days);
+      hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+      hnum = Math.floor(hours);
+      if(String(hnum).length ==1 ){
+          hnum = "0" + hnum;
+      }
+      minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+      mnum = Math.floor(minutes);
+      if(String(mnum).length ==1 ){
+                mnum = "0" + mnum;
+      }
+      seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+      snum = Math.round(seconds);
+      if(String(snum).length ==1 ){
+                snum = "0" + snum;
+      }
+      document.getElementById("timeDate").innerHTML = "本站安全运行&nbsp"+dnum+"&nbsp天";
+      document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒, 博主很懒更新很慢ㄟ( ▔, ▔ )ㄏ";
+  }
+  setInterval("createtime()",250);
+  </script>
+</div>
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "开源网络流量分析框架Zeek&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: true,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+  <script>(function (i, s, o, g, r, a, m) {
+      i['DaoVoiceObject'] = r;
+      i[r] = i[r] ||
+        function () {
+          (i[r].q = i[r].q || []).push(arguments);
+        };
+      i[r].l = 1 * new Date();
+      a = s.createElement(o);
+      m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      a.charset = 'utf-8';
+      m.parentNode.insertBefore(a, m);
+    })(window, document, 'script', ('https:' === document.location.protocol ? 'https:' : 'http:') + "//widget.daovoice.io/widget/2bbf5718.js", 'daovoice');
+    daovoice('init', {
+      app_id: "2bbf5718",
+    });
+    daovoice('update');
+  </script>
+
+
+
+
+
+
+
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'UA-187967588-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>

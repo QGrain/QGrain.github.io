@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/qq.jpg">
+  <link rel="icon" type="image/png" href="/img/qq.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Personal Blog of Zhiyu Zhang">
+  <meta name="author" content="Zhiyu Zhang">
+  <meta name="keywords" content="Security, Machine Learning, Linux">
+  <title>Linux个人工作环境配置 - Zhiyu&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/agate.min.css" />
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.6.2/gitalk.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zhiyu's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 54vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Zhiyu's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                Friends
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/horse_running.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2021-04-10 11:21">
+      April 10, 2021 am
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.7k words
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      27
+       minutes
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> views
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p class="note note-info">
+                
+                  Last updated on：February 16, 2026 pm
+                
+              </p>
+            
+            <article class="markdown-body">
+              <h1 id="Linux个人工作环境配置（持续更新）"><a href="#Linux个人工作环境配置（持续更新）" class="headerlink" title="Linux个人工作环境配置（持续更新）"></a>Linux个人工作环境配置（持续更新）</h1><p>在迁移到新的Linux系统时，可以用以下来配置个人工作环境，以快速恢复效率✨</p>
+<span id="more"></span>
+<blockquote>
+<p>本文环境：Ubuntu 22.04 LTS</p>
+</blockquote>
+<h2 id="1-系统配置"><a href="#1-系统配置" class="headerlink" title="1 系统配置"></a>1 系统配置</h2><h3 id="配置代理"><a href="#配置代理" class="headerlink" title="配置代理"></a>配置代理</h3><ul>
+<li>可直接在  Settings &gt; Network &gt; Network Proxy &gt; Manual  图形界面中配置系统代理<code>http_proxy</code>和<code>https_proxy</code>，注意不只需写ip和port，不需要在ip前加protocol。然后重启<code>NetworkManager</code>生效。</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> systemctl restart NetworkManager</code></pre></div>
+<ul>
+<li>或者在命令行中为终端shell配置代理：</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 仅对当前终端的shell生效</span>
+<span class="hljs-built_in">export</span> http_proxy=http://PROXY_IP:PROXY:PORT
+<span class="hljs-built_in">export</span> https_proxy=http://PROXY_IP:PROXY:PORT
+
+<span class="hljs-comment"># 持久化（重启）生效</span>
+<span class="hljs-built_in">sudo</span> <span class="hljs-built_in">touch</span> /etc/profile.d/my_proxy.sh
+<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;export http_proxy=http://PROXY_IP:PROXY:PORT&quot;</span> &gt;&gt; /etc/profile.d/my_proxy.sh
+<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;export https_proxy=http://PROXY_IP:PROXY:PORT&quot;</span> &gt;&gt; /etc/profile.d/my_proxy.sh
+<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;no_proxy=\&quot;localhost, 127.0.0.1\&quot;&quot;</span> &gt;&gt; /etc/profile.d/my_proxy.sh
+<span class="hljs-built_in">sudo</span> <span class="hljs-built_in">chmod</span> +x /etc/profile.d/my_proxy.sh
+<span class="hljs-built_in">source</span> /etc/profile.d/my_proxy.sh
+<span class="hljs-comment"># 注: 如果是zsh，则需要注意是否在/etc/zsh/zprofile中添加了相关支持</span></code></pre></div>
+<ul>
+<li>验证代理配置成功</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 打印success即说明配置成功</span>
+<span class="hljs-built_in">timeout</span> 5s curl -I google.com &amp;&amp; <span class="hljs-built_in">echo</span> success || <span class="hljs-built_in">echo</span> fail</code></pre></div>
+<ul>
+<li>配置代理的一个大坑：保证http_proxy等代理对sudo生效（不论当前用户是否为root，都需要添加以下内容）</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment">#/etc/sudoers</span>
+Defaults env_keep += <span class="hljs-string">&quot;http_proxy https_proxy ftp_proxy&quot;</span></code></pre></div>
+<h3 id="更换镜像源"><a href="#更换镜像源" class="headerlink" title="更换镜像源"></a>更换镜像源</h3><ul>
+<li>清华源</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash">deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse
+<span class="hljs-comment"># deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted universe multiverse</span>
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse
+<span class="hljs-comment"># deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-updates main restricted universe multiverse</span>
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse
+<span class="hljs-comment"># deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-backports main restricted universe multiverse</span>
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse
+<span class="hljs-comment"># deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy-security main restricted universe multiverse</span></code></pre></div>
+<ul>
+<li>自动化换源（暂时只支持Ubuntu）</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> git@github.com:QGrain/My-Awesome-Configuration.git awesome-conf
+<span class="hljs-built_in">pushd</span> awesome-conf/mirror-source
+<span class="hljs-built_in">chmod</span> u+x change-mirror-source.sh
+./change-mirror-source.sh
+<span class="hljs-built_in">popd</span></code></pre></div>
+<h3 id="其他的坑"><a href="#其他的坑" class="headerlink" title="其他的坑"></a>其他的坑</h3><ul>
+<li>再记录一个关于Ubuntu 22 in VMware的坑<ul>
+<li>安装[open-vm-tools, open-vm-tools-desktop]和vmware-tools是互斥的两个</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-软件配置"><a href="#2-软件配置" class="headerlink" title="2 软件配置"></a>2 软件配置</h2><h3 id="常用软件"><a href="#常用软件" class="headerlink" title="常用软件"></a>常用软件</h3><div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 常用网络工具</span>
+<span class="hljs-built_in">sudo</span> apt install -y net-tools openssh-server curl inetutils-ping
+
+<span class="hljs-comment"># 常用运维工具</span>
+<span class="hljs-built_in">sudo</span> apt install -y screen tmux
+
+<span class="hljs-comment"># 常用系统资源管理工具</span>
+<span class="hljs-built_in">sudo</span> apt install -y htop screenfetch <span class="hljs-comment"># neofetch</span></code></pre></div>
+<h3 id="Git"><a href="#Git" class="headerlink" title="Git"></a>Git</h3><ul>
+<li>基本配置</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 安装git</span>
+<span class="hljs-built_in">sudo</span> apt install git
+
+<span class="hljs-comment"># 配置账号</span>
+git config --global user.name <span class="hljs-string">&quot;GIT_USERNAME&quot;</span>
+git config --global user.email <span class="hljs-string">&quot;GIT_EMAIL&quot;</span>
+
+<span class="hljs-comment"># 配置代理，仅针对https://github.com代理。移除此字段则是全局代理</span>
+git config --global http.https://github.com.proxy <span class="hljs-string">&quot;socks5://PROXY_IP:PROXY_PORT&quot;</span>
+git config --global https.https://github.com.proxy <span class="hljs-string">&quot;socks5://PROXY_IP:PROXY_PORT&quot;</span></code></pre></div>
+<ul>
+<li>配置<code>github ssh keys</code></li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 生成公私钥对</span>
+ssh-keygen -t rsa -C <span class="hljs-string">&quot;YOUR_COMMENT&quot;</span>
+
+<span class="hljs-comment"># 将id_rsa.pub公钥上传至Github &gt; Settings &gt; SSH and GPG keys</span>
+<span class="hljs-comment"># 测试配置是否成功</span>
+ssh -T git@github.com
+
+<span class="hljs-comment"># 注意！若提示需要输入git@github.com&#x27;s password则说明github.com域名被污染，其解析的ip不正确，需要改/etc/hosts，添加以下一行即可（但是很奇怪的是无法再ping通了）</span>
+20.205.243.166 github.com
+
+<span class="hljs-comment"># 也可以直接上 https://github.com/521xueweihan/GitHub520</span></code></pre></div>
+<ul>
+<li><strong>好用的插件⭐</strong><ul>
+<li>gitlen：功能包括但不限于行末显示代码commit历史</li>
+<li>gitblame：See git blame information in the status bar.</li>
+<li>Compare Folder：对比文件夹</li>
+<li>Remote - SSH(WSL)：远程连接服务器</li>
+<li>vscode-icons：给文件和文件夹替换精美icon</li>
+<li>Markdown All in One：markdown插件</li>
+</ul>
+</li>
+</ul>
+<h3 id="Vim"><a href="#Vim" class="headerlink" title="Vim"></a>Vim</h3><ul>
+<li>安装vim</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt install vim
+
+<span class="hljs-comment"># 使用个人常用的精简配置</span>
+wget -c https://raw.githubusercontent.com/QGrain/My-Awesome-Configuration/master/vim/vimrc -O ~/.vimrc</code></pre></div>
+<ul>
+<li>配置<code>Spacevim</code>？Todo</li>
+</ul>
+<h3 id="Oh-My-Zsh"><a href="#Oh-My-Zsh" class="headerlink" title="Oh-My-Zsh"></a>Oh-My-Zsh</h3><ul>
+<li>安装与配置</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 安装zsh</span>
+<span class="hljs-built_in">sudo</span> apt install zsh
+
+<span class="hljs-comment"># 安装ohmyzsh</span>
+sh -c <span class="hljs-string">&quot;<span class="hljs-subst">$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)</span>&quot;</span>
+
+<span class="hljs-comment"># 拉取个人zshrc配置</span>
+wget -c https://raw.githubusercontent.com/QGrain/My-Awesome-Configuration/master/zsh/zshrc -O ~/.zshrc
+
+<span class="hljs-comment"># Source</span>
+<span class="hljs-built_in">source</span> ~/.zshrc</code></pre></div>
+<ul>
+<li>支持<code>/etc/profile.d/*.sh</code>脚本</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 在/etc/zsh/zprofile中追加以下内容</span>
+<span class="hljs-keyword">if</span> [ -d /etc/profile.d ]; <span class="hljs-keyword">then</span>
+  <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> /etc/profile.d/*.sh; <span class="hljs-keyword">do</span>
+    <span class="hljs-keyword">if</span> [ -r <span class="hljs-variable">$i</span> ]; <span class="hljs-keyword">then</span>
+      . <span class="hljs-variable">$i</span>
+    <span class="hljs-keyword">fi</span>
+  <span class="hljs-keyword">done</span>
+  <span class="hljs-built_in">unset</span> i
+<span class="hljs-keyword">fi</span></code></pre></div>
+<h3 id="neovim"><a href="#neovim" class="headerlink" title="neovim"></a>neovim</h3><h3 id="fzf"><a href="#fzf" class="headerlink" title="fzf"></a>fzf</h3><div class="hljs"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install</code></pre></div>
+<h3 id="cmake"><a href="#cmake" class="headerlink" title="cmake"></a>cmake</h3><ul>
+<li>源码安装指定版本，我曾经写过一个脚本，但是没空找了</li>
+</ul>
+<h3 id="miniconda3"><a href="#miniconda3" class="headerlink" title="miniconda3"></a>miniconda3</h3><div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 从官方站点下载速度较慢，可从国内镜像站下载miniconda3-py38 64-bit</span>
+wget -c https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-py38_4.12.0-Linux-x86_64.sh
+
+<span class="hljs-comment"># 添加当前用户可执行权限</span>
+<span class="hljs-built_in">chmod</span> u+x ./Miniconda3-py38_4.12.0-Linux-x86_64.sh
+
+<span class="hljs-comment"># 执行安装脚本，依照提示完成安装</span>
+./Miniconda3-py38_4.12.0-Linux-x86_64.sh
+
+<span class="hljs-comment"># 添加环境变量</span>
+<span class="hljs-built_in">sudo</span> <span class="hljs-built_in">touch</span> /etc/profile.d/my_software.sh
+<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;export PATH=<span class="hljs-variable">$PATH</span>:/home/<span class="hljs-variable">$USER</span>/miniconda3/bin&quot;</span> &gt;&gt; /etc/profile.d/my_software.sh
+<span class="hljs-built_in">source</span> /etc/profile.d/my_software.sh
+<span class="hljs-comment"># 注: 如果是zsh，则需要注意是否在/etc/zsh/zprofile中添加了相关支持</span></code></pre></div>
+<h3 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h3><ul>
+<li>docker安装：</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 详细参见菜鸟教程，我就不照搬了 qwq</span>
+https://www.runoob.com/docker/ubuntu-docker-install.html</code></pre></div>
+<ul>
+<li>容器内常用软件安装，参见本文前半部分的常用软件安装</li>
+</ul>
+<h2 id="3-开发配置"><a href="#3-开发配置" class="headerlink" title="3 开发配置"></a>3 开发配置</h2><h3 id="C-C"><a href="#C-C" class="headerlink" title="C/C++"></a>C/C++</h3><ul>
+<li>gcc-9/g++-9：由于Ubuntu22自带的gcc版本是11较高，为了兼容部分源码安装gcc-9以及g++-9</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-built_in">sudo</span> apt install gcc-9 g++-9
+<span class="hljs-comment"># 配置update-alternatives</span>
+<span class="hljs-built_in">sudo</span> update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 20 --slave /usr/bin/g++ g++ /usr/bin/g++-11 --slave /usr/bin/gcov gcov /usr/bin/gcov-11 --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-11 --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-11 --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-11
+<span class="hljs-built_in">sudo</span> update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9 --slave /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-9 --slave /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-9 --slave /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-9</code></pre></div>
+<ul>
+<li>llvm-12.0.1(with gold plugin)：插桩利器</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 一键安装（预计四十分钟？）</span>
+curl https://gitee.com/QGrain/aflgo-build/raw/master/build_llvm_12.sh | bash</code></pre></div>
+<h3 id="gdb"><a href="#gdb" class="headerlink" title="gdb"></a>gdb</h3><ul>
+<li>源码安装gdb 10.2</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash">wget http://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.xz
+tar xvJf gdb-10.2.tar.xz
+<span class="hljs-built_in">cd</span> gdb-10.2
+
+<span class="hljs-comment"># 需要安装python3-dev，否则./configure --with-python=/usr/bin/python3之后make会报错找不到distutils.sysconfig</span>
+<span class="hljs-built_in">sudo</span> apt install -y python3-dev texinfo
+
+./configure --with-python=/usr/bin/python3
+make -j8
+<span class="hljs-built_in">sudo</span> make install</code></pre></div>
+<ul>
+<li>安装gef插件</li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># manually</span>
+wget -O ~/.gdbinit-gef.py -q https://gef.blah.cat/py
+<span class="hljs-built_in">echo</span> <span class="hljs-built_in">source</span> ~/.gdbinit-gef.py &gt;&gt; ~/.gdbinit
+
+<span class="hljs-comment"># 运行gdb遇到以下报错，通常是终端字符集不支持某些Unicode字符引起的</span>
+Python Exception &lt;class <span class="hljs-string">&#x27;UnicodeEncodeError&#x27;</span>&gt; <span class="hljs-string">&#x27;ascii&#x27;</span> codec can<span class="hljs-string">&#x27;t encode character &#x27;</span>\u27a4<span class="hljs-string">&#x27; in position 12: ordinal not in range(128)</span>
+<span class="hljs-string"># 在终端中设置正确的字符集以解决问题</span>
+<span class="hljs-string">echo &quot;export LC_CTYPE=C.UTF-8&quot; &gt;&gt; ~/.bashrc</span>
+<span class="hljs-string">source ~/.bashrc</span></code></pre></div>
+<ul>
+<li>安装pwndbg</li>
+</ul>
+<h3 id="Java"><a href="#Java" class="headerlink" title="Java"></a>Java</h3><ul>
+<li>Java长期支持版本</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>版本</th>
+<th>初始发行</th>
+<th>停止维护</th>
+<th>下载链接</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>17</td>
+<td>2021-09-14</td>
+<td>2029-09-30</td>
+<td><a target="_blank" rel="noopener" href="https://www.oracle.com/java/technologies/downloads/#java17">Java17 Download</a></td>
+</tr>
+<tr>
+<td>11</td>
+<td>2018-09-25</td>
+<td>2026-09-30</td>
+<td><a target="_blank" rel="noopener" href="https://www.oracle.com/java/technologies/javase/jdk11-archive-downloads.html">Java11 Download</a></td>
+</tr>
+<tr>
+<td>8</td>
+<td>2014-03-18</td>
+<td>2030-07-19</td>
+<td><a target="_blank" rel="noopener" href="https://www.oracle.com/java/technologies/javase/javase8u211-later-archive-downloads.html">Java8 Download</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>选择下载jdk17</li>
+</ul>
+<h3 id="Go"><a href="#Go" class="headerlink" title="Go"></a>Go</h3><ul>
+<li>Easygoing: <a target="_blank" rel="noopener" href="https://go.dev/dl/">https://go.dev/dl/</a></li>
+</ul>
+<h3 id="Rust"><a href="#Rust" class="headerlink" title="Rust"></a>Rust</h3><ul>
+<li>Easygoing: <a target="_blank" rel="noopener" href="https://www.rust-lang.org/zh-CN/tools/install">https://www.rust-lang.org/zh-CN/tools/install</a></li>
+</ul>
+<h3 id="Node"><a href="#Node" class="headerlink" title="Node"></a>Node</h3><ul>
+<li>Easygoing: <a target="_blank" rel="noopener" href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></li>
+</ul>
+<h2 id="4-CTF配置"><a href="#4-CTF配置" class="headerlink" title="4 CTF配置"></a>4 CTF配置</h2><h3 id="Burpsuite-Pro-2022"><a href="#Burpsuite-Pro-2022" class="headerlink" title="Burpsuite Pro 2022"></a>Burpsuite Pro 2022</h3><h3 id="IDA-Pro-7-7"><a href="#IDA-Pro-7-7" class="headerlink" title="IDA Pro 7.7"></a>IDA Pro 7.7</h3><p>更多详见百度网盘</p>
+<p>To be completed</p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Configuration/">Configuration</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Linux/">Linux</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/23/%E7%BD%91%E7%BB%9C%E6%94%BB%E9%98%B2%E5%9F%BA%E7%A1%80CTF%E6%B5%8B%E9%AA%8CWriteup/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">网络攻防基础CTF测验Writeup</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2021/02/18/SSH%E7%AB%AF%E5%8F%A3%E8%BD%AC%E5%8F%91%E7%94%A8%E6%B3%95%E8%A7%A3%E6%9E%90/">
+                        <span class="hidden-mobile">SSH端口转发用法解析</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <script type="text/javascript">
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'QGrain/QGrain.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
+    }
+    createObserver(loadUtterances, 'comments')
+  </script>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"Ilomilo","artist":"Billie Eilish","url":"/songs/Ilomilo-3D.mp3","cover":"/img/songs/Ilomilo.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+      <i class="iconfont icon-rss"></i>
+        <a href="https://qgrain.github.io/atom.xml" target="_blank" rel="nofollow noopener">
+          <span>RSS</span></a>
+    </div>
+    
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            ( •̀ ω •́ )✧ 总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+    
+
+    
+  </div>
+</footer>
+<div class="text-center">
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+  var now = new Date();
+  function createtime(){
+      var grt= new Date("05/16/2019 00:00:00");//此处修改你的建站时间或者网站上线时间
+      now.setTime(now.getTime()+250);
+      days = (now - grt ) / 1000 / 60 / 60 / 24;
+      dnum = Math.floor(days);
+      hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+      hnum = Math.floor(hours);
+      if(String(hnum).length ==1 ){
+          hnum = "0" + hnum;
+      }
+      minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+      mnum = Math.floor(minutes);
+      if(String(mnum).length ==1 ){
+                mnum = "0" + mnum;
+      }
+      seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+      snum = Math.round(seconds);
+      if(String(snum).length ==1 ){
+                snum = "0" + snum;
+      }
+      document.getElementById("timeDate").innerHTML = "本站安全运行&nbsp"+dnum+"&nbsp天";
+      document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒, 博主很懒更新很慢ㄟ( ▔, ▔ )ㄏ";
+  }
+  setInterval("createtime()",250);
+  </script>
+</div>
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Linux个人工作环境配置&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: true,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+  <script>(function (i, s, o, g, r, a, m) {
+      i['DaoVoiceObject'] = r;
+      i[r] = i[r] ||
+        function () {
+          (i[r].q = i[r].q || []).push(arguments);
+        };
+      i[r].l = 1 * new Date();
+      a = s.createElement(o);
+      m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      a.charset = 'utf-8';
+      m.parentNode.insertBefore(a, m);
+    })(window, document, 'script', ('https:' === document.location.protocol ? 'https:' : 'http:') + "//widget.daovoice.io/widget/2bbf5718.js", 'daovoice');
+    daovoice('init', {
+      app_id: "2bbf5718",
+    });
+    daovoice('update');
+  </script>
+
+
+
+
+
+
+
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'UA-187967588-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>

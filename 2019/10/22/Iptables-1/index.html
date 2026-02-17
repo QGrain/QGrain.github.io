@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/qq.jpg">
+  <link rel="icon" type="image/png" href="/img/qq.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Personal Blog of Zhiyu Zhang">
+  <meta name="author" content="Zhiyu Zhang">
+  <meta name="keywords" content="Security, Machine Learning, Linux">
+  <title>Iptables(1) - Zhiyu&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/agate.min.css" />
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.6.2/gitalk.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zhiyu's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 54vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Zhiyu's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                Friends
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/horse_running.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-10-22 21:22">
+      October 22, 2019 pm
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.4k words
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      16
+       minutes
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> views
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p class="note note-info">
+                
+                  Last updated on：February 16, 2026 pm
+                
+              </p>
+            
+            <article class="markdown-body">
+              <h2 id="1-概念"><a href="#1-概念" class="headerlink" title="1 概念"></a>1 概念</h2><h3 id="1-1-防火墙的概念"><a href="#1-1-防火墙的概念" class="headerlink" title="1.1 防火墙的概念"></a>1.1 防火墙的概念</h3><ul>
+<li>逻辑上讲，防火墙可以分为主机防火墙和网络防火墙<ol>
+<li>主机防火墙：保护单个主机</li>
+<li>网络防火墙：往往处于网络入口，保护入口后面的本地局域网</li>
+</ol>
+</li>
+<li>物理上讲，防火墙可以分为硬件防火墙和软件防火墙<ol>
+<li>硬件防火墙：在硬件级别实现防护</li>
+<li>软件防火墙：通过软件在硬件平台上实现防护</li>
+</ol>
+</li>
+</ul>
+<h3 id="1-2-iptables的概念"><a href="#1-2-iptables的概念" class="headerlink" title="1.2 iptables的概念"></a>1.2 iptables的概念</h3><p>iptables是一个linux操作系统中的命令行工具。用户通过iptables能够实施对真正防火墙netfilter的操作，如<strong>网络地址转换，数据包内容修改，数据包过滤</strong>等</p>
+<span id="more"></span>
+<h3 id="1-3-链和表的概念"><a href="#1-3-链和表的概念" class="headerlink" title="1.3 链和表的概念"></a>1.3 链和表的概念</h3><h4 id="1-3-1-链"><a href="#1-3-1-链" class="headerlink" title="1.3.1 链"></a>1.3.1 链</h4><p>iptables 防火墙一共有五道关卡，五道关卡分别是<code>PREROUTING</code>，<code>INPUT</code>，<code>FORWARD</code>，<code>OUTPUT</code>，<code>POSTROUTING</code></p>
+<p>根据实际情况的不同，报文会经过不同的关卡，如下图所示：<br><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191022194236.png" srcset="/img/loading.gif" alt=""></p>
+<p>防火墙的作用就在于对经过的报文匹配“规则”，然后执行相应的动作。所以当报文流经关卡时，会匹配关卡上的规则。然而在每一道关卡上，规则可能不止一条，于是多条规则按照一定的逻辑顺序串成了一条<strong>链</strong>。如下图所示：<br><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191022194443.png" srcset="/img/loading.gif" alt=""></p>
+<h4 id="1-3-2-表"><a href="#1-3-2-表" class="headerlink" title="1.3.2 表"></a>1.3.2 表</h4><p>我们把具有相同功能的规则的集合叫做<strong>“表”</strong>，iptables定义了四种表 <strong>(优先级由高到低)</strong>：</p>
+<ul>
+<li><strong>raw表</strong>：关闭nat表上启用的链接追踪机制；内核模块：iptables_raw</li>
+<li><strong>mangle表</strong>：拆解，修改，重新封装报文；内核模块：iptables_mangle</li>
+<li><p><strong>nat表</strong>：网络地址转换（network address translation）；内核模块：iptables_nat</p>
+</li>
+<li><p><strong>filter表</strong>：负责过滤功能；内核模块：iptables_filter</p>
+</li>
+</ul>
+<h4 id="1-3-3-表与链的关系"><a href="#1-3-3-表与链的关系" class="headerlink" title="1.3.3 表与链的关系"></a>1.3.3 表与链的关系</h4><p>不同的链上的规则会根据功能不同而存放在不同的表中，不同的链上能存放的表也有所不同。以下是链与表的关系：</p>
+<ul>
+<li><strong>PREROUTING</strong>：raw表，mangle表，nat表</li>
+<li><strong>INPUT</strong>：mangle表，filter表</li>
+<li><strong>FORWARD</strong>：mangle表，filter表</li>
+<li><strong>OUTPUT</strong>：raw表，mangle表，nat表，filter表</li>
+<li><strong>POSTROUTING</strong>：mangle表，nat表</li>
+</ul>
+<p><strong>但是，我们在实际操作iptables的时候，往往是通过“表”作为操作入口，对规则进行定义的。</strong>以下是表与链的关系：</p>
+<ul>
+<li><strong>raw</strong>：PREROUTING，OUTPUT</li>
+<li><strong>mangle</strong>：PREROUTING，INPUT，FORWARD，OUTPUT，POSTROUTING</li>
+<li><strong>nat</strong>：PREROUTING，OUTPUT，POSTROUTING</li>
+<li><strong>filter</strong>：INPUT，FORWARD，OUTPUT</li>
+</ul>
+<p><strong>数据包流经主机的详细图解</strong></p>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191022194815.png" srcset="/img/loading.gif" alt=""></p>
+<h2 id="2-iptables的规则管理"><a href="#2-iptables的规则管理" class="headerlink" title="2 iptables的规则管理"></a>2 iptables的规则管理</h2><h3 id="2-1-基本的规则操作"><a href="#2-1-基本的规则操作" class="headerlink" title="2.1 基本的规则操作"></a>2.1 基本的规则操作</h3><ul>
+<li><p><strong>查看规则</strong>：</p>
+<ul>
+<li>-L：list，显示指定的参数，在后面跟上链的名字可以指定查看的规则链</li>
+<li>-C：check，查找并显示指定的参数</li>
+<li>-t：table，指定要匹配的表，（当没有指定时，默认为filter表）</li>
+<li>-v：verbose，详细信息（多出pkts，bytes，target，prot，opt，in，out等信息）</li>
+<li>-n：不对ip进行域名反解</li>
+<li>—line-number：显示规则的序号</li>
+<li>-x：显示精确的packets和bytes数目</li>
+</ul>
+<p><strong>最终命令为<code>iptables</code>与上述<code>option</code>的组合</strong></p>
+</li>
+<li><p><strong>增加规则</strong>：</p>
+<ul>
+<li><code>-t</code> + <code>指定的表</code> 指定要操作的表</li>
+<li><code>-I</code> + <code>指定的规则链</code>  insert，插入指定的表的规则链首</li>
+<li><code>-A</code> + <code>指定的规则链</code>  append，追加到指定的表的规则链尾</li>
+<li><code>-s</code>：源地址（default 为 0.0.0.0/0，也即all）</li>
+<li><code>-d</code>：目的地址（default 为0.0.0.0/0，也即all）</li>
+<li><code>-j</code>：taget字段，即ACCEPT、REJECT、DROP等动作</li>
+</ul>
+</li>
+<li><p><strong>删除规则</strong>：</p>
+<ul>
+<li>根据规则的编号删除：<code>iptables -t TABLE -D CHAIN seq</code> 其中TABLE是指定的表，CHAIN是指定的链，seq是要删除的规则的序号。</li>
+<li>根据具体的匹配条件与动作删除规则：如 <code>iptables -D INPUT -s 192.168.1.123 -j ACCEPT</code></li>
+<li>删除某表的某条链中的所有规则：<code>iptables -t 表名 -F 链名</code>，<strong>F</strong> for flush（<strong>慎重！</strong>）</li>
+<li>修改规则：<code>-R 链名 序号 新的匹配条件</code>，但更建议删除原规则再新建一条规则。</li>
+</ul>
+</li>
+<li><p><strong>保存规则</strong>：</p>
+<ul>
+<li>centos中，使用service iptables save 即可。规则会默认保存在 /etc/sysconfig/iptables文件中</li>
+<li>通用方法：将iptables-save 的流重定向到/etc/sysconfig/iptables 文件</li>
+<li>重载规则：iptables-restore &lt; /etc/sysconfig/iptables (重载会覆盖现有的规则)</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-2-进阶规则操作—黑白名单"><a href="#2-2-进阶规则操作—黑白名单" class="headerlink" title="2.2 进阶规则操作—黑白名单"></a>2.2 进阶规则操作—黑白名单</h3><h4 id="2-2-1-黑名单"><a href="#2-2-1-黑名单" class="headerlink" title="2.2.1 黑名单"></a>2.2.1 黑名单</h4><ul>
+<li><p><strong>概念</strong>：除了与名单上匹配的报文禁止通过以外，所有报文皆放行</p>
+</li>
+<li><p><strong>实现方法</strong>：<br>我们可以注意到iptables的每一条规则链后面都显示这样的内容：<br><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191022195523.png" srcset="/img/loading.gif" alt=""></p>
+<p><code>policy 策略</code> 表示该链对于报文的<strong>默认策略</strong>。所以当默认策略为<strong>ACCEPT</strong>时，链中的规则应该为<strong>REJECT或DROP</strong>，此时之只有匹配到的报文会被拒绝或丢掉，其余的报文皆被放行，从而实现黑名单。</p>
+</li>
+<li><p><strong>命令</strong>：<code>iptables -P 链名 ACCEPT</code></p>
+</li>
+</ul>
+<h4 id="2-2-2-白名单"><a href="#2-2-2-白名单" class="headerlink" title="2.2.2 白名单"></a>2.2.2 白名单</h4><ul>
+<li><strong>概念</strong>：除了与名单上匹配的报文会放行，所有报文皆被禁止通过</li>
+<li><strong>实现方法</strong>：将默认策略设置为<strong>REJECT或DROP</strong>，链中的规则设置为<strong>ACCEPT</strong></li>
+<li><strong>命令</strong>：<code>iptables -P 链名 REJECT or iptables -P 链名 DROP</code></li>
+</ul>
+<h4 id="2-2-3-白名单的改进"><a href="#2-2-3-白名单的改进" class="headerlink" title="2.2.3 白名单的改进"></a>2.2.3 白名单的改进</h4><ul>
+<li><p><strong>普通白名单的安全隐患</strong>：当我们将默认策略设置为拒绝时，如果我们 <code>iptables -F</code> 清空了规则链，那么所有报文都会被拒绝，如果管理员正在远程ssh操作，此时ssh连接则会直接断开，且目标机器会与外部通信阻隔</p>
+</li>
+<li><p><strong>改进</strong>：将默认策略的拒绝改为接受，然后将<strong>“拒绝所有的报文“</strong>放在规则链的末尾。根据规则链的顺序匹配可知，符合匹配规则的报文放行，否则一律禁止通过</p>
+</li>
+<li><p><strong>命令</strong>：</p>
+<div class="hljs"><pre><code class="hljs mipsasm">iptables -P 链名 ACCEPT     <span class="hljs-comment">#更改默认策略</span>
+iptabels -A 链名 -<span class="hljs-keyword">j </span>REJECT  <span class="hljs-comment">#在链尾追加全部拒绝的规则</span></code></pre></div>
+</li>
+</ul>
+<p><strong>参考文档：</strong><a target="_blank" rel="noopener" href="https://www.zsythink.net/archives/tag/iptables/">iptables防火墙|朱双印博客</a></p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Notes/">Notes</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Linux/">Linux</a>
+                    
+                      <a class="hover-with-bg" href="/tags/iptables/">iptables</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/11/14/%E6%B8%97%E9%80%8F-MS17-010%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【渗透】MS17-010漏洞复现</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2019/10/15/CTF%E4%BE%8B%E9%A2%98%E5%88%86%E6%9E%90-MISC%E6%9D%82%E9%A1%B9-%E4%B8%80/">
+                        <span class="hidden-mobile">【CTF例题分析】MISC杂项(一)</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <script type="text/javascript">
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'QGrain/QGrain.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
+    }
+    createObserver(loadUtterances, 'comments')
+  </script>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"Ilomilo","artist":"Billie Eilish","url":"/songs/Ilomilo-3D.mp3","cover":"/img/songs/Ilomilo.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+      <i class="iconfont icon-rss"></i>
+        <a href="https://qgrain.github.io/atom.xml" target="_blank" rel="nofollow noopener">
+          <span>RSS</span></a>
+    </div>
+    
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            ( •̀ ω •́ )✧ 总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+    
+
+    
+  </div>
+</footer>
+<div class="text-center">
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+  var now = new Date();
+  function createtime(){
+      var grt= new Date("05/16/2019 00:00:00");//此处修改你的建站时间或者网站上线时间
+      now.setTime(now.getTime()+250);
+      days = (now - grt ) / 1000 / 60 / 60 / 24;
+      dnum = Math.floor(days);
+      hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+      hnum = Math.floor(hours);
+      if(String(hnum).length ==1 ){
+          hnum = "0" + hnum;
+      }
+      minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+      mnum = Math.floor(minutes);
+      if(String(mnum).length ==1 ){
+                mnum = "0" + mnum;
+      }
+      seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+      snum = Math.round(seconds);
+      if(String(snum).length ==1 ){
+                snum = "0" + snum;
+      }
+      document.getElementById("timeDate").innerHTML = "本站安全运行&nbsp"+dnum+"&nbsp天";
+      document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒, 博主很懒更新很慢ㄟ( ▔, ▔ )ㄏ";
+  }
+  setInterval("createtime()",250);
+  </script>
+</div>
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Iptables(1)&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: true,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+  <script>(function (i, s, o, g, r, a, m) {
+      i['DaoVoiceObject'] = r;
+      i[r] = i[r] ||
+        function () {
+          (i[r].q = i[r].q || []).push(arguments);
+        };
+      i[r].l = 1 * new Date();
+      a = s.createElement(o);
+      m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      a.charset = 'utf-8';
+      m.parentNode.insertBefore(a, m);
+    })(window, document, 'script', ('https:' === document.location.protocol ? 'https:' : 'http:') + "//widget.daovoice.io/widget/2bbf5718.js", 'daovoice');
+    daovoice('init', {
+      app_id: "2bbf5718",
+    });
+    daovoice('update');
+  </script>
+
+
+
+
+
+
+
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'UA-187967588-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/qq.jpg">
+  <link rel="icon" type="image/png" href="/img/qq.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Personal Blog of Zhiyu Zhang">
+  <meta name="author" content="Zhiyu Zhang">
+  <meta name="keywords" content="Security, Machine Learning, Linux">
+  <title>x86汇编学习笔记(二) - Zhiyu&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/agate.min.css" />
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.6.2/gitalk.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zhiyu's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 54vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Zhiyu's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                Friends
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/horse_running.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-09-30 15:52">
+      September 30, 2019 pm
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.4k words
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      17
+       minutes
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> views
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p class="note note-info">
+                
+                  Last updated on：February 16, 2026 pm
+                
+              </p>
+            
+            <article class="markdown-body">
+              <h2 id="1-win32的汇编开发流程"><a href="#1-win32的汇编开发流程" class="headerlink" title="1 win32的汇编开发流程"></a>1 win32的汇编开发流程</h2><p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20190930154636.png" srcset="/img/loading.gif" alt=""></p>
+<span id="more"></span>
+<h2 id="2-win32汇编源程序的结构"><a href="#2-win32汇编源程序的结构" class="headerlink" title="2 win32汇编源程序的结构"></a>2 win32汇编源程序的结构</h2><p><strong>Hello world程序在DOS汇编：</strong></p>
+<div class="hljs"><pre><code class="hljs asm">;堆栈段
+stack        segment stack
+            db		100 dup (?)
+stack         ends
+
+;数据段
+data        segment
+szHello        db		&#x27;Hello, world&#x27;,0dh,0ah,&#x27;$&#x27;
+data        ends
+
+;代码段
+code        segment
+            assume	cs:code,ds:data,ss:stack
+start:
+            mov	ax,data
+            mov ds,ax
+        
+            mov ah,9
+            mov dx,offset,szHello
+            int 21h
+code        ends
+            end		start</code></pre></div>
+<p><strong>Hello world的Win32程序：</strong></p>
+<div class="hljs"><pre><code class="hljs asm">        .386
+        .model flat,stdcall
+        option casemap:none
+;include定义
+include        windows.inc
+include     user32.inc
+include     user32.lib
+include        kernel32.inc
+include     kernel32.lib
+
+;数据段
+        .data
+szCaption    db		&#x27;A MessageBox&#x27;,0
+szText        db		&#x27;Hello, world&#x27;,0
+
+;代码段
+        .code
+start:
+        invoke	MessageBox, NULL, offset szText, offset szCaption, MB_OK
+        invoke 	ExitProcess, NULL
+        
+        end 	start</code></pre></div>
+<h3 id="2-1-模式定义"><a href="#2-1-模式定义" class="headerlink" title="2.1 模式定义"></a>2.1 模式定义</h3><h4 id="2-1-1-指定使用的指令集"><a href="#2-1-1-指定使用的指令集" class="headerlink" title="2.1.1 指定使用的指令集"></a>2.1.1 指定使用的指令集</h4><p><code>.386</code>是汇编的伪指令，用于告诉编译器在本程序中使用的指令集为80386所拥有的指令集。类似的指令还有：<code>.8086, .186, .386p, .486/486p, .586/.586p</code>等。后面带<strong>p</strong>的伪指令表示程序中可以使用<strong>特权指令(必须在特权级0上运行的指令)</strong>如：<code>mov cr0, eax</code></p>
+<h4 id="2-1-2-model语句"><a href="#2-1-2-model语句" class="headerlink" title="2.1.2 .model语句"></a>2.1.2 .model语句</h4><p>用来定义程序工作的模式。用法如下：</p>
+<p><code>.model 内存模式 [, 语言模式] [, 其他模式]</code></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>内存使用方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tiny</td>
+<td>用来建立 .com文件，所有代码、数据和堆栈都在同一个64KB段内</td>
+</tr>
+<tr>
+<td>small</td>
+<td>建立代码和数据分别别用一个64KB段的 .exe文件</td>
+</tr>
+<tr>
+<td>medium</td>
+<td>代码段可以有多个64KB段，数据段只有一个64KB段</td>
+</tr>
+<tr>
+<td>compact</td>
+<td>代码段只有一个64KB段，数据段可以有多个64KB段</td>
+</tr>
+<tr>
+<td>large</td>
+<td>代码段和数据段都可以由多个64KB段</td>
+</tr>
+<tr>
+<td>huge</td>
+<td>同large，并且数据段中的一个数组也可以超过64KB</td>
+</tr>
+<tr>
+<td><strong>flat</strong></td>
+<td><strong>Win32程序使用的模式，代码和数据段使用同一个4GB段</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>对于运行在<strong>保护模式</strong>下的win32程序，它只有一种内存模式——flat模式，即每一个应用程序都拥有其相互独立的4GB地址空间。</p>
+<h4 id="2-1-3-option语句"><a href="#2-1-3-option语句" class="headerlink" title="2.1.3 option语句"></a>2.1.3 option语句</h4><p><code>option casemap:none</code>，该语句定义了程序中变量和子程序名是否对大小写敏感。由于Win32 API名称是区分大小写的，故<strong>在win32汇编程序中必须指定此语句</strong>。</p>
+<h3 id="2-2-段的定义"><a href="#2-2-段的定义" class="headerlink" title="2.2 段的定义"></a>2.2 段的定义</h3><h4 id="2-2-1-段的概念"><a href="#2-2-1-段的概念" class="headerlink" title="2.2.1 段的概念"></a>2.2.1 段的概念</h4><p>一个包含全部段的源程序结构：</p>
+<div class="hljs"><pre><code class="hljs asm">.386
+.model flat, stdcall
+option casemap:none
+&lt;include statements&gt;
+
+.stack [堆栈段的大小]
+.data
+&lt;一些初始化过的变量定义&gt;
+.data?
+&lt;一些没有初始化过的变量定义&gt;
+.const
+&lt;一些常量定义&gt;
+.code
+&lt;代码&gt;
+&lt;开始标号&gt;
+    &lt;语句&gt;
+end 开始标号</code></pre></div>
+<ul>
+<li>其中.stack, .data, .data?, .const和.code都是分段伪指令。</li>
+<li>Win32只有代码和数据段之分，因此.data, .data?和.const属于数据段，.code属于代码段。</li>
+<li>与DOS汇编不同，Win32汇编不必考虑堆栈，.stack段定义常常被忽略。</li>
+</ul>
+<h4 id="2-2-2-数据段"><a href="#2-2-2-数据段" class="headerlink" title="2.2.2 数据段"></a>2.2.2 数据段</h4><p>.data，.data?和.const定义在数据段，分别对应不同方式的数据定义，在最后生成的可执行文件中也放置在不同的节区(Section)。程序中的数据定义一般可以归纳为三类：</p>
+<ol>
+<li>可读可写的已定义变量。被定义在.data段，具有以下性质：<ul>
+<li>在源程序已经被定义了初始值。</li>
+<li>具有可读可写性。</li>
+<li>在程序装入完成之后，这些值存在于内存中。</li>
+<li>.data段一般存放在可执行文件的_DATA节区内。</li>
+</ul>
+</li>
+<li>可读可写的未定义变量。可定义在.data段，也可以定义在.data?段，具有以下性质：<ul>
+<li>一般用作缓冲区，或者程序执行后在开始使用。</li>
+<li>若定义在.data段，则编译器在生成可执行文件时会保留声明大小的空间，即使它们是全0</li>
+<li>若定义在.data?段，则编译器在生成可执行文件时只会记录空间大小信息，不会浪费磁盘空间，而是在程序执行时才会用到。</li>
+<li>.data?段在可执行文件中一般放在_BSS节区。</li>
+</ul>
+</li>
+<li>常量。如一些要显示的字符串信息。<ul>
+<li>它们在程序装入时就已经有效，但在整个执行过程中不需要修改。</li>
+<li>具有可读不可写性。</li>
+<li>如果程序对.const段进行写操作，会引起保护错误并结束程序。</li>
+</ul>
+</li>
+</ol>
+<h4 id="2-2-3-代码段"><a href="#2-2-3-代码段" class="headerlink" title="2.2.3 代码段"></a>2.2.3 代码段</h4><ul>
+<li>.code段时代码段，所有的指令都必须写在代码段中</li>
+<li>在可执行文件中，代码段一般放在_TEXT节区。</li>
+<li>Win32环境下的数据段是不可执行的，只有代码段有可执行的属性。（特权级0下运行的程序对所有段有读写权限）</li>
+</ul>
+<h4 id="2-2-4-堆栈段"><a href="#2-2-4-堆栈段" class="headerlink" title="2.2.4 堆栈段"></a>2.2.4 堆栈段</h4><ul>
+<li>Win32程序中不必定义堆栈段，系统会自动分配堆栈空间。</li>
+<li>堆栈段的内存属性是可读写并可执行的。（靠动态修改代码的反跟踪模块可以拷贝到堆栈中边修改边执行）</li>
+</ul>
+<h3 id="2-3-程序入口与结束"><a href="#2-3-程序入口与结束" class="headerlink" title="2.3 程序入口与结束"></a>2.3 程序入口与结束</h3><ul>
+<li>汇编源程序中，并没有main函数来指定开始执行的地方。取而代之的是程序的最后一句的end语句<code>end     [开始地址]</code></li>
+<li>上述语句的开始地址就是源程序从代码段开始执行的地址。</li>
+<li>上述语句同时还表示源程序结束，所有代码都必须在end语句之前。</li>
+<li><strong>多模块程序编写时，单一的模块可以没有入口标号，但是最后把多个模块连接在一起时，必须有一个主模块的入口地址被指明。</strong></li>
+</ul>
+<h2 id="3-API的调用"><a href="#3-API的调用" class="headerlink" title="3 API的调用"></a>3 API的调用</h2><h3 id="3-1-API是什么"><a href="#3-1-API是什么" class="headerlink" title="3.1 API是什么"></a>3.1 API是什么</h3><h3 id="3-2-如何调用"><a href="#3-2-如何调用" class="headerlink" title="3.2 如何调用"></a>3.2 如何调用</h3><h4 id="3-3-1-invoke语句"><a href="#3-3-1-invoke语句" class="headerlink" title="3.3.1 invoke语句"></a>3.3.1 invoke语句</h4><h4 id="3-3-2-函数的声明与返回值"><a href="#3-3-2-函数的声明与返回值" class="headerlink" title="3.3.2 函数的声明与返回值"></a>3.3.2 函数的声明与返回值</h4><h4 id="3-3-3-include语句"><a href="#3-3-3-include语句" class="headerlink" title="3.3.3 include语句"></a>3.3.3 include语句</h4>
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Notes/">Notes</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/x86-Assembly/">x86 Assembly</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/10/14/CTF%E5%85%A5%E9%97%A8/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">CTF入门</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2019/09/30/x86%E6%B1%87%E7%BC%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%80/">
+                        <span class="hidden-mobile">x86汇编学习笔记(一)</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <script type="text/javascript">
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'QGrain/QGrain.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
+    }
+    createObserver(loadUtterances, 'comments')
+  </script>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"Ilomilo","artist":"Billie Eilish","url":"/songs/Ilomilo-3D.mp3","cover":"/img/songs/Ilomilo.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+      <i class="iconfont icon-rss"></i>
+        <a href="https://qgrain.github.io/atom.xml" target="_blank" rel="nofollow noopener">
+          <span>RSS</span></a>
+    </div>
+    
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            ( •̀ ω •́ )✧ 总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+    
+
+    
+  </div>
+</footer>
+<div class="text-center">
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+  var now = new Date();
+  function createtime(){
+      var grt= new Date("05/16/2019 00:00:00");//此处修改你的建站时间或者网站上线时间
+      now.setTime(now.getTime()+250);
+      days = (now - grt ) / 1000 / 60 / 60 / 24;
+      dnum = Math.floor(days);
+      hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+      hnum = Math.floor(hours);
+      if(String(hnum).length ==1 ){
+          hnum = "0" + hnum;
+      }
+      minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+      mnum = Math.floor(minutes);
+      if(String(mnum).length ==1 ){
+                mnum = "0" + mnum;
+      }
+      seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+      snum = Math.round(seconds);
+      if(String(snum).length ==1 ){
+                snum = "0" + snum;
+      }
+      document.getElementById("timeDate").innerHTML = "本站安全运行&nbsp"+dnum+"&nbsp天";
+      document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒, 博主很懒更新很慢ㄟ( ▔, ▔ )ㄏ";
+  }
+  setInterval("createtime()",250);
+  </script>
+</div>
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "x86汇编学习笔记(二)&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: true,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+  <script>(function (i, s, o, g, r, a, m) {
+      i['DaoVoiceObject'] = r;
+      i[r] = i[r] ||
+        function () {
+          (i[r].q = i[r].q || []).push(arguments);
+        };
+      i[r].l = 1 * new Date();
+      a = s.createElement(o);
+      m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      a.charset = 'utf-8';
+      m.parentNode.insertBefore(a, m);
+    })(window, document, 'script', ('https:' === document.location.protocol ? 'https:' : 'http:') + "//widget.daovoice.io/widget/2bbf5718.js", 'daovoice');
+    daovoice('init', {
+      app_id: "2bbf5718",
+    });
+    daovoice('update');
+  </script>
+
+
+
+
+
+
+
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'UA-187967588-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>

