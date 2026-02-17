@@ -1,241 +1,671 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
-
-
-
 <head>
-  <meta charset="UTF-8">
-  <link rel="apple-touch-icon" sizes="76x76" href="/img/qq.jpg">
-  <link rel="icon" type="image/png" href="/img/qq.jpg">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  
-  <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="Personal Blog of Zhiyu Zhang">
-  <meta name="author" content="Zhiyu Zhang">
-  <meta name="keywords" content="Security, Machine Learning, Linux">
-  <title>LLVM备忘录 - Zhiyu&#39;s Blog</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="Security, Machine Learning, Linux">
+    
+    <meta name="author" content="Zhiyu">
+    
+    <!-- Completely eliminate flash of wrong theme -->
+    <script>
+        (function() {
+            const THEME_KEY = "REDEFINE-THEME-STATUS";
+            const DARK = "dark", LIGHT = "light";
+            
+            // Get preferred theme
+            function getTheme() {
+                try {
+                    const saved = localStorage.getItem(THEME_KEY);
+                    if (saved) {
+                        const { isDark } = JSON.parse(saved);
+                        return isDark ? DARK : LIGHT;
+                    }
+                } catch (e) {}
+                
+                return matchMedia("(prefers-color-scheme: dark)").matches ? DARK : LIGHT;
+            }
+            
+            // Apply theme to document
+            function applyTheme(theme) {
+                const isDark = theme === DARK;
+                const root = document.documentElement;
+                
+                // Set data attribute for CSS variables
+                root.setAttribute("data-theme", theme);
+                
+                // Set classes for compatibility
+                root.classList.add(theme);
+                root.classList.remove(isDark ? LIGHT : DARK);
+                root.style.colorScheme = theme;
+            }
+            
+            // Initial application
+            const theme = getTheme();
+            applyTheme(theme);
+            
+            // Listen for system preference changes
+            matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({ matches }) => {
+                // Only update if using system preference (no localStorage entry)
+                if (!localStorage.getItem(THEME_KEY)) {
+                    applyTheme(matches ? DARK : LIGHT);
+                }
+            });
+            
+            // Set body classes once DOM is ready
+            if (document.readyState !== "loading") {
+                document.body.classList.add(theme + "-mode");
+            } else {
+                document.addEventListener("DOMContentLoaded", () => {
+                    document.body.classList.add(theme + "-mode");
+                    document.body.classList.remove((theme === DARK ? LIGHT : DARK) + "-mode");
+                });
+            }
+        })();
+    </script>
+    
+    <!-- Critical CSS to prevent flash -->
+    <style>
+        :root[data-theme="dark"] {
+            --background-color: #202124;
+            --background-color-transparent: rgba(32, 33, 36, 0.6);
+            --second-background-color: #2d2e32;
+            --third-background-color: #34353a;
+            --third-background-color-transparent: rgba(32, 33, 36, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #ffffff;
+            --second-text-color: #eeeeee;
+            --third-text-color: #bebec6;
+            --fourth-text-color: #999999;
+            --default-text-color: #bebec6;
+            --invert-text-color: #373D3F;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(255, 255, 255, 0.08);
+            --shadow-color-2: rgba(255, 255, 255, 0.05);
+        }
+        
+        :root[data-theme="light"] {
+            --background-color: #fff;
+            --background-color-transparent: rgba(255, 255, 255, 0.6);
+            --second-background-color: #f8f8f8;
+            --third-background-color: #f2f2f2;
+            --third-background-color-transparent: rgba(241, 241, 241, 0.6);
+            --primary-color: #0066CC;
+            --first-text-color: #16171a;
+            --second-text-color: #2f3037;
+            --third-text-color: #5e5e5e;
+            --fourth-text-color: #eeeeee;
+            --default-text-color: #373D3F;
+            --invert-text-color: #bebec6;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --selection-color: #0066CC;
+            --shadow-color-1: rgba(0, 0, 0, 0.08);
+            --shadow-color-2: rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+        
+        /* Apply body classes as soon as DOM is ready */
+        :root[data-theme="dark"] body {
+            background-color: var(--background-color);
+            color: var(--default-text-color);
+        }
+    </style>
+    
+    <!-- preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+    
+    <!--- Seo Part-->
+    
+    <link rel="canonical" href="https://qgrain.github.io/2023/03/02/llvm备忘录/"/>
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow">
+    <meta name="revisit-after" content="1 days">
+    
+    
+    
+        
+        <meta name="description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LLVM备忘录">
+<meta property="og:url" content="https://qgrain.github.io/2023/03/02/LLVM%E5%A4%87%E5%BF%98%E5%BD%95/index.html">
+<meta property="og:site_name" content="Zhiyu&#39;s Blog">
+<meta property="og:description" content="Hexo Theme Redefine, Redefine Your Hexo Journey.">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://qgrain.github.io/images/redefine-og.webp">
+<meta property="article:published_time" content="2023-03-02T14:35:08.000Z">
+<meta property="article:modified_time" content="2026-02-17T16:36:56.347Z">
+<meta property="article:author" content="Zhiyu Zhang">
+<meta property="article:tag" content="LLVM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://qgrain.github.io/images/redefine-og.webp">
+    
+    
+        <!-- Google tag (gtag.js) -->
+        <script src="https://www.googletagmanager.com/gtag/js?id=UA-187967588-1"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-187967588-1');
+        </script>
+    
+    <!--- Icon Part-->
+    <link rel="icon" type="image/png" href="/image/goku-cloud-hello.jpg" sizes="192x192">
+    <link rel="apple-touch-icon" sizes="180x180" href="/image/goku-cloud-hello.jpg">
+    <meta name="theme-color" content="#A31F34">
+    <link rel="shortcut icon" href="/image/goku-cloud-hello.jpg">
+    <!--- Page Info-->
+    
+    <title>
+        
+            LLVM备忘录 | Zhiyu&#39;s Blog
+        
+    </title>
+
+    
+<link rel="stylesheet" href="/fonts/Chillax/chillax.css">
 
 
-  <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
-  <link  rel="stylesheet" href="/lib/hint/hint.min.css" />
+    <!--- Inject Part-->
+    
 
-  
-    <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/agate.min.css" />
-  
-
-  
-    <link  rel="stylesheet" href="https://cdn.staticfile.org/gitalk/1.6.2/gitalk.css" />
-  
+    
+<link rel="stylesheet" href="/css/style.css">
 
 
-<!-- 主题依赖的图标库，不要自行修改 -->
+    
+        
+<link rel="stylesheet" href="/css/build/tailwind.css">
 
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_yg9cfy8wd6.css">
+    
 
+    
+<link rel="stylesheet" href="/fonts/GeistMono/geist-mono.css">
 
+    
+<link rel="stylesheet" href="/fonts/Geist/geist.css">
 
-<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+    <!--- Font Part-->
+    
+    
+    
+    
+    
+    
 
+    <script id="hexo-configurations">
+    window.config = {"hostname":"qgrain.github.io","root":"/","language":"en","path":"search.json"};
+    window.theme = {"articles":{"style":{"font_size":"16px","line_height":1.5,"image_border_radius":"14px","image_alignment":"center","image_caption":false,"link_icon":true,"delete_mask":true,"title_alignment":"left","headings_top_spacing":{"h1":"3.2rem","h2":"2.4rem","h3":"1.9rem","h4":"1.6rem","h5":"1.4rem","h6":"1.3rem"}},"word_count":{"enable":true,"count":true,"min2read":true},"author_label":{"enable":true,"auto":false,"list":[]},"code_block":{"copy":true,"style":"mac","highlight_theme":{"light":"github","dark":"vs2015"},"font":{"enable":false,"family":null,"url":null}},"toc":{"enable":true,"max_depth":3,"number":false,"expand":true,"init_open":true},"copyright":{"enable":true,"default":"cc_by_nc_sa"},"lazyload":true,"pangu_js":false,"recommendation":{"enable":false,"title":"推荐阅读","limit":3,"mobile_limit":2,"placeholder":"/images/wallhaven-wqery6-light.webp","skip_dirs":[]}},"colors":{"primary":"#A31F34","secondary":null,"default_mode":"light"},"global":{"fonts":{"chinese":{"enable":false,"family":null,"url":null},"english":{"enable":false,"family":null,"url":null},"title":{"enable":false,"family":null,"url":null}},"content_max_width":"1000px","sidebar_width":"210px","hover":{"shadow":true,"scale":false},"scroll_progress":{"bar":true,"percentage":true},"website_counter":{"url":"https://cn.vercount.one/js","enable":true,"site_pv":true,"site_uv":true,"post_pv":true},"single_page":true,"preloader":{"enable":false,"custom_message":null},"side_tools":{"gear_rotation":true,"auto_expand":false},"open_graph":{"enable":true,"image":"/images/redefine-og.webp","description":"Hexo Theme Redefine, Redefine Your Hexo Journey."},"google_analytics":{"enable":true,"id":"UA-187967588-1"}},"home_banner":{"enable":true,"style":"fixed","image":{"light":"/images/wallhaven-wqery6-light.webp","dark":"/images/wallhaven-wqery6-dark.webp"},"title":"Let's recording!","subtitle":{"text":["JUST DO IT !"],"hitokoto":{"enable":false,"show_author":false,"api":"https://v1.hitokoto.cn"},"typing_speed":100,"backing_speed":80,"starting_delay":500,"backing_delay":1500,"loop":true,"smart_backspace":true},"text_color":{"light":"#fff","dark":"#d1d1b6"},"text_style":{"title_size":"2.8rem","subtitle_size":"1.5rem","line_height":1.2},"custom_font":{"enable":false,"family":null,"url":null},"social_links":{"enable":true,"style":"default","links":{"github":"https://github.com/QGrain","instagram":null,"zhihu":null,"twitter":"https://x.com/ZhiyuZhang6","email":"zhiyuzhang999@gmail.com","linkedin":"https://www.linkedin.com/in/zhang-zhiyu-339129190","bilibili":"https://space.bilibili.com/171923464"},"qrs":{"weixin":null}}},"plugins":{"feed":{"enable":false},"aplayer":{"enable":false,"type":"fixed","audios":[{"name":null,"artist":null,"url":null,"cover":null,"lrc":null}]},"mermaid":{"enable":true,"version":"11.4.1"}},"version":"2.8.5","navbar":{"auto_hide":false,"color":{"left":"#f78736","right":"#367df7","transparency":35},"width":{"home":"1200px","pages":"1000px"},"links":{"Home":{"path":"/","icon":"fa-regular fa-house"},"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"About":{"icon":"fa-regular fa-user","submenus":{"Me":"/about","Academic":"https://zhiyu.netlify.app"}},"Friends":{"path":"/links","icon":"fa-regular fa-link"},"Album":{"path":"/masonry","icon":"fa-regular fa-photo-film"}},"search":{"enable":true,"preload":true}},"page_templates":{"friends_column":2,"tags_style":"blur"},"home":{"sidebar":{"enable":true,"position":"left","first_item":"menu","announcement":null,"show_on_mobile":true,"links":{"Archives":{"path":"/archives","icon":"fa-regular fa-archive"},"Tags":{"path":"/tags","icon":"fa-regular fa-tags"},"Categories":{"path":"/categories","icon":"fa-regular fa-folder"}}},"article_date_format":"auto","excerpt_length":200,"categories":{"enable":true,"limit":3},"tags":{"enable":true,"limit":3}},"footerStart":"2019/01/12 23:10:44"};
+    window.lang_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+    window.data = {"masonry":true};
+  </script>
+    
+    <!--- Fontawesome Part-->
+    
+<link rel="stylesheet" href="/fontawesome/fontawesome.min.css">
 
-<link  rel="stylesheet" href="/css/main.css" />
+    
+<link rel="stylesheet" href="/fontawesome/brands.min.css">
 
-<!-- 自定义样式保持在最底部 -->
+    
+<link rel="stylesheet" href="/fontawesome/solid.min.css">
 
+    
+<link rel="stylesheet" href="/fontawesome/regular.min.css">
 
-  <script  src="/js/utils.js" ></script>
+    
+    
+    
+    
 <!-- hexo injector head_end start -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
 <!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"><link rel="alternate" href="/atom.xml" title="Zhiyu's Blog" type="application/atom+xml">
 </head>
 
 
+
 <body>
-  <header style="height: 54vh;">
-    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
-  <div class="container">
-    <a class="navbar-brand"
-       href="/">&nbsp;<strong>Zhiyu's Blog</strong>&nbsp;</a>
+	<div class="progress-bar-container">
+	
+	<span class="scroll-progress-bar"></span>
+	
 
-    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <div class="animated-icon"><span></span><span></span><span></span></div>
-    </button>
-
-    <!-- Collapsible content -->
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ml-auto text-center">
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/">
-                <i class="iconfont icon-home-fill"></i>
-                Home
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/archives/">
-                <i class="iconfont icon-archive-fill"></i>
-                Archives
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/categories/">
-                <i class="iconfont icon-category-fill"></i>
-                Categories
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/tags/">
-                <i class="iconfont icon-tags-fill"></i>
-                Tags
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/about/">
-                <i class="iconfont icon-user-fill"></i>
-                About
-              </a>
-            </li>
-          
-        
-          
-          
-          
-          
-            <li class="nav-item">
-              <a class="nav-link" href="/links/">
-                <i class="iconfont icon-link-fill"></i>
-                Friends
-              </a>
-            </li>
-          
-        
-        
-          <li class="nav-item" id="search-btn">
-            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
-                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-</nav>
-
-    <div class="view intro-2" id="background" parallax=true
-         style="background: url('/img/horse_running.jpg') no-repeat center center;
-           background-size: cover;">
-      <div class="full-bg-img">
-        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
-          <div class="container text-center white-text fadeInUp">
-            <span class="h2" id="subtitle">
-              
-            </span>
-
-            
-              
-  <div class="mt-3 post-meta">
-    <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-    <time datetime="2023-03-02 22:35">
-      March 2, 2023 pm
-    </time>
-  </div>
-
-
-<div class="mt-1">
-  
-    
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-chart"></i>
-      1.5k words
-    </span>
-  
-
-  
-    
-    <span class="post-meta mr-2">
-      <i class="iconfont icon-clock-fill"></i>
-      
-      
-      24
-       minutes
-    </span>
-  
-
-  
-  
-    
-      <!-- 不蒜子统计文章PV -->
-      <span id="busuanzi_container_page_pv" style="display: none">
-        <i class="iconfont icon-eye" aria-hidden="true"></i>
-        <span id="busuanzi_value_page_pv"></span> views
-      </span>
-    
-  
+	
+	<span class="pjax-progress-bar"></span>
+	<!--        <span class="swup-progress-icon">-->
+	<!--            <i class="fa-solid fa-circle-notch fa-spin"></i>-->
+	<!--        </span>-->
+	
 </div>
 
-            
-          </div>
+<main class="page-container" id="swup">
 
-          
+	
+
+	<div class="main-content-container flex flex-col justify-between min-h-dvh">
+		<div class="main-content-header">
+			<header class="navbar-container px-6 md:px-12">
+    <div class="navbar-content transition-navbar ">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                
+                Zhiyu&#39;s Blog
+                
+            </a>
         </div>
-      </div>
+
+        <div class="right">
+            <!-- PC -->
+            <div class="desktop">
+                <ul class="navbar-list">
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/"
+                                        >
+                                    <i class="fa-regular fa-house fa-fw"></i>
+                                    HOME
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/archives"
+                                        >
+                                    <i class="fa-regular fa-archive fa-fw"></i>
+                                    ARCHIVES
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class="has-dropdown"
+                                   href="#"
+                                        onClick=&#34;return false;&#34;>
+                                    <i class="fa-regular fa-user fa-fw"></i>
+                                    ABOUT
+                                    <i class="fa-solid fa-chevron-down fa-fw"></i>
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                                    <ul class="sub-menu">
+                                        
+                                            <li>
+                                                <a href="/about">
+                                                    ME
+                                                </a>
+                                            </li>
+                                        
+                                            <li>
+                                                <a target="_blank" rel="noopener" href="https://zhiyu.netlify.app">
+                                                    ACADEMIC
+                                                </a>
+                                            </li>
+                                        
+                                    </ul>
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/links"
+                                        >
+                                    <i class="fa-regular fa-link fa-fw"></i>
+                                    FRIENDS
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                        
+                            
+
+                            <li class="navbar-item">
+                                <!-- Menu -->
+                                <a class=""
+                                   href="/masonry"
+                                        >
+                                    <i class="fa-regular fa-photo-film fa-fw"></i>
+                                    ALBUM
+                                    
+                                </a>
+
+                                <!-- Submenu -->
+                                
+                            </li>
+                    
+                    
+                        <li class="navbar-item search search-popup-trigger">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <!-- Mobile -->
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                
+                <div class="icon-item navbar-bar">
+                    <div class="navbar-bar-middle"></div>
+                </div>
+            </div>
+        </div>
     </div>
-  </header>
 
-  <main>
+    <!-- Mobile sheet -->
+    <div class="navbar-drawer h-dvh w-full absolute top-0 left-0 bg-background-color flex flex-col justify-between">
+        <ul class="drawer-navbar-list flex flex-col px-4 justify-center items-start">
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/"
+                        >
+                            <span>
+                                HOME
+                            </span>
+                            
+                                <i class="fa-regular fa-house fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/archives"
+                        >
+                            <span>
+                                ARCHIVES
+                            </span>
+                            
+                                <i class="fa-regular fa-archive fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item-sub text-base my-1.5 flex flex-col w-full">
+                        
+                        <div class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary cursor-pointer text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                             navbar-data-toggle="submenu-About"
+                        >
+                            <span>
+                                ABOUT
+                            </span>
+                            
+                                <i class="fa-solid fa-chevron-right fa-sm fa-fw transition-all"></i>
+                            
+                        </div>
+                        
+
+                        
+                            <div class="flex-col items-start px-2 py-2 hidden" data-target="submenu-About">
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           href="/about">ME</a>
+                                    </div>
+                                
+                                    <div class="drawer-navbar-item text-base flex flex-col justify-center items-start hover:underline active:underline hover:underline-offset-1 rounded-3xl">
+                                        <a class=" text-third-text-color text-xl"
+                                           target="_blank" rel="noopener" href="https://zhiyu.netlify.app">ACADEMIC</a>
+                                    </div>
+                                
+                            </div>
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/links"
+                        >
+                            <span>
+                                FRIENDS
+                            </span>
+                            
+                                <i class="fa-regular fa-link fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+                
+                    
+
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full "
+                           href="/masonry"
+                        >
+                            <span>
+                                ALBUM
+                            </span>
+                            
+                                <i class="fa-regular fa-photo-film fa-sm fa-fw"></i>
+                            
+                        </a>
+                        
+
+                        
+                    </li>
+            
+
+            
+            
+                
+                    
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/tags"
+                        >
+                            <span>Tags</span>
+                            <i class="fa-regular fa-tags fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+                    
+                    <li class="drawer-navbar-item text-base my-1.5 flex flex-col w-full">
+                        <a class="py-1.5 px-2 flex flex-row items-center justify-between gap-1 hover:!text-primary active:!text-primary text-2xl font-semibold group border-b border-border-color hover:border-primary w-full active"
+                           href="/categories"
+                        >
+                            <span>Categories</span>
+                            <i class="fa-regular fa-folder fa-sm fa-fw"></i>
+                        </a>
+                    </li>
+                
+            
+        </ul>
+
+        <div class="statistics flex justify-around my-2.5">
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/tags">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">32</div>
+        <div class="label text-third-text-color text-sm">Tags</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/categories">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">10</div>
+        <div class="label text-third-text-color text-sm">Categories</div>
+    </a>
+    <a class="item tag-count-item flex flex-col justify-center items-center w-20" href="/archives">
+        <div class="number text-2xl sm:text-xl text-second-text-color font-semibold">37</div>
+        <div class="label text-third-text-color text-sm">Posts</div>
+    </a>
+</div>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+		</div>
+
+		<div class="main-content-body transition-fade-up">
+			
+
+			<div class="main-content">
+				<div class="post-page-container flex relative justify-between box-border w-full h-full">
+	<div class="article-content-container">
+
+		<div class="article-title relative w-full">
+			
+			
+			
+			<img src="/image/thumbnails/dragon.jpg" alt="LLVM备忘录" class="w-full h-60 sm:h-72 md:h-80 object-cover sm:rounded-t-large dark:brightness-75" />
+			
+			<div class="w-full flex items-center absolute bottom-0 justify-start">
+				<h1 class="article-title-cover text-center mx-6 my-6 text-second-text-color bg-background-color-transparent px-4 py-3 text-3xl sm:text-4xl md:text-5xl font-semibold backdrop-blur-lg rounded-xl border border-border-color ">LLVM备忘录</h1>
+			</div>
+			
+		</div>
+
+		
+		<div class="article-header flex flex-row gap-2 items-center px-2 sm:px-6 md:px-8">
+			<div class="avatar w-[46px] h-[46px] flex-shrink-0 rounded-medium border border-border-color p-[1px]">
+				<img src="/image/goku-dark-glass.jpg">
+			</div>
+			<div class="info flex flex-col justify-between">
+				<div class="author flex items-center">
+					<span class="name text-default-text-color text-lg font-semibold">Zhiyu</span>
+					
+					<span class="author-label ml-1.5 text-xs px-2 py-0.5 rounded-small text-third-text-color border border-shadow-color-1">Lv4</span>
+					
+				</div>
+				<div class="meta-info">
+					<div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fa-regular fa-pen-fancy"></i>&nbsp;
+        <span class="desktop">2023-03-02 22:35:08</span>
+        <span class="mobile">2023-03-02 22:35:08</span>
+        <span class="hover-info">Created</span>
+    </span>
     
-      
+        <span class="article-date article-meta-item">
+            <i class="fa-regular fa-wrench"></i>&nbsp;
+            <span class="desktop">2026-02-18 00:36:56</span>
+            <span class="mobile">2026-02-18 00:36:56</span>
+            <span class="hover-info">Updated</span>
+        </span>
+    
 
-<div class="container-fluid">
-  <div class="row">
-    <div class="d-none d-lg-block col-lg-2"></div>
-    <div class="col-lg-8 nopadding-md">
-      <div class="container nopadding-md" id="board-ctn">
-        <div class="py-5" id="board">
-          <div class="post-content mx-auto" id="post">
-            
-              <p class="note note-info">
+    
+        <span class="article-categories article-meta-item">
+            <i class="fa-regular fa-folders"></i>&nbsp;
+            <ul>
                 
-                  Last updated on：February 16, 2026 pm
                 
-              </p>
-            
-            <article class="markdown-body">
-              <p>LLVM备忘录、笔记兼心得</p>
+                    
+                        
+                        <li>
+                            <a href="/categories/Static-Analysis/">Static Analysis</a>&nbsp;
+                        </li>
+                    
+                    
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fa-regular fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/LLVM/">LLVM</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+        <span class="article-wordcount article-meta-item">
+            <i class="fa-regular fa-typewriter"></i>&nbsp;<span>1.5k Words</span>
+        </span>
+    
+    
+        <span class="article-min2read article-meta-item">
+            <i class="fa-regular fa-clock"></i>&nbsp;<span>7 Mins</span>
+        </span>
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fa-regular fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+				</div>
+			</div>
+		</div>
+		
+
+		
+
+
+		<div class="article-content markdown-body px-2 sm:px-6 md:px-8 pb-8">
+			<p>LLVM备忘录、笔记兼心得</p>
 <span id="more"></span>
 <h2 id="1-源码安装LLVM"><a href="#1-源码安装LLVM" class="headerlink" title="1 源码安装LLVM"></a>1 源码安装LLVM</h2><h3 id="软件依赖："><a href="#软件依赖：" class="headerlink" title="软件依赖："></a>软件依赖：</h3><div class="table-container">
 <table>
@@ -248,27 +678,27 @@
 </thead>
 <tbody>
 <tr>
-<td><a target="_blank" rel="noopener" href="http://cmake.org/">cmake</a></td>
+<td><a class="link"   target="_blank" rel="noopener" href="http://cmake.org/" >cmake<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
 <td>&gt;=3.20.0</td>
 <td>Makefile/workspace generator</td>
 </tr>
 <tr>
-<td><a target="_blank" rel="noopener" href="http://gcc.gnu.org/">GCC</a></td>
+<td><a class="link"   target="_blank" rel="noopener" href="http://gcc.gnu.org/" >GCC<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
 <td>&gt;=7.1.0</td>
 <td>C/C++ compiler</td>
 </tr>
 <tr>
-<td><a target="_blank" rel="noopener" href="http://www.python.org/">python</a></td>
+<td><a class="link"   target="_blank" rel="noopener" href="http://www.python.org/" >python<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
 <td>&gt;=3.6</td>
 <td>Automated test suite(Only needed for automatic test suite in <code>llvm/test</code>)</td>
 </tr>
 <tr>
-<td><a target="_blank" rel="noopener" href="http://zlib.net/">zlib</a></td>
+<td><a class="link"   target="_blank" rel="noopener" href="http://zlib.net/" >zlib<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
 <td>&gt;=1.2.3.4</td>
 <td>Compression library(Optional)</td>
 </tr>
 <tr>
-<td><a target="_blank" rel="noopener" href="http://savannah.gnu.org/projects/make">GNU Make</a></td>
+<td><a class="link"   target="_blank" rel="noopener" href="http://savannah.gnu.org/projects/make" >GNU Make<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></td>
 <td>&gt;=3.79.1</td>
 <td>Makefile/build processor(Optional)</td>
 </tr>
@@ -276,156 +706,159 @@
 </table>
 </div>
 <h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><p><strong>更新cmake：</strong></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 卸载cmake</span>
-<span class="hljs-built_in">sudo</span> apt remove -y cmake
-<span class="hljs-built_in">sudo</span> apt install -y libssl-dev
+<pre><code class="lang-bash"># 卸载cmake
+sudo apt remove -y cmake
+sudo apt install -y libssl-dev
 
 wget https://cmake.org/files/v3.23/cmake-3.23.0.tar.gz
 tar zxvf cmake-3.23.0.tar.gz
-<span class="hljs-built_in">cd</span> cmake-3.23.0
+cd cmake-3.23.0
 ./configure
 make -j8
-<span class="hljs-built_in">sudo</span> make install</code></pre></div>
+sudo make install
+</code></pre>
 <p><strong>老版本一键安装脚本：build_llvm-old.sh</strong></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span>
-<span class="hljs-comment"># Install old version llvm-project from source. Two reasons why use this script:</span>
-<span class="hljs-comment"># 1. llvm-project before 9.0.1 does not have a tarball of llvm-project. We need to download them seperately.</span>
-<span class="hljs-comment"># 2. Older llvm-project (before 9.0.1?) uses some features which would be changed or deprecated in C++17. So we&#x27;d better use gcc-5 to compile llvm.</span>
+<pre><code class="lang-bash">#!/bin/bash
+# Install old version llvm-project from source. Two reasons why use this script:
+# 1. llvm-project before 9.0.1 does not have a tarball of llvm-project. We need to download them seperately.
+# 2. Older llvm-project (before 9.0.1?) uses some features which would be changed or deprecated in C++17. So we&#39;d better use gcc-5 to compile llvm.
 
-<span class="hljs-built_in">set</span> -e
+set -e
 
-cwd=`<span class="hljs-built_in">pwd</span>`
-ver=<span class="hljs-variable">$1</span>
+cwd=`pwd`
+ver=$1
 packages=(llvm cfe compiler-rt libcxx libcxxabi lld clang-tools-extra)
-base_url=https://releases.llvm.org/<span class="hljs-variable">$ver</span>
+base_url=https://releases.llvm.org/$ver
 
-src_dir=llvm-project-<span class="hljs-variable">$ver</span>.src
-install_dir=llvm-project-<span class="hljs-variable">$ver</span>.install
+src_dir=llvm-project-$ver.src
+install_dir=llvm-project-$ver.install
 
-<span class="hljs-built_in">mkdir</span> <span class="hljs-variable">$src_dir</span> <span class="hljs-variable">$install_dir</span>
+mkdir $src_dir $install_dir
 
-<span class="hljs-comment"># download and extract</span>
-<span class="hljs-built_in">pushd</span> <span class="hljs-variable">$src_dir</span>
-<span class="hljs-keyword">for</span> pack <span class="hljs-keyword">in</span> <span class="hljs-variable">$&#123;packages[@]&#125;</span>
-<span class="hljs-keyword">do</span>
-        wget <span class="hljs-variable">$base_url</span>/<span class="hljs-variable">$pack</span>-<span class="hljs-variable">$ver</span>.src.tar.xz
-        tar xvJf <span class="hljs-variable">$pack</span>-<span class="hljs-variable">$ver</span>.src.tar.xz
-<span class="hljs-keyword">done</span>
-<span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;\ndownload and extract finish&quot;</span>
+# download and extract
+pushd $src_dir
+for pack in $&#123;packages[@]&#125;
+do
+        wget $base_url/$pack-$ver.src.tar.xz
+        tar xvJf $pack-$ver.src.tar.xz
+done
+echo -e &quot;\ndownload and extract finish&quot;
 
-<span class="hljs-built_in">mv</span> llvm-<span class="hljs-variable">$ver</span>.src llvm
-<span class="hljs-built_in">mv</span> cfe-<span class="hljs-variable">$ver</span>.src clang
-<span class="hljs-built_in">mv</span> compiler-rt-<span class="hljs-variable">$ver</span>.src compiler-rt
-<span class="hljs-built_in">mv</span> libcxx-<span class="hljs-variable">$ver</span>.src libcxx
-<span class="hljs-built_in">mv</span> libcxxabi-<span class="hljs-variable">$ver</span>.src libcxxabi
-<span class="hljs-built_in">mv</span> lld-<span class="hljs-variable">$ver</span>.src lld
-<span class="hljs-built_in">mv</span> clang-tools-extra-<span class="hljs-variable">$ver</span>.src clang-tools-extra
+mv llvm-$ver.src llvm
+mv cfe-$ver.src clang
+mv compiler-rt-$ver.src compiler-rt
+mv libcxx-$ver.src libcxx
+mv libcxxabi-$ver.src libcxxabi
+mv lld-$ver.src lld
+mv clang-tools-extra-$ver.src clang-tools-extra
 
 
-<span class="hljs-comment"># build in $src_dir</span>
-<span class="hljs-built_in">mkdir</span> build
-<span class="hljs-built_in">cd</span> build
+# build in $src_dir
+mkdir build
+cd build
 
 cmake -G Ninja\
                 -DCMAKE_BUILD_TYPE=Release \
-                <span class="hljs-comment"># -DLLVM_ENABLE_PROJECTS=&quot;clang;lld;compiler-rt&quot; \</span>
-                -DLLVM_TARGETS_TO_BUILD=<span class="hljs-string">&quot;X86&quot;</span> \
-                -DCMAKE_INSTALL_PREFIX=<span class="hljs-variable">$cwd</span>/<span class="hljs-variable">$install_dir</span> \
-                -DLLVM_ENABLE_RUNTIMES=<span class="hljs-string">&quot;libcxx;libcxxabi&quot;</span> ../llvm
+                # -DLLVM_ENABLE_PROJECTS=&quot;clang;lld;compiler-rt&quot; \
+                -DLLVM_TARGETS_TO_BUILD=&quot;X86&quot; \
+                -DCMAKE_INSTALL_PREFIX=$cwd/$install_dir \
+                -DLLVM_ENABLE_RUNTIMES=&quot;libcxx;libcxxabi&quot; ../llvm
 
-<span class="hljs-comment"># cmake -G Ninja -DLIBCXX_ENABLE_SHARED=OFF -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=&quot;X86&quot; -DLLVM_BINUTILS_INCDIR=/usr/include ../llvm</span>
+# cmake -G Ninja -DLIBCXX_ENABLE_SHARED=OFF -DLIBCXX_ENABLE_STATIC_ABI_LIBRARY=ON -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=&quot;X86&quot; -DLLVM_BINUTILS_INCDIR=/usr/include ../llvm
 
-<span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;\ncmake finish\n&quot;</span>
+echo -e &quot;\ncmake finish\n&quot;
 ninja -j16
-<span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;\nninja finish, return value: $?&quot;</span>
-<span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;\nplease: cd $cwd<span class="hljs-variable">$src_dir</span>/build &amp;&amp; ninja install&quot;</span></code></pre></div>
+echo -e &quot;\nninja finish, return value: $?&quot;
+echo -e &quot;\nplease: cd $cwd$src_dir/build &amp;&amp; ninja install&quot;
+</code></pre>
 <p><strong>一键安装脚本：build_llvm-project.sh</strong></p>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/bash</span>
+<pre><code class="lang-bash">#!/bin/bash
 
-<span class="hljs-built_in">set</span> -e
+set -e
 
-<span class="hljs-function"><span class="hljs-title">print_help</span></span>()
+print_help()
 &#123;
-    <span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;Usage: ./build_llvm-project.sh LLVM_VERSION\n&quot;</span>
-    <span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;[Notice] LLVM_VERSION&#x27;s format is X.Y.Z, *-rcN versions are not supported\n&quot;</span>
-    <span class="hljs-built_in">exit</span> 1
+    echo -e &quot;Usage: ./build_llvm-project.sh LLVM_VERSION\n&quot;
+    echo -e &quot;[Notice] LLVM_VERSION&#39;s format is X.Y.Z, *-rcN versions are not supported\n&quot;
+    exit 1
 &#125;
 
 
-<span class="hljs-function"><span class="hljs-title">get_url</span></span>()
+get_url()
 &#123;
-    OLD_IFS=<span class="hljs-variable">$IFS</span>
-    IFS=<span class="hljs-string">&quot;.&quot;</span>
-    arr=(<span class="hljs-variable">$1</span>)
-    IFS=<span class="hljs-variable">$OLD_IFS</span>
+    OLD_IFS=$IFS
+    IFS=&quot;.&quot;
+    arr=($1)
+    IFS=$OLD_IFS
 
     ver_val=0
-    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> $(<span class="hljs-built_in">seq</span> 0 2)
-    <span class="hljs-keyword">do</span>
-        ver_val=`<span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;<span class="hljs-variable">$ver_val</span> * 10 + <span class="hljs-variable">$&#123;arr[$i]&#125;</span>&quot;</span> | bc`
-    <span class="hljs-keyword">done</span>
+    for i in $(seq 0 2)
+    do
+        ver_val=`echo &quot;$ver_val * 10 + $&#123;arr[$i]&#125;&quot; | bc`
+    done
 
     new_ver=1101
     old_ver=901
-    <span class="hljs-keyword">if</span> [[ <span class="hljs-variable">$ver_val</span> -ge <span class="hljs-variable">$new_ver</span> ]]
-    <span class="hljs-keyword">then</span>
-        <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;https://github.com/llvm/llvm-project/releases/download/llvmorg-<span class="hljs-variable">$1</span>/llvm-project-<span class="hljs-variable">$1</span>.src.tar.xz&quot;</span>
-    <span class="hljs-keyword">elif</span> [[ <span class="hljs-variable">$ver_val</span> -ge <span class="hljs-variable">$old_ver</span> ]]
-    <span class="hljs-keyword">then</span>
-        <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;https://github.com/llvm/llvm-project/releases/download/llvmorg-<span class="hljs-variable">$1</span>/llvm-project-<span class="hljs-variable">$1</span>.tar.xz&quot;</span>
-    <span class="hljs-keyword">else</span>
-        <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Old version &lt; 9.0.1, not supported (TODO). Exit.&quot;</span>
-        <span class="hljs-built_in">exit</span> 1
-    <span class="hljs-keyword">fi</span>
+    if [[ $ver_val -ge $new_ver ]]
+    then
+        echo &quot;https://github.com/llvm/llvm-project/releases/download/llvmorg-$1/llvm-project-$1.src.tar.xz&quot;
+    elif [[ $ver_val -ge $old_ver ]]
+    then
+        echo &quot;https://github.com/llvm/llvm-project/releases/download/llvmorg-$1/llvm-project-$1.tar.xz&quot;
+    else
+        echo &quot;Old version &lt; 9.0.1, not supported (TODO). Exit.&quot;
+        exit 1
+    fi
 &#125;
 
 
-cwd=`<span class="hljs-built_in">pwd</span>`
-version=<span class="hljs-variable">$1</span> <span class="hljs-comment"># like 13.0.1</span>
+cwd=`pwd`
+version=$1 # like 13.0.1
 
-<span class="hljs-keyword">if</span> [[ ! <span class="hljs-variable">$version</span> ]]
-<span class="hljs-keyword">then</span>
-    <span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;version is NULL\n&quot;</span>
+if [[ ! $version ]]
+then
+    echo -e &quot;version is NULL\n&quot;
     print_help
-<span class="hljs-keyword">fi</span>
+fi
 
-<span class="hljs-comment"># dependencies</span>
-<span class="hljs-built_in">sudo</span> apt update
-<span class="hljs-built_in">sudo</span> apt install -y cmake ninja-build libedit-dev python3-dev swig
+# dependencies
+sudo apt update
+sudo apt install -y cmake ninja-build libedit-dev python3-dev swig
 
-<span class="hljs-comment"># download source</span>
-INSTALL_DIR=llvm-project-<span class="hljs-variable">$version</span>.install
-URL=`get_url <span class="hljs-variable">$version</span>`
-SRC_DIR=$(<span class="hljs-built_in">basename</span> <span class="hljs-variable">$URL</span> .tar.xz)
+# download source
+INSTALL_DIR=llvm-project-$version.install
+URL=`get_url $version`
+SRC_DIR=$(basename $URL .tar.xz)
 
-<span class="hljs-keyword">if</span> [[ ! -e <span class="hljs-variable">$SRC_DIR</span>.tar.xz ]]; <span class="hljs-keyword">then</span>
-    wget <span class="hljs-variable">$URL</span>
-<span class="hljs-keyword">fi</span>
+if [[ ! -e $SRC_DIR.tar.xz ]]; then
+    wget $URL
+fi
 
-<span class="hljs-keyword">if</span> [[ ! -d <span class="hljs-variable">$SRC_DIR</span> ]]; <span class="hljs-keyword">then</span>
-    tar xvJf <span class="hljs-variable">$SRC_DIR</span>.tar.xz
-<span class="hljs-keyword">fi</span>
+if [[ ! -d $SRC_DIR ]]; then
+    tar xvJf $SRC_DIR.tar.xz
+fi
 
-<span class="hljs-keyword">if</span> [[ ! -d <span class="hljs-variable">$INSTALL_DIR</span> ]]; <span class="hljs-keyword">then</span>
-    <span class="hljs-built_in">mkdir</span> <span class="hljs-variable">$INSTALL_DIR</span>
-    <span class="hljs-built_in">mkdir</span> -p <span class="hljs-variable">$SRC_DIR</span>/build
-<span class="hljs-keyword">fi</span>
+if [[ ! -d $INSTALL_DIR ]]; then
+    mkdir $INSTALL_DIR
+    mkdir -p $SRC_DIR/build
+fi
 
-<span class="hljs-built_in">cd</span> <span class="hljs-variable">$SRC_DIR</span>/build
+cd $SRC_DIR/build
 
 cmake -G Ninja\
-                -DCMAKE_BUILD_TYPE=<span class="hljs-string">&quot;Release&quot;</span> \
-                -DLLVM_ENABLE_PROJECTS=<span class="hljs-string">&quot;clang;lld;compiler-rt&quot;</span> \ <span class="hljs-comment"># Notice, compiler-rt has trouble with old ver of llvm</span>
-                -DLLVM_TARGETS_TO_BUILD=<span class="hljs-string">&quot;X86&quot;</span> \
+                -DCMAKE_BUILD_TYPE=&quot;Release&quot; \
+                -DLLVM_ENABLE_PROJECTS=&quot;clang;lld;compiler-rt&quot; \ # Notice, compiler-rt has trouble with old ver of llvm
+                -DLLVM_TARGETS_TO_BUILD=&quot;X86&quot; \
                 -DLLVM_INSTALL_UTILS=ON \
-                -DCMAKE_INSTALL_PREFIX=<span class="hljs-variable">$cwd</span>/<span class="hljs-variable">$INSTALL_DIR</span> \
-                -DLLVM_ENABLE_RUNTIMES=<span class="hljs-string">&quot;libcxx;libcxxabi&quot;</span> ../llvm
+                -DCMAKE_INSTALL_PREFIX=$cwd/$INSTALL_DIR \
+                -DLLVM_ENABLE_RUNTIMES=&quot;libcxx;libcxxabi&quot; ../llvm
 
-<span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;\ncmake finish\n&quot;</span>
+echo -e &quot;\ncmake finish\n&quot;
 ninja -j8
-<span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;\nninja finish, return value: $?&quot;</span>
-<span class="hljs-built_in">echo</span> -e <span class="hljs-string">&quot;\nplease: cd <span class="hljs-variable">$SRC_DIR</span>/build &amp;&amp; ninja install&quot;</span>
-<span class="hljs-comment"># sudo ninja install</span></code></pre></div>
+echo -e &quot;\nninja finish, return value: $?&quot;
+echo -e &quot;\nplease: cd $SRC_DIR/build &amp;&amp; ninja install&quot;
+# sudo ninja install
+</code></pre>
 <p><strong>部分参数说明：</strong></p>
 <ul>
 <li><p><code>-DCMAKE_BUILD_TYPE</code>：有Release，Debug和RelWithDebInfo三种选项，分别对应-O3，-O0和-O2三种优化。</p>
@@ -438,17 +871,23 @@ ninja -j8
 <li><code>-DCMAKE_INSTALL_PREFIX=$cwd/$INSTALL_DIR</code>：将llvm-project安装到指定目录，否则会安装到默认的<code>/usr/local</code>中。指定此选项之后需要手动将<code>$INSTALL_DIR/bin</code>和<code>$INSTALL_DIR/include</code>添加到环境变量<code>PATH</code>中</li>
 </ul>
 <h3 id="自动化多版本管理器llvmmrg"><a href="#自动化多版本管理器llvmmrg" class="headerlink" title="自动化多版本管理器llvmmrg"></a>自动化多版本管理器llvmmrg</h3><h2 id="2-常用命令"><a href="#2-常用命令" class="headerlink" title="2 常用命令"></a>2 常用命令</h2><h3 id="clang"><a href="#clang" class="headerlink" title="clang"></a>clang</h3><p><strong>文件转换图</strong></p>
-<p><div align=center><img src="https://raw.githubusercontent.com/QGrain/picgo-bed/main/figure-2023/202304042211483.png" srcset="/img/loading.gif" style="zoom: 60%;" /></div></p>
+<p><div align=center><img  
+                     lazyload
+                     src="/images/loading.svg"
+                     data-src="https://raw.githubusercontent.com/QGrain/picgo-bed/main/figure-2023/202304042211483.png"
+                      style="zoom: 60%;" 
+                ></div></p>
 <ul>
 <li><code>-ccc-print-phrases</code>：打印编译阶段，指定<code>-save-temps</code>参数即可保存以下各阶段的中间文件</li>
 </ul>
-<div class="hljs"><pre><code class="hljs bash">$ clang -ccc-print-phases foo.c
-            +- 0: input, <span class="hljs-string">&quot;foo.c&quot;</span>, c
+<pre><code class="lang-bash">$ clang -ccc-print-phases foo.c
+            +- 0: input, &quot;foo.c&quot;, c
          +- 1: preprocessor, &#123;0&#125;, cpp-output
       +- 2: compiler, &#123;1&#125;, ir
    +- 3: backend, &#123;2&#125;, assembler
 +- 4: assembler, &#123;3&#125;, object
-5: linker, &#123;4&#125;, image</code></pre></div>
+5: linker, &#123;4&#125;, image
+</code></pre>
 <ul>
 <li><code>-E</code>：执行预处理阶段，<code>clang -E foo.c -o foo.i</code><ul>
 <li>处理所有<code>#</code>开头的预编译指令，包括删除并展开<code>#define</code>对应宏定义，处理<code>#if/#ifdef/#else/#endif</code>，插入<code>#include/#import</code>包含的文件</li>
@@ -480,23 +919,23 @@ ninja -j8
 <li><code>dot -Tpng .main.dot -o main.cfg.png</code>：将dot转为png</li>
 </ul>
 <h2 id="3-常用分析Pass"><a href="#3-常用分析Pass" class="headerlink" title="3 常用分析Pass"></a>3 常用分析Pass</h2><p>To be completed</p>
-<h2 id="4-基于LLVM的静态分析工具"><a href="#4-基于LLVM的静态分析工具" class="headerlink" title="4 基于LLVM的静态分析工具"></a>4 基于LLVM的静态分析工具</h2><h3 id="crix-ndi-IPPO"><a href="#crix-ndi-IPPO" class="headerlink" title="crix/ndi/IPPO"></a>crix/ndi/IPPO</h3><p>它们基本都是由The Systems Security Group at University of Minnesota（<a target="_blank" rel="noopener" href="https://github.com/umnsec">umnsec</a>）开发的静态分析工具，用于挖掘特定的内核漏洞，代码架构几乎一样：</p>
+<h2 id="4-基于LLVM的静态分析工具"><a href="#4-基于LLVM的静态分析工具" class="headerlink" title="4 基于LLVM的静态分析工具"></a>4 基于LLVM的静态分析工具</h2><h3 id="crix-ndi-IPPO"><a href="#crix-ndi-IPPO" class="headerlink" title="crix/ndi/IPPO"></a>crix/ndi/IPPO</h3><p>它们基本都是由The Systems Security Group at University of Minnesota（<a class="link"   target="_blank" rel="noopener" href="https://github.com/umnsec" >umnsec<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）开发的静态分析工具，用于挖掘特定的内核漏洞，代码架构几乎一样：</p>
 <ul>
 <li>Crix: Detecting Missing-Check Bugs in OS Kernels<ul>
 <li>Usenix Security 2019</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/umnsec/crix">https://github.com/umnsec/crix</a></li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://github.com/umnsec/crix" >https://github.com/umnsec/crix<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></li>
 </ul>
 </li>
 <li><p>Detecting Missed Security Operations Through Differential Checking of Object-based Similar Paths</p>
 <ul>
 <li>CCS 2021</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/dinghaoliu/IPPO">https://github.com/dinghaoliu/IPPO</a></li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://github.com/dinghaoliu/IPPO" >https://github.com/dinghaoliu/IPPO<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></li>
 </ul>
 </li>
 <li><p>NDI: Non-Distinguishable Inconsistencies as a Deterministic Oracle for Detecting Security Bugs</p>
 <ul>
 <li>CCS 2022</li>
-<li><a target="_blank" rel="noopener" href="https://github.com/umnsec/ndi">https://github.com/umnsec/ndi</a></li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://github.com/umnsec/ndi" >https://github.com/umnsec/ndi<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></li>
 </ul>
 </li>
 </ul>
@@ -504,436 +943,484 @@ ninja -j8
 <ul>
 <li>zlib</li>
 </ul>
-<div class="hljs"><pre><code class="hljs bash"><span class="hljs-comment"># 需要ZLIB_ROOT</span>
-<span class="hljs-built_in">export</span> ZLIB_ROOT=
+<pre><code class="lang-bash"># 需要ZLIB_ROOT
+export ZLIB_ROOT=
 
-<span class="hljs-comment"># 并修改CMakeFileList.txt</span></code></pre></div>
-<h3 id="deadline"><a href="#deadline" class="headerlink" title="deadline"></a>deadline</h3><h2 id="5-参考"><a href="#5-参考" class="headerlink" title="5 参考"></a>5 参考</h2><p><a target="_blank" rel="noopener" href="https://llvm.org/docs/index.html">[1] LLVM官方文档</a>（其中值得看的几个子链接<a target="_blank" rel="noopener" href="https://llvm.org/docs/GettingStarted.html">Getting Started with the LLVM System</a>，<a target="_blank" rel="noopener" href="https://llvm.org/docs/tutorial/index.html">LLVM Tutorial: Table of Contents</a>，<a target="_blank" rel="noopener" href="https://llvm.org/docs/ProgrammersManual.html">LLVM Programmer’s Manual</a>，<a target="_blank" rel="noopener" href="https://llvm.org/docs/WritingAnLLVMPass.html">Writing an LLVM Pass</a>）</p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/594998469">[2] LLVM Analysis Pass 实验（一）基础操作汇总</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/596465125">[3] LLVM Analysis Pass 实验（二）控制流（Control Flow）可视化</a></p>
-<p><a target="_blank" rel="noopener" href="https://zhqli.com/category/7c7d2b9e8389cc541dc5a615e05bcf1e">[4] zhqli的博客: LLVM教程</a></p>
-<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/7102477449421652005">[5] 浅学 Clang（一）：clang 指令介绍</a></p>
-<p><a target="_blank" rel="noopener" href="https://buaa-se-compiling.github.io/miniSysY-tutorial/">[6] miniSysY 编译实验 | 北航软院</a></p>
+# 并修改CMakeFileList.txt
+</code></pre>
+<h3 id="deadline"><a href="#deadline" class="headerlink" title="deadline"></a>deadline</h3><h2 id="5-参考"><a href="#5-参考" class="headerlink" title="5 参考"></a>5 参考</h2><p><a class="link"   target="_blank" rel="noopener" href="https://llvm.org/docs/index.html" >[1] LLVM官方文档<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>（其中值得看的几个子链接<a class="link"   target="_blank" rel="noopener" href="https://llvm.org/docs/GettingStarted.html" >Getting Started with the LLVM System<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>，<a class="link"   target="_blank" rel="noopener" href="https://llvm.org/docs/tutorial/index.html" >LLVM Tutorial: Table of Contents<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>，<a class="link"   target="_blank" rel="noopener" href="https://llvm.org/docs/ProgrammersManual.html" >LLVM Programmer’s Manual<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>，<a class="link"   target="_blank" rel="noopener" href="https://llvm.org/docs/WritingAnLLVMPass.html" >Writing an LLVM Pass<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a>）</p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/594998469" >[2] LLVM Analysis Pass 实验（一）基础操作汇总<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/596465125" >[3] LLVM Analysis Pass 实验（二）控制流（Control Flow）可视化<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://zhqli.com/category/7c7d2b9e8389cc541dc5a615e05bcf1e" >[4] zhqli的博客: LLVM教程<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://juejin.cn/post/7102477449421652005" >[5] 浅学 Clang（一）：clang 指令介绍<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://buaa-se-compiling.github.io/miniSysY-tutorial/" >[6] miniSysY 编译实验 | 北航软院<i class="fa-solid fa-arrow-up-right ml-[0.2em] font-light align-text-top text-[0.7em] link-icon"></i></a></p>
 
-            </article>
-            <hr>
-            <div>
-              <div class="post-metas mb-3">
+		</div>
+
+		
+		<div class="post-copyright-info w-full my-8 px-2 sm:px-6 md:px-8">
+			<div class="article-copyright-info-container">
+    <ul>
+        <li><strong>Title:</strong> LLVM备忘录</li>
+        <li><strong>Author:</strong> Zhiyu</li>
+        <li><strong>Created at
+                :</strong> 2023-03-02 22:35:08</li>
+        
+            <li>
+                <strong>Updated at
+                    :</strong> 2026-02-18 00:36:56
+            </li>
+        
+        <li>
+            <strong>Link:</strong> https://qgrain.github.io/2023/03/02/LLVM备忘录/
+        </li>
+        <li>
+            <strong>
+                License:
+            </strong>
+            
+
+            
+                This work is licensed under <a class="license" target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0">CC BY-NC-SA 4.0</a>.
+            
+        </li>
+    </ul>
+</div>
+
+		</div>
+		
+
+		
+		<ul class="post-tags-box text-lg mt-1.5 flex-wrap justify-center flex md:hidden">
+			
+			<li class="tag-item mx-0.5">
+				<a href="/tags/LLVM/">#LLVM</a>&nbsp;
+			</li>
+			
+		</ul>
+		
+
+		
+
+		
+		<div class="article-nav my-8 flex justify-between items-center px-2 sm:px-6 md:px-8">
+			
+			<div class="article-prev border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="prev" rel="prev" href="/2023/05/28/%E5%9B%9E%E5%91%B3%E7%AB%A5%E5%B9%B4%E5%B0%8F%E8%AE%B0%E4%B9%8B%E9%80%A0%E6%A2%A6%E8%A5%BF%E6%B8%B8/">
+					<span class="left arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-left"></i>
+					</span>
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">回味童年小记之造梦西游</span>
+						<span class="post-nav-item">Prev posts</span>
+					</span>
+				</a>
+			</div>
+			
+			
+			<div class="article-next border-border-color shadow-redefine-flat shadow-shadow-color-2 rounded-medium px-4 py-2 hover:shadow-redefine-flat-hover hover:shadow-shadow-color-2">
+				<a class="next" rel="next" href="/2023/02/01/%E5%86%85%E6%A0%B8Fuzz%E6%8A%80%E5%B7%A7%E4%B8%8E%E5%A4%87%E5%BF%98/">
+					<span class="title flex justify-center items-center">
+						<span class="post-nav-title-item truncate max-w-48">内核Fuzz技巧与备忘</span>
+						<span class="post-nav-item">Next posts</span>
+					</span>
+					<span class="right arrow-icon flex justify-center items-center">
+						<i class="fa-solid fa-chevron-right"></i>
+					</span>
+				</a>
+			</div>
+			
+		</div>
+		
+
+
+		
+		<div class="comment-container px-2 sm:px-6 md:px-8 pb-8">
+			<div class="comments-container mt-10 w-full ">
+    <div id="comment-anchor" class="w-full h-2.5"></div>
+    <div class="comment-area-title w-full my-1.5 md:my-2.5 text-xl md:text-3xl font-bold">
+        Comments
+    </div>
+    
+
+        
+            
+    <div id="gitalk-container"></div>
+    <script data-swup-reload-script
+            src="https://cdnjs.cloudflare.com/ajax/libs/gitalk/1.8.0/gitalk.min.js"></script>
+    <script data-swup-reload-script>
+
+        function loadGitalk() {
+            let __gitalk__pathname = decodeURI(location.pathname);
+            const __gitalk__pathnameLength = __gitalk__pathname.length;
+            const __gitalk__pathnameMaxLength = 50;
+            if (__gitalk__pathnameLength > __gitalk__pathnameMaxLength) {
+                __gitalk__pathname = __gitalk__pathname.substring(0, __gitalk__pathnameMaxLength - 3) + '...';
+            }
+
+            try {
+                Gitalk && new Gitalk({
+                    clientID: '089701a626d262a74608',
+                    clientSecret: 'd43ad80df8e48c95eeb4ba0f86cbb57760350361',
+                    repo: 'QGrain.github.io',
+                    owner: 'QGrain',
+                    admin: ['QGrain'],
+                    id: __gitalk__pathname,
+                    language: 'en',
+                    proxy: 'https://github.com/login/oauth/access_token'
+                }).render('gitalk-container');
+
+            } catch (e) {
+                window.Gitalk = null;
+            }
+        }
+
+        if ('true') {
+            const loadGitalkTimeout = setTimeout(() => {
+                loadGitalk();
+                clearTimeout(loadGitalkTimeout);
+            }, 1000);
+        } else {
+            window.addEventListener('DOMContentLoaded', loadGitalk);
+        }
+    </script>
+
+
+
+        
+    
+</div>
+
+		</div>
+		
+	</div>
+
+	
+	<div class="toc-content-container">
+		<div class="post-toc-wrap">
+	<div class="post-toc">
+		<div class="toc-title">On this page</div>
+		<div class="page-title">LLVM备忘录</div>
+		<ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%BA%90%E7%A0%81%E5%AE%89%E8%A3%85LLVM"><span class="nav-text">1 源码安装LLVM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E4%BE%9D%E8%B5%96%EF%BC%9A"><span class="nav-text">软件依赖：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85"><span class="nav-text">编译安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E5%A4%9A%E7%89%88%E6%9C%AC%E7%AE%A1%E7%90%86%E5%99%A8llvmmrg"><span class="nav-text">自动化多版本管理器llvmmrg</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-text">2 常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#clang"><span class="nav-text">clang</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#opt"><span class="nav-text">opt</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dot"><span class="nav-text">dot</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%B8%B8%E7%94%A8%E5%88%86%E6%9E%90Pass"><span class="nav-text">3 常用分析Pass</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%9F%BA%E4%BA%8ELLVM%E7%9A%84%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7"><span class="nav-text">4 基于LLVM的静态分析工具</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#crix-ndi-IPPO"><span class="nav-text">crix&#x2F;ndi&#x2F;IPPO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#deadline"><span class="nav-text">deadline</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%8F%82%E8%80%83"><span class="nav-text">5 参考</span></a></li></ol>
+
+	</div>
+</div>
+	</div>
+	
+</div>
+			</div>
+
+			
+		</div>
+
+		<div class="main-content-footer">
+			<footer class="footer mt-5 py-5 h-auto text-base text-third-text-color relative border-t-2 border-t-border-color">
+    <div class="info-container py-3 text-center">
+        
+            <div class="customize-info my-1">作者很懒，更新很慢 ㄟ( ▔, ▔ )ㄏ</div>
+        
+        <div class="text-center">
+            &copy;
+            
+              <span>2019</span>
+              -
+            
+            2026&nbsp;&nbsp;<i class="fa-solid fa-heart fa-beat" style="--fa-animation-duration: 0.5s; color: #f54545"></i>&nbsp;&nbsp;<a href="/">Zhiyu</a>
+            
                 
-                  <div class="post-meta mr-3">
-                    <i class="iconfont icon-category"></i>
+                <p class="post-count space-x-0.5">
+                    <span>
+                        37 posts in total
+                    </span>
                     
-                      <a class="hover-with-bg" href="/categories/Static-Analysis/">Static Analysis</a>
+                        <span>
+                            40.6k words in total
+                        </span>
                     
-                  </div>
+                </p>
+            
+        </div>
+        
+            <script data-swup-reload-script src="https://cn.vercount.one/js"></script>
+            <div class="relative text-center lg:absolute lg:right-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-right">
+                
+                    <span id="busuanzi_container_site_uv" class="lg:!block">
+                        <span class="text-sm">VISITOR COUNT</span>
+                        <span id="busuanzi_value_site_uv"></span>
+                    </span>
                 
                 
-                  <div class="post-meta">
-                    <i class="iconfont icon-tags"></i>
-                    
-                      <a class="hover-with-bg" href="/tags/LLVM/">LLVM</a>
-                    
-                  </div>
+                    <span id="busuanzi_container_site_pv" class="lg:!block">
+                        <span class="text-sm">TOTAL PAGE VIEWS</span>
+                        <span id="busuanzi_value_site_pv"></span>
+                    </span>
                 
-              </div>
-              
-                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
-              
-              
-                <div class="post-prevnext row">
-                  <div class="post-prev col-6">
-                    
-                    
-                      <a href="/2023/05/08/syzkaller%E5%8E%9F%E7%90%86%E4%B8%8E%E7%90%86%E8%A7%A3/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">syzkaller原理与理解</span>
-                        <span class="visible-mobile">Previous</span>
-                      </a>
-                    
-                  </div>
-                  <div class="post-next col-6">
-                    
-                    
-                      <a href="/2023/02/01/%E5%86%85%E6%A0%B8Fuzz%E6%8A%80%E5%B7%A7%E4%B8%8E%E5%A4%87%E5%BF%98/">
-                        <span class="hidden-mobile">内核Fuzz技巧与备忘</span>
-                        <span class="visible-mobile">Next</span>
-                        <i class="iconfont icon-arrowright"></i>
-                      </a>
-                    
-                  </div>
-                </div>
-              
             </div>
-
-            
-              <!-- Comments -->
-              <div class="comments" id="comments">
-                
-                
-  <script type="text/javascript">
-    function loadUtterances() {
-      var s = document.createElement('script');
-      s.setAttribute('src', 'https://utteranc.es/client.js');
-      s.defer = false
-      s.setAttribute('repo', 'QGrain/QGrain.github.io');
-      s.setAttribute('issue-term', 'pathname');
-      
-      s.setAttribute('label', 'utterances');
-      
-      s.setAttribute('theme', 'github-light');
-      s.setAttribute('crossorigin', 'anonymous');
-      var e = document.getElementsByTagName('script')[0];
-      e.parentNode.insertBefore(s, e);
-    }
-    createObserver(loadUtterances, 'comments')
-  </script>
-
-
-              </div>
-            
-          </div>
+        
+        <div class="relative text-center lg:absolute lg:left-[20px] lg:top-1/2 lg:-translate-y-1/2 lg:text-left">
+            <span class="lg:block text-sm">POWERED BY <?xml version="1.0" encoding="utf-8"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg class="relative top-[2px] inline-block align-baseline" version="1.1" id="圖層_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="1rem" height="1rem" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve"><path fill="#0E83CD" d="M256.4,25.8l-200,115.5L56,371.5l199.6,114.7l200-115.5l0.4-230.2L256.4,25.8z M349,354.6l-18.4,10.7l-18.6-11V275H200v79.6l-18.4,10.7l-18.6-11v-197l18.5-10.6l18.5,10.8V237h112v-79.6l18.5-10.6l18.5,10.8V354.6z"/></svg><a target="_blank" class="text-base" href="https://hexo.io">Hexo</a></span>
+            <span class="text-sm lg:block">THEME&nbsp;<a class="text-base" target="_blank" href="https://github.com/EvanNotFound/hexo-theme-redefine">Redefine v2.8.5</a></span>
         </div>
-      </div>
-    </div>
-    
-      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
-        <div id="toc">
-  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;TOC</p>
-  <div id="tocbot"></div>
+        
+        
+            <div>
+                Blog up for <span class="odometer" id="runtime_days" ></span> days <span class="odometer" id="runtime_hours"></span> hrs <span class="odometer" id="runtime_minutes"></span> Min <span class="odometer" id="runtime_seconds"></span> Sec
+            </div>
+        
+        
+            <script data-swup-reload-script>
+                try {
+                    function odometer_init() {
+                    const elements = document.querySelectorAll('.odometer');
+                    elements.forEach(el => {
+                        new Odometer({
+                            el,
+                            format: '( ddd).dd',
+                            duration: 200
+                        });
+                    });
+                    }
+                    odometer_init();
+                } catch (error) {}
+            </script>
+        
+        
+        
+    </div>  
+</footer>
+		</div>
+	</div>
+
+	
+	<div class="post-tools">
+		<div class="post-tools-container">
+	<ul class="article-tools-list">
+		<!-- TOC aside toggle -->
+		
+		<li class="right-bottom-tools page-aside-toggle">
+			<i class="fa-regular fa-outdent"></i>
+		</li>
+		
+
+		<!-- go comment -->
+		
+		<li class="go-comment">
+			<i class="fa-regular fa-comments"></i>
+		</li>
+		
+	</ul>
+</div>
+	</div>
+	
+
+	<div class="right-side-tools-container">
+		<div class="side-tools-container">
+	<ul class="hidden-tools-list">
+		<li class="right-bottom-tools tool-font-adjust-plus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-plus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-font-adjust-minus flex justify-center items-center">
+			<i class="fa-regular fa-magnifying-glass-minus"></i>
+		</li>
+
+		<li class="right-bottom-tools tool-dark-light-toggle flex justify-center items-center">
+			<i class="fa-regular fa-moon"></i>
+		</li>
+
+		<!-- rss -->
+		
+
+		
+
+		<li class="right-bottom-tools tool-scroll-to-bottom flex justify-center items-center">
+			<i class="fa-regular fa-arrow-down"></i>
+		</li>
+	</ul>
+
+	<ul class="visible-tools-list">
+		<li class="right-bottom-tools toggle-tools-list flex justify-center items-center">
+			<i class="fa-regular fa-cog fa-spin"></i>
+		</li>
+		
+		<li class="right-bottom-tools tool-scroll-to-top flex justify-center items-center">
+			<i class="arrow-up fas fa-arrow-up"></i>
+			<span class="percent"></span>
+		</li>
+		
+		
+	</ul>
+</div>
+	</div>
+
+	<div class="image-viewer-container">
+	<img src="">
 </div>
 
-      </div>
-    
-  </div>
+	
+	<div class="search-pop-overlay">
+	<div class="popup search-popup">
+		<div class="search-header">
+			<span class="search-input-field-pre">
+				<i class="fa-solid fa-keyboard"></i>
+			</span>
+			<div class="search-input-container">
+				<input autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="Search..." spellcheck="false" type="search" class="search-input">
+			</div>
+			<span class="popup-btn-close">
+				<i class="fa-solid fa-times"></i>
+			</span>
+		</div>
+		<div id="search-result">
+			<div id="no-result">
+				<i class="fa-solid fa-spinner fa-spin-pulse fa-5x fa-fw"></i>
+			</div>
+		</div>
+	</div>
 </div>
+	
 
-<!-- Custom -->
-
-  <div class="col-lg-7 mx-auto nopadding-md">
-    <div class="container custom post-content mx-auto">
-      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
-    </div>
-  </div>
+</main>
 
 
-    
-  </main>
 
-  
-    <a id="scroll-top-button" href="#" role="button">
-      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
-    </a>
-  
+<script src="/js/build/libs/Swup.min.js"></script>
 
-  
-    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
-     aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
-        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body mx-3">
-        <div class="md-form mb-5">
-          <input type="text" id="local-search-input" class="form-control validate">
-          <label data-error="x" data-success="v"
-                 for="local-search-input">keyword</label>
-        </div>
-        <div class="list-group" id="local-search-result"></div>
-      </div>
-    </div>
-  </div>
-</div>
-  
+<script src="/js/build/libs/SwupSlideTheme.min.js"></script>
 
-  
-    <!-- APlayer 音乐播放器 -->
-    <div id="aplayer"></div>
-    <script defer src="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.js" ></script>
-<link  rel="stylesheet" href="https://cdn.staticfile.org/aplayer/1.10.1/APlayer.min.css" />
-<script type="text/javascript">
-  var oldLoadAp = window.onload;
-  window.onload = function () {
-    oldLoadAp && oldLoadAp();
+<script src="/js/build/libs/SwupScriptsPlugin.min.js"></script>
 
-    new APlayer({
-      container: document.getElementById('aplayer'),
-      fixed: true,
-      autoplay: 'false' === 'true',
-      loop: 'all',
-      order: 'random',
-      theme: '#b7daff',
-      preload: 'none',
-      audio: [{"name":"Ilomilo","artist":"Billie Eilish","url":"/songs/Ilomilo-3D.mp3","cover":"/img/songs/Ilomilo.jpg"}]
+<script src="/js/build/libs/SwupProgressPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupScrollPlugin.min.js"></script>
+
+<script src="/js/build/libs/SwupPreloadPlugin.min.js"></script>
+
+<script>
+    const swup = new Swup({
+        plugins: [
+            new SwupScriptsPlugin({
+                optin: true,
+            }),
+            new SwupProgressPlugin(),
+            new SwupScrollPlugin({
+                offset: 80,
+            }),
+            new SwupSlideTheme({
+                mainElement: ".main-content-body",
+            }),
+            new SwupPreloadPlugin(),
+        ],
+        containers: ["#swup"],
     });
-  }
 </script>
 
-  
 
-  
 
-  <footer class="mt-5">
-  <div class="text-center py-3">
-    <div>
-      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
-      <i class="iconfont icon-love"></i>
-      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
-        <span>Fluid</span></a>
-      <i class="iconfont icon-rss"></i>
-        <a href="https://qgrain.github.io/atom.xml" target="_blank" rel="nofollow noopener">
-          <span>RSS</span></a>
-    </div>
-    
-  <div class="statistics">
-    
-    
 
-    
-      
-        <!-- 不蒜子统计PV -->
-        <span id="busuanzi_container_site_pv" style="display: none">
-            ( •̀ ω •́ )✧ 总访问量 
-            <span id="busuanzi_value_site_pv"></span>
-             次
-          </span>
-      
-      
-        <!-- 不蒜子统计UV -->
-        <span id="busuanzi_container_site_uv" style="display: none">
-            总访客数 
-            <span id="busuanzi_value_site_uv"></span>
-             人
-          </span>
-      
-    
-  </div>
+	
+<script src="/js/build/tools/imageViewer.js" type="module"></script>
+
+<script src="/js/build/utils.js" type="module"></script>
+
+<script src="/js/build/main.js" type="module"></script>
+
+<script src="/js/build/layouts/navbarShrink.js" type="module"></script>
+
+<script src="/js/build/tools/scrollTopBottom.js" type="module"></script>
+
+<script src="/js/build/tools/lightDarkSwitch.js" type="module"></script>
+
+<script src="/js/build/layouts/categoryList.js" type="module"></script>
+
 
 
     
+<script src="/js/build/tools/localSearch.js" type="module"></script>
+
+
+
 
     
-  </div>
-</footer>
-<div class="text-center">
-  <span id="timeDate">载入天数...</span>
-  <span id="times">载入时分秒...</span>
-  <script>
-  var now = new Date();
-  function createtime(){
-      var grt= new Date("05/16/2019 00:00:00");//此处修改你的建站时间或者网站上线时间
-      now.setTime(now.getTime()+250);
-      days = (now - grt ) / 1000 / 60 / 60 / 24;
-      dnum = Math.floor(days);
-      hours = (now - grt ) / 1000 / 60 / 60 - (24 * dnum);
-      hnum = Math.floor(hours);
-      if(String(hnum).length ==1 ){
-          hnum = "0" + hnum;
-      }
-      minutes = (now - grt ) / 1000 /60 - (24 * 60 * dnum) - (60 * hnum);
-      mnum = Math.floor(minutes);
-      if(String(mnum).length ==1 ){
-                mnum = "0" + mnum;
-      }
-      seconds = (now - grt ) / 1000 - (24 * 60 * 60 * dnum) - (60 * 60 * hnum) - (60 * mnum);
-      snum = Math.round(seconds);
-      if(String(snum).length ==1 ){
-                snum = "0" + snum;
-      }
-      document.getElementById("timeDate").innerHTML = "本站安全运行&nbsp"+dnum+"&nbsp天";
-      document.getElementById("times").innerHTML = hnum + "&nbsp小时&nbsp" + mnum + "&nbsp分&nbsp" + snum + "&nbsp秒, 博主很懒更新很慢ㄟ( ▔, ▔ )ㄏ";
-  }
-  setInterval("createtime()",250);
-  </script>
-</div>
-<!-- SCRIPTS -->
-<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
-<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
-<script  src="/js/debouncer.js" ></script>
-<script  src="/js/main.js" ></script>
-
-<!-- Plugins -->
-
-
-  
-    <script  src="/js/lazyload.js" ></script>
-  
-
-
-
-  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
-  <script  src="/js/clipboard-use.js" ></script>
-
-
-
-  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+<script src="/js/build/tools/codeBlock.js" type="module"></script>
 
 
 
 
-
-  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
-  <script>
-    $(document).ready(function () {
-      var boardCtn = $('#board-ctn');
-      var boardTop = boardCtn.offset().top;
-
-      tocbot.init({
-        tocSelector: '#tocbot',
-        contentSelector: 'article.markdown-body',
-        headingSelector: 'h1,h2,h3,h4,h5,h6',
-        linkClass: 'tocbot-link',
-        activeLinkClass: 'tocbot-active-link',
-        listClass: 'tocbot-list',
-        isCollapsedClass: 'tocbot-is-collapsed',
-        collapsibleClass: 'tocbot-is-collapsible',
-        collapseDepth: 6,
-        scrollSmooth: true,
-        headingsOffset: -boardTop
-      });
-      if ($('.toc-list-item').length > 0) {
-        $('#toc').css('visibility', 'visible');
-      }
-    });
-  </script>
-
-
-
-  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
-  <script>
-    var typed = new Typed('#subtitle', {
-      strings: [
-        '  ',
-        "LLVM备忘录&nbsp;",
-      ],
-      cursorChar: "_",
-      typeSpeed: 80,
-      loop: true,
-    });
-    typed.stop();
-    $(document).ready(function () {
-      $(".typed-cursor").addClass("h2");
-      typed.start();
-    });
-  </script>
-
-
-
-  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
-  <script>
-    anchors.options = {
-      placement: "right",
-      visible: "hover",
-      
-    };
-    var el = "h1,h2,h3,h4,h5,h6".split(",");
-    var res = [];
-    for (item of el) {
-      res.push(".markdown-body > " + item)
-    }
-    anchors.add(res.join(", "))
-  </script>
-
-
-
-  <script  src="/js/local-search.js" ></script>
-  <script>
-    var path = "/local-search.xml";
-    var inputArea = document.querySelector("#local-search-input");
-    inputArea.onclick = function () {
-      searchFunc(path, 'local-search-input', 'local-search-result');
-      this.onclick = null
-    }
-  </script>
-
-
-
-  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
-  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
-
-  <script>
-    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
-      function () {
-        var element = document.createElement('a');
-        $(element).attr('data-fancybox', 'images');
-        $(element).attr('href', $(this).attr('src'));
-        $(this).wrap(element);
-      }
-    );
-  </script>
+    
+<script src="/js/build/layouts/lazyload.js" type="module"></script>
 
 
 
 
+    
+<script src="/js/build/tools/runtime.js"></script>
 
+    
+<script src="/js/build/libs/odometer.min.js"></script>
 
-
-
-
-  <script>(function (i, s, o, g, r, a, m) {
-      i['DaoVoiceObject'] = r;
-      i[r] = i[r] ||
-        function () {
-          (i[r].q = i[r].q || []).push(arguments);
-        };
-      i[r].l = 1 * new Date();
-      a = s.createElement(o);
-      m = s.getElementsByTagName(o)[0];
-      a.async = 1;
-      a.src = g;
-      a.charset = 'utf-8';
-      m.parentNode.insertBefore(a, m);
-    })(window, document, 'script', ('https:' === document.location.protocol ? 'https:' : 'http:') + "//widget.daovoice.io/widget/2bbf5718.js", 'daovoice');
-    daovoice('init', {
-      app_id: "2bbf5718",
-    });
-    daovoice('update');
-  </script>
-
-
-
-
-
+    
+<link rel="stylesheet" href="/assets/odometer-theme-minimal.css">
 
 
 
 
   
+<script src="/js/build/libs/Typed.min.js"></script>
 
   
-    <!-- Google Analytics -->
-    <script defer>
-      (function (i, s, o, g, r, a, m) {
-        i['GoogleAnalyticsObject'] = r;
-        i[r] = i[r] || function () {
-          (i[r].q = i[r].q || []).push(arguments)
-        }, i[r].l = 1 * new Date();
-        a = s.createElement(o),
-          m = s.getElementsByTagName(o)[0];
-        a.async = 1;
-        a.src = g;
-        m.parentNode.insertBefore(a, m)
-      })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-
-      ga('create', 'UA-187967588-1', 'auto');
-      ga('send', 'pageview');
-    </script>
-  
-
-  
-
-  
-
-  
-
-  
+<script src="/js/build/plugins/typed.js" type="module"></script>
 
 
 
 
+    
+        
+<script src="/js/build/libs/mermaid.min.js"></script>
 
+    
+    
+<script src="/js/build/plugins/mermaid.js"></script>
+
+
+
+
+    
+<script src="/js/build/libs/minimasonry.min.js"></script>
+
+    
+<script src="/js/build/plugins/masonry.js" type="module"></script>
+
+
+
+
+    
+<script src="/js/build/libs/anime.min.js"></script>
+
+
+
+
+
+    
+<script src="/js/build/tools/tocToggle.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/layouts/toc.js" type="module" data-swup-reload-script=""></script>
+
+<script src="/js/build/plugins/tabs.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+<script src="/js/build/libs/moment-with-locales.min.js" data-swup-reload-script=""></script>
+
+
+<script src="/js/build/layouts/essays.js" type="module" data-swup-reload-script=""></script>
+
+
+
+
+
+	
 </body>
+
 </html>
