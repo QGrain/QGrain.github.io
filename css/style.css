@@ -843,47 +843,47 @@ button {
 :root {
   --inline-code-foreground: #24292e;
   --inline-code-background: #f1f1f1;
-  --highlight-background: #fdfdfd;
-  --highlight-foreground: #24292e;
-  --highlight-keyword: #d73a49;
-  --highlight-link: #d73a49 /* Following the pattern, link should have the same color as keyword */;
-  --highlight-built-in: #e36209;
-  --highlight-number: #005cc5;
-  --highlight-string: #032f62;
-  --highlight-regexp: #032f62;
-  --highlight-subst: #24292e;
-  --highlight-comment: #6a737d;
-  --highlight-doctag: #d73a49;
-  --highlight-meta: #005cc5 /* Mapped based on the pattern for constant */;
-  --highlight-variable: #005cc5;
-  --highlight-attr: #005cc5;
-  --highlight-section: #005cc5;
-  --highlight-bullet: #735c0f;
-  --highlight-addition: #22863a;
-  --highlight-deletion: #b31d28;
+  --highlight-background: #fafafa;
+  --highlight-foreground: #383a42;
+  --highlight-keyword: #a626a4;
+  --highlight-link: #4078f2;
+  --highlight-built-in: #c18401;
+  --highlight-number: #986801;
+  --highlight-string: #50a14f;
+  --highlight-regexp: #50a14f;
+  --highlight-subst: #e45649;
+  --highlight-comment: #a0a1a7;
+  --highlight-doctag: #a626a4;
+  --highlight-meta: #4078f2;
+  --highlight-variable: #986801;
+  --highlight-attr: #986801;
+  --highlight-section: #e45649;
+  --highlight-bullet: #4078f2;
+  --highlight-addition: #50a14f;
+  --highlight-deletion: #e45649;
 }
 @media (prefers-color-scheme: light) {
   :root {
     --inline-code-foreground: #24292e;
     --inline-code-background: #f1f1f1;
-    --highlight-background: #fdfdfd;
-    --highlight-foreground: #24292e;
-    --highlight-keyword: #d73a49;
-    --highlight-link: #d73a49 /* Following the pattern, link should have the same color as keyword */;
-    --highlight-built-in: #e36209;
-    --highlight-number: #005cc5;
-    --highlight-string: #032f62;
-    --highlight-regexp: #032f62;
-    --highlight-subst: #24292e;
-    --highlight-comment: #6a737d;
-    --highlight-doctag: #d73a49;
-    --highlight-meta: #005cc5 /* Mapped based on the pattern for constant */;
-    --highlight-variable: #005cc5;
-    --highlight-attr: #005cc5;
-    --highlight-section: #005cc5;
-    --highlight-bullet: #735c0f;
-    --highlight-addition: #22863a;
-    --highlight-deletion: #b31d28;
+    --highlight-background: #fafafa;
+    --highlight-foreground: #383a42;
+    --highlight-keyword: #a626a4;
+    --highlight-link: #4078f2;
+    --highlight-built-in: #c18401;
+    --highlight-number: #986801;
+    --highlight-string: #50a14f;
+    --highlight-regexp: #50a14f;
+    --highlight-subst: #e45649;
+    --highlight-comment: #a0a1a7;
+    --highlight-doctag: #a626a4;
+    --highlight-meta: #4078f2;
+    --highlight-variable: #986801;
+    --highlight-attr: #986801;
+    --highlight-section: #e45649;
+    --highlight-bullet: #4078f2;
+    --highlight-addition: #50a14f;
+    --highlight-deletion: #e45649;
   }
 }
 @media (prefers-color-scheme: dark) {
@@ -913,24 +913,24 @@ button {
 .light-mode {
   --inline-code-foreground: #24292e;
   --inline-code-background: #f1f1f1;
-  --highlight-background: #fdfdfd;
-  --highlight-foreground: #24292e;
-  --highlight-keyword: #d73a49;
-  --highlight-link: #d73a49 /* Following the pattern, link should have the same color as keyword */;
-  --highlight-built-in: #e36209;
-  --highlight-number: #005cc5;
-  --highlight-string: #032f62;
-  --highlight-regexp: #032f62;
-  --highlight-subst: #24292e;
-  --highlight-comment: #6a737d;
-  --highlight-doctag: #d73a49;
-  --highlight-meta: #005cc5 /* Mapped based on the pattern for constant */;
-  --highlight-variable: #005cc5;
-  --highlight-attr: #005cc5;
-  --highlight-section: #005cc5;
-  --highlight-bullet: #735c0f;
-  --highlight-addition: #22863a;
-  --highlight-deletion: #b31d28;
+  --highlight-background: #fafafa;
+  --highlight-foreground: #383a42;
+  --highlight-keyword: #a626a4;
+  --highlight-link: #4078f2;
+  --highlight-built-in: #c18401;
+  --highlight-number: #986801;
+  --highlight-string: #50a14f;
+  --highlight-regexp: #50a14f;
+  --highlight-subst: #e45649;
+  --highlight-comment: #a0a1a7;
+  --highlight-doctag: #a626a4;
+  --highlight-meta: #4078f2;
+  --highlight-variable: #986801;
+  --highlight-attr: #986801;
+  --highlight-section: #e45649;
+  --highlight-bullet: #4078f2;
+  --highlight-addition: #50a14f;
+  --highlight-deletion: #e45649;
 }
 .dark-mode {
   --inline-code-foreground: #c9d1d9;
